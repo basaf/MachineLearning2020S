@@ -7,8 +7,8 @@ data = load(open('c:\\git\\MachineLearning2020S\\MachineLearning2020S\\Exercise 
 attributes = list(i[0] for i in data['attributes'])
 
 df = DataFrame(columns=attributes, data=data['data'])
-# print(df.describe())
+print(df.describe())
 
-histogram = df.hist(figsize=(300, 400))
+histogram = df.hist(figsize=(150, 200))
 plt.savefig('communities_data_histogram.png')
 print('Fertig')
