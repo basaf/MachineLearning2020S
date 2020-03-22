@@ -9,7 +9,8 @@ df = DataFrame(columns=attributes, data=data['data'])
 # print(df.describe())
 
 # plot and save histogram
-histogram = df.hist(figsize=(27, 36))
-plt.savefig('communities_data_histogram.png')
+hist = df.hist(figsize=(27, 36))
+plt.tight_layout()
+plt.savefig('images\\communities_data_histogram.png')
 
 print('Fertig')
