@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
 from arff import load
-from pandas import DataFrame
+import pandas as pd
 import matplotlib.pyplot as plt 
+import configuration as cfg
 
 # load dataset (.arff) into pandas DataFrame
-data = load(open('c:\\git\\MachineLearning2020S\\MachineLearning2020S\\Exercise 0\\communities_data\\communities.arff', 'r'))
+data = load(open(cfg.default.dataset_1_path + '\\communities.arff', 'r'))
 all_attributes = list(i[0] for i in data['attributes'])
-df = DataFrame(columns=all_attributes, data=data['data'])
+df = pd.DataFrame(columns=all_attributes, data=data['data'])
 
 # divide attributes in not_predictive, predictive and goal
 not_predictive_attributes = [
@@ -22,7 +24,6 @@ predictive_attributes.remove(goal_attribute)
 for x in not_predictive_attributes:
     predictive_attributes.remove(x)
 
-
 # plot and save histograms
 hist = df[predictive_attributes].hist(figsize=(27, 36))
 plt.tight_layout()
@@ -32,6 +33,30 @@ plt.close()
 hist = df[goal_attribute].hist()
 plt.tight_layout()
 plt.savefig('images\\communities_data_histogram_goal.png')
+plt.close()
+
+df = pd.read_csv(cfg.default.dataset_2_path + '\\datatraining.txt')
+
+# plot and save histograms
+hist = df.hist()
+plt.tight_layout()
+plt.savefig('images\\occupancy_data_training_histogram.png')
+plt.close()
+
+df = pd.read_csv(cfg.default.dataset_2_path + '\\datatest.txt')
+
+# plot and save histograms
+hist = df.hist()
+plt.tight_layout()
+plt.savefig('images\\occupancy_data_test_histogram.png')
+plt.close()
+
+df = pd.read_csv(cfg.default.dataset_2_path + '\\datatest2.txt')
+
+# plot and save histograms
+hist = df.hist()
+plt.tight_layout()
+plt.savefig('images\\occupancy_data_test2_histogram.png')
 plt.close()
 
 print('Fertig')
