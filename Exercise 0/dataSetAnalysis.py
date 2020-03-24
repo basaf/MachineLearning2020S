@@ -21,42 +21,55 @@ goal_attribute = 'ViolentCrimesPerPop'
 
 predictive_attributes = all_attributes.copy()
 predictive_attributes.remove(goal_attribute)
+#%%
 for x in not_predictive_attributes:
     predictive_attributes.remove(x)
 
 # plot and save histograms
 hist = df[predictive_attributes].hist(figsize=(27, 36))
 plt.tight_layout()
-plt.savefig('images\\communities_data_histogram_predictive.png')
-plt.close()
+#plt.savefig('images\\communities_data_histogram_predictive.png')
+#plt.close()
 
 hist = df[goal_attribute].hist()
 plt.tight_layout()
-plt.savefig('images\\communities_data_histogram_goal.png')
-plt.close()
+#plt.savefig('images\\communities_data_histogram_goal.png')
+#plt.close()
 
-df = pd.read_csv(cfg.default.dataset_2_path + '\\datatraining.txt')
+
+
+#%%
+occupancyTrainingData = pd.read_csv(cfg.default.dataset_2_path + '\\datatraining.txt')
+
+occupancyTrainingData=occupancyTrainingData.set_index('date')
+occupancyTrainingData['Temperature'].plot()
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.xlabel("")
+plt.ylabel("Temperature [°C]")
+#set time stamp as index
+#%%
 
 # plot and save histograms
-hist = df.hist()
+hist = occupancyTrainingData.hist()
 plt.tight_layout()
-plt.savefig('images\\occupancy_data_training_histogram.png')
-plt.close()
+#plt.savefig('images\\occupancy_data_training_histogram.png')
+#plt.close()
 
-df = pd.read_csv(cfg.default.dataset_2_path + '\\datatest.txt')
+occupancyData = pd.read_csv(cfg.default.dataset_2_path + '\\datatest.txt')
 
 # plot and save histograms
-hist = df.hist()
+hist = occupancyData.hist()
 plt.tight_layout()
-plt.savefig('images\\occupancy_data_test_histogram.png')
-plt.close()
+#plt.savefig('images\\occupancy_data_test_histogram.png')
+#plt.close()
 
-df = pd.read_csv(cfg.default.dataset_2_path + '\\datatest2.txt')
+occupancyData = pd.read_csv(cfg.default.dataset_2_path + '\\datatest2.txt')
 
 # plot and save histograms
-hist = df.hist()
+hist = occupancyData.hist()
 plt.tight_layout()
-plt.savefig('images\\occupancy_data_test2_histogram.png')
-plt.close()
+#plt.savefig('images\\occupancy_data_test2_histogram.png')
+#plt.close()
 
 print('Fertig')
