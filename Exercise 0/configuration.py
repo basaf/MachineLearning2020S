@@ -34,11 +34,19 @@ class Configuration:
 
     @property
     def dataset_1_path(self):
-        return self['DATASET_1_PATH']
+        return self['DATASET_1_DATA_PATH']
 
     @property
     def dataset_2_path(self):
-        return self['DATASET_2_PATH']
+        return self['DATASET_2_DATA_PATH']
+
+    @property
+    def dataset_1_figures_path(self):
+        return self['DATASET_1_FIGURES_PATH']
+
+    @property
+    def dataset_2_figures_path(self):
+        return self['DATASET_2_FIGURES_PATH']
 
     def __getitem__(self, item):
         # check if the item exists and if not return None
