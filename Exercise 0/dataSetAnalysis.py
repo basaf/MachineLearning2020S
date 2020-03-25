@@ -8,7 +8,7 @@ import os
 # load dataset (.arff) into pandas DataFrame
 data = load(open(os.path.join(cfg.default.dataset_1_path, 'communities.arff'), 'r'))
 all_attributes = list(i[0] for i in data['attributes'])
-df = pd.DataFrame(columns=all_attributes, data=data['data'])
+communities_data = pd.DataFrame(columns=all_attributes, data=data['data'])
 
 # divide attributes in not_predictive, predictive and goal
 not_predictive_attributes = [
@@ -26,14 +26,27 @@ predictive_attributes.remove(goal_attribute)
 for x in not_predictive_attributes:
     predictive_attributes.remove(x)
 
+# plot stats
+print(f'communities_data')
+print(f'min values \r\n{communities_data.min()}\r\n')
+print(f'max values \r\n{communities_data.max()}\r\n')
+print(f'mean values \r\n{communities_data.mean()}\r\n')
+print(f'relative missing values (%) \r\n{str(communities_data.isnull().sum()/len(communities_data.index)*100)})')
+plot = (communities_data[predictive_attributes].isnull().sum()/len(communities_data.index)*100)[communities_data[predictive_attributes].isnull().sum()>0].sort_values(ascending=True).plot(kind='barh', grid=True)
+plt.xlabel('missing values (%)')
+plt.tight_layout()
+plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 'communities_data_missing_values_predictive.pdf'), format='pdf',
+            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
+plt.close()
+
 # plot and save histograms
-hist = df[predictive_attributes].hist(figsize=(27, 36))
+hist = communities_data[predictive_attributes].hist(figsize=(27, 36))
 plt.tight_layout()
 plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 'communities_data_histogram_predictive.pdf'), format='pdf',
             metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
 plt.close()
 
-hist = df[goal_attribute].hist()
+hist = communities_data[goal_attribute].hist()
 plt.tight_layout()
 plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 'communities_data_histogram_goal.pdf'), format='pdf',
             metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
@@ -41,12 +54,13 @@ plt.close()
 
 occupancyTrainingData = pd.read_csv(os.path.join(cfg.default.dataset_2_path, 'datatraining.txt'))
 occupancyTrainingData = occupancyTrainingData.set_index('date')
+occupancyTrainingData['HumidityRatio g/kg'] = occupancyTrainingData['HumidityRatio']*1000 
 
 # plot stats
 print(f'min training values \r\n{occupancyTrainingData.min()}')
 print(f'max training values \r\n{occupancyTrainingData.max()}')
 print(f'mean training values \r\n{occupancyTrainingData.mean()}')
-print(f'relative missing values (%) \r\n{str(occupancyTrainingData.count()/len(occupancyTrainingData.index)*100)})')
+print(f'relative missing values (%) \r\n{str(occupancyTrainingData.isnull().sum()/len(occupancyTrainingData.index)*100)})')
 
 occupancyTrainingData['Temperature'].plot()
 plt.xticks(rotation=45)
@@ -65,11 +79,12 @@ plt.close()
 
 occupancy_test_data = pd.read_csv(cfg.default.dataset_2_path + '\\datatest.txt')
 occupancy_test_data = occupancy_test_data.set_index('date')
+occupancy_test_data['HumidityRatio g/kg'] = occupancy_test_data['HumidityRatio']*1000 
 
 print(f'min test values \r\n{occupancy_test_data.min()}')
 print(f'max test values \r\n{occupancy_test_data.max()}')
 print(f'mean test values \r\n{occupancy_test_data.mean()}')
-print(f'relative missing values (%) \r\n{str(occupancy_test_data.count()/len(occupancy_test_data.index)*100)})')
+print(f'relative missing values (%) \r\n{str(occupancy_test_data.isnull().sum()/len(occupancy_test_data.index)*100)})')
 
 # plot and save histograms
 hist = occupancy_test_data.hist()
@@ -80,11 +95,12 @@ plt.close()
 
 occupancy_test2_data = pd.read_csv(cfg.default.dataset_2_path + '\\datatest2.txt')
 occupancy_test2_data = occupancy_test2_data.set_index('date')
+occupancy_test2_data['HumidityRatio g/kg'] = occupancy_test2_data['HumidityRatio']*1000 
 
 print(f'min test2 values \r\n{occupancy_test2_data.min()}')
 print(f'max test2 values \r\n{occupancy_test2_data.max()}')
 print(f'mean test2 values \r\n{occupancy_test2_data.mean()}')
-print(f'relative missing values (%) \r\n{str(occupancy_test2_data.count()/len(occupancy_test2_data.index)*100)})')
+print(f'relative missing values (%) \r\n{str(occupancy_test2_data.isnull().sum()/len(occupancy_test2_data.index)*100)})')
 
 # plot and save histograms
 hist = occupancy_test2_data.hist()
