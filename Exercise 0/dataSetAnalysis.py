@@ -22,7 +22,6 @@ predictive_attributes.remove(goal_attribute)
 for x in not_predictive_attributes:
     predictive_attributes.remove(x)
 
-
 # plot and save histograms
 hist = df[predictive_attributes].hist(figsize=(27, 36))
 plt.tight_layout()
@@ -34,4 +33,4 @@ plt.tight_layout()
 plt.savefig('images\\communities_data_histogram_goal.png')
 plt.close()
 
-print('Fertig')
+print('Ready')
