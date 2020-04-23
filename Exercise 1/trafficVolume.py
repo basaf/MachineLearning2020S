@@ -13,6 +13,7 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn import tree
+from sklearn import neural_network
 
 from sklearn import preprocessing
 
@@ -95,6 +96,9 @@ y=data['traffic_volume']
 
 #%%split data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train_scaled=scaler.transform(X_train)
+X_test_scaled=scaler.transform(X_test)
 #%%ridge regression
 
 #will be normalized by subtracting mean and dividing by l2-norm
@@ -106,9 +110,9 @@ checkPerformance(y_test, y_pred_reg)
 
 #%%KNN
 #scaling - makes the reults worse!!??
-scaler = preprocessing.StandardScaler().fit(X_train)
-X_train_knn=scaler.transform(X_train)
-X_test_knn=scaler.transform(X_test)
+
+X_train_knn=X_train_scaled
+X_test_knn=X_test_scaled
 #Without scaling:
 #X_train_knn=X_train
 #X_test_knn=X_test
@@ -126,3 +130,12 @@ dt.fit(X_train,y_train)
 y_pred_dt=dt.predict(X_test)
 
 checkPerformance(y_test, y_pred_dt)
+
+#%%Multi-layer Perceptron
+X_train_mlp=X_train_scaled
+X_test_mlp=X_test_scaled
+mlp=neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50,10), max_iter=400,verbose=True)
+mlp.fit(X_train_mlp,y_train)
+y_pred_mlp=mlp.predict(X_test_mlp)
+
+checkPerformance(y_test, y_pred_mlp)
