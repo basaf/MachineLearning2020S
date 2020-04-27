@@ -26,6 +26,14 @@ def plotPie(dataFrame):
     ax1.axis('equal')
     plt.show()
 
+def mean_absolute_percentage_error(y_true, y_pred): 
+    y_true, y_pred = np.array(y_true), np.array(y_pred)
+    return np.mean(np.abs((y_true - y_pred) / y_true)* 100) 
+
+def mean_root_squared_percentage_error(y_true, y_pred): 
+    y_true, y_pred = np.array(y_true), np.array(y_pred)
+    return np.mean(np.sqrt((y_true - y_pred)*(y_true - y_pred)) / y_true)* 100) 
+
 def checkPerformance(y_test,y_pred):
     plt.figure()
     plt.plot(y_test.values,label='true')
@@ -34,8 +42,10 @@ def checkPerformance(y_test,y_pred):
     plt.show()
     
     print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))  
-    print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
+   # print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
     print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+   
+    print('Relative Absolute Error:', mean_absolute_percentage_error(y_test, y_pred))
     print('Explained Varaince:', metrics.explained_variance_score(y_test, y_pred))
     
 #%% data pre-processing
@@ -55,22 +65,35 @@ dataSetPath='./DataSets/Metro_Interstate_Traffic_Volume.csv'
 rawData=pd.read_csv(dataSetPath)
 
 #%% investigate data
-plt.figure()
-rawData.boxplot()
+#plt.figure()
+#rawData.boxplot()
 plt.figure()
 rawData['temp'].plot()
+plt.title('temp')
+plt.ylabel('Temperature [°K]')
+plt.xlabel('Index')
 plt.figure()
+
 rawData['rain_1h'].plot()
+plt.title('rain_1h')
+plt.ylabel('Rain per hour [mm/h]')
+plt.xlabel('Index')
 plt.figure()
 rawData['snow_1h'].plot()
+plt.title('snow_1h')
 
 #change category values to numerical
 nbHolidayCat=rawData['holiday'].value_counts().count() #12
 nbWeatherMainCat=rawData['weather_main'].value_counts().count()#11
 nbWeatherDescription=rawData['weather_description'].value_counts().count() #38
 
-#%%Data scaling
+#%% remove outliers
+#remove temperatrues with 0°K
+rawData['temp'].replace(0,np.NaN, inplace=True)
 
+rawData.loc[rawData['rain_1h'] > 9000, 'rain_1h']=np.NaN
+
+rawData=rawData.dropna()
 #%% Data encoding
 #first attempt:
 #make holiday binary - because ther only a few days in the data set (reduce curse of dimensionality)
@@ -87,6 +110,8 @@ data.insert(9,'dayOfWeek',data['date_time'].dt.dayofweek)
 data.insert(10,'hourOfDay',data['date_time'].dt.hour)
 data=data.drop(['date_time'],axis=1)
 
+
+
 #ignore weather description and only use weatherMain with hotEncoding
 data=data.drop(['weather_description'],axis=1)
 data=pd.get_dummies(data, columns=['weather_main'], prefix = ['weatherMain'])
@@ -94,8 +119,13 @@ data=pd.get_dummies(data, columns=['weather_main'], prefix = ['weatherMain'])
 X=data.drop(['traffic_volume'],axis=1)
 y=data['traffic_volume']
 
+#%%
+#pd.scatter_matrix(data)
+
 #%%split data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+#%%Data scaling
 scaler = preprocessing.StandardScaler().fit(X_train)
 X_train_scaled=scaler.transform(X_train)
 X_test_scaled=scaler.transform(X_test)
