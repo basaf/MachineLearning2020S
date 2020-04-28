@@ -58,4 +58,6 @@ class Configuration:
 
 
 # singleton
+print(os.getcwd())
+print(os.path.join(os.getcwd(), '.config'))
 default = Configuration()

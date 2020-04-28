@@ -2,8 +2,12 @@
 """
 Created on Mon Apr 27 14:31:00 2020
 
-@author: guser
+@author: Steindl, Windholz
 """
+from arff import load
+import configuration as cfg
+import os
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,27 +40,36 @@ def checkPerformance(y_test,y_pred):
     print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))  
     print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
     print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-    print('Explained Varaince:', metrics.explained_variance_score(y_test, y_pred))
+    print('Explained Variance:', metrics.explained_variance_score(y_test, y_pred))
     
 #%% data pre-processing
-#http://archive.ics.uci.edu/ml/datasets/Metro+Interstate+Traffic+Volume#
+# load dataset (.arff) into pandas DataFrame
+rawData = load(open(os.path.join(cfg.default.dataset_1_path, 'communities.arff'), 'r'))
+all_attributes = list(i[0] for i in rawData['attributes'])
+communities_data = pd.DataFrame(columns=all_attributes, data=rawData['data'])
 
-#holiday Categorical US National holidays plus regional holiday, Minnesota State Fair
-#temp Numeric Average temp in kelvin
-#rain_1h Numeric Amount in mm of rain that occurred in the hour
-#snow_1h Numeric Amount in mm of snow that occurred in the hour
-#clouds_all Numeric Percentage of cloud cover
-#weather_main Categorical Short textual description of the current weather
-#weather_description Categorical Longer textual description of the current weather
-#date_time DateTime Hour of the data collected in local CST time
-#traffic_volume Numeric Hourly I-94 ATR 301 reported westbound traffic volume
-dataSetPath='./DataSets/Metro_Interstate_Traffic_Volume.csv'
+# divide attributes in not_predictive, predictive and goal
+not_predictive_attributes = [
+    'state',
+    'county',
+    'community',
+    'communityname',
+    'fold'
+]
+goal_attribute = 'ViolentCrimesPerPop'
 
-rawData=pd.read_csv(dataSetPath)
+predictive_attributes = all_attributes.copy()
+predictive_attributes.remove(goal_attribute)
+
+for x in not_predictive_attributes:
+    predictive_attributes.remove(x)
 
 #%% investigate data
 plt.figure()
-rawData.boxplot()
+communities_data[predictive_attributes[0:30]].boxplot()
+communities_data[predictive_attributes[30:60]].boxplot()
+communities_data[predictive_attributes[60:90]].boxplot()
+stophere
 plt.figure()
 rawData['temp'].plot()
 plt.figure()
