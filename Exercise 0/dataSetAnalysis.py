@@ -37,6 +37,8 @@ plt.xlabel('missing values (%)')
 plt.tight_layout()
 plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 'communities_data_missing_values_predictive.pdf'), format='pdf',
             metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
+plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 'communities_data_missing_values_predictive.svg'), format='svg',
+            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
 plt.close()
 
 # plot and save histograms
@@ -49,6 +51,8 @@ plt.close()
 hist = communities_data[goal_attribute].hist()
 plt.tight_layout()
 plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 'communities_data_histogram_goal.pdf'), format='pdf',
+            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
+plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 'communities_data_histogram_goal.svg'), format='svg',
             metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
 plt.close()
 
