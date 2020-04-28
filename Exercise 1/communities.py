@@ -44,7 +44,8 @@ def checkPerformance(y_test,y_pred):
     
 #%% data pre-processing
 # load dataset (.arff) into pandas DataFrame
-rawData = load(open(os.path.join(cfg.default.dataset_1_path, 'communities.arff'), 'r'))
+rawData = load(open(os.path.join(cfg.default.dataset_1_path,
+                                 'communities.arff'), 'r'))
 all_attributes = list(i[0] for i in rawData['attributes'])
 communities_data = pd.DataFrame(columns=all_attributes, data=rawData['data'])
 
@@ -65,24 +66,46 @@ for x in not_predictive_attributes:
     predictive_attributes.remove(x)
 
 #%% investigate data
-plt.figure()
-communities_data[predictive_attributes[0:30]].boxplot()
-communities_data[predictive_attributes[30:60]].boxplot()
-communities_data[predictive_attributes[60:90]].boxplot()
+if False:
+    communities_data[predictive_attributes[0:30]].boxplot()
+    communities_data[predictive_attributes[30:60]].boxplot()
+    communities_data[predictive_attributes[60:90]].boxplot()
+
+# plt.figure()
+# rawData['temp'].plot()
+# plt.figure()
+# rawData['rain_1h'].plot()
+# plt.figure()
+# rawData['snow_1h'].plot()
+
+
+#%% treat missing values
+missing_values = (communities_data[predictive_attributes+[goal_attribute]].
+                  isnull().sum().sum())  # /len(communities_data.index)*100)[communities_data[predictive_attributes].isnull().sum()>0]
+cells_total = (len(communities_data.index)*
+    len(communities_data[predictive_attributes+[goal_attribute]].columns))
+print('Missing values: '+str(missing_values))
+print('Cells total: '+str(cells_total))
+print('Missing: {:.1%}'.format(missing_values/cells_total))
+
+# Remove attributes with more than 80 % missing values
+# TODO
+for x in not_predictive_attributes:
+    predictive_attributes.remove(x)
+
+print('Missing in "OtherPerCap": '+
+      str(communities_data['OtherPerCap'].isnull().sum()))
+# TODO Impute mean value of attribute 
+
+stoppedhere
+
+#%% Data encoding
+# TODO 
+
+#%% Data scaling
+
+data = preprocessing.scale(communities_data.to_numpy())
 stophere
-plt.figure()
-rawData['temp'].plot()
-plt.figure()
-rawData['rain_1h'].plot()
-plt.figure()
-rawData['snow_1h'].plot()
-
-#change category values to numerical
-nbHolidayCat=rawData['holiday'].value_counts().count() #12
-nbWeatherMainCat=rawData['weather_main'].value_counts().count()#11
-nbWeatherDescription=rawData['weather_description'].value_counts().count() #38
-
-#%%Data scaling
 
 #%% Data encoding
 #first attempt:
