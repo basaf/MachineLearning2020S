@@ -30,9 +30,9 @@ def mean_absolute_percentage_error(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     return np.mean(np.abs((y_true - y_pred) / y_true)* 100) 
 
-def mean_root_squared_percentage_error(y_true, y_pred): 
-    y_true, y_pred = np.array(y_true), np.array(y_pred)
-    return np.sqrt(np.mean(np.square((y_true - y_pred)/ y_true)))* 100 
+#def mean_root_squared_percentage_error(y_true, y_pred): 
+#    y_true, y_pred = np.array(y_true), np.array(y_pred)
+#    return np.sqrt(np.mean(np.square((y_true - y_pred)/ y_true)))* 100 
 
 def checkPerformance(y_test,y_pred):
     plt.figure()
@@ -41,13 +41,12 @@ def checkPerformance(y_test,y_pred):
     plt.legend()
     plt.show()
     
-    print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))  
+    print('Mean Absolute Error (MAE):', metrics.mean_absolute_error(y_test, y_pred))
+     print('Mean Absolute Percentage Error (MAPE):', mean_absolute_percentage_error(y_test, y_pred))
    # print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
-    print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-   
-    print('Relative Absolute Error:', mean_absolute_percentage_error(y_test, y_pred))
-    print('Root Relative Squared Error:', mean_root_squared_percentage_error(y_test, y_pred))
-    print('Explained Varaince:', metrics.explained_variance_score(y_test, y_pred))
+    print('Root Mean Squared Error (RMSE):', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+    #print('Root Relative Squared Error:', mean_root_squared_percentage_error(y_test, y_pred))
+    print('Explained Variance:', metrics.explained_variance_score(y_test, y_pred))
     
 #%% data pre-processing
 #http://archive.ics.uci.edu/ml/datasets/Metro+Interstate+Traffic+Volume#
