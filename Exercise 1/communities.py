@@ -14,16 +14,16 @@ import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
 from seaborn import heatmap
 
-# import numpy as np
+import numpy as np
 
-# from sklearn import linear_model
-# from sklearn import metrics
-# from sklearn.model_selection import train_test_split
-# from sklearn.neighbors import KNeighborsRegressor
-# from sklearn import tree
-# from sklearn import neural_network
+from sklearn import linear_model
+from sklearn import metrics
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn import tree
+from sklearn import neural_network
 
-# from sklearn import preprocessing
+from sklearn import preprocessing
 
 def plotPie(dataFrame):
     labels = dataFrame.astype('category').cat.categories.tolist()
@@ -108,18 +108,33 @@ communities_data['OtherPerCap'] = imp.fit_transform(
     communities_data['OtherPerCap'].to_numpy().reshape(-1, 1)).flatten()
 
 # Input variable correlation analysis
-correlation_matrix = communities_data[predictive_attributes+[goal_attribute]].corr(method='pearson')
-ax = heatmap(correlation_matrix, center=0, vmin=-1, vmax=1)
-plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 'communities_data_correlations.svg'), format='svg',
-            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
-stoppedhere
+correlation_matrix = (communities_data[predictive_attributes+[goal_attribute]].
+                      corr(method='pearson'))
+
+if False:
+    ax = heatmap(correlation_matrix, center=0, vmin=-1, vmax=1, square=True,
+                xticklabels=False, yticklabels=False)
+    # plt.gcf().subplots_adjust(bottom=0.48, left=0.27, right=0.99, top=0.98)
+    plt.tight_layout()
+    plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 
+                'communities_data_correlations.png'),
+                format='png', dpi=200,
+                metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
+                )
 
 #%% Data encoding
-# TODO 
+# Not necessary 
+
+#%% Split data
+X = communities_data[predictive_attributes]
+y = communities_data[goal_attribute] 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 #%% Data scaling
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-data = preprocessing.scale(communities_data.to_numpy())
 stophere
 
 #%% Data encoding
