@@ -10,16 +10,20 @@ import os
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
 
-from sklearn import linear_model
-from sklearn import metrics
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn import tree
-from sklearn import neural_network
+from sklearn.impute import SimpleImputer
+from seaborn import heatmap
 
-from sklearn import preprocessing
+# import numpy as np
+
+# from sklearn import linear_model
+# from sklearn import metrics
+# from sklearn.model_selection import train_test_split
+# from sklearn.neighbors import KNeighborsRegressor
+# from sklearn import tree
+# from sklearn import neural_network
+
+# from sklearn import preprocessing
 
 def plotPie(dataFrame):
     labels = dataFrame.astype('category').cat.categories.tolist()
@@ -71,6 +75,7 @@ if False:
     communities_data[predictive_attributes[30:60]].boxplot()
     communities_data[predictive_attributes[60:90]].boxplot()
 
+# plt.show()
 # plt.figure()
 # rawData['temp'].plot()
 # plt.figure()
@@ -79,9 +84,9 @@ if False:
 # rawData['snow_1h'].plot()
 
 
-#%% treat missing values
+#%% Treat missing values
 missing_values = (communities_data[predictive_attributes+[goal_attribute]].
-                  isnull().sum().sum())  # /len(communities_data.index)*100)[communities_data[predictive_attributes].isnull().sum()>0]
+                  isnull().sum().sum())
 cells_total = (len(communities_data.index)*
     len(communities_data[predictive_attributes+[goal_attribute]].columns))
 print('Missing values: '+str(missing_values))
@@ -89,14 +94,24 @@ print('Cells total: '+str(cells_total))
 print('Missing: {:.1%}'.format(missing_values/cells_total))
 
 # Remove attributes with more than 80 % missing values
-# TODO
-for x in not_predictive_attributes:
+attributes_to_delete = communities_data[predictive_attributes].columns[
+    communities_data[predictive_attributes].isnull().sum() / 
+    len(communities_data.index)*100 > 80]
+for x in attributes_to_delete:
     predictive_attributes.remove(x)
 
+# Impute mean value of attribute using sklearn (even if pandas would be faster)
 print('Missing in "OtherPerCap": '+
       str(communities_data['OtherPerCap'].isnull().sum()))
-# TODO Impute mean value of attribute 
+imp = SimpleImputer(missing_values=np.nan, strategy='mean')
+communities_data['OtherPerCap'] = imp.fit_transform(
+    communities_data['OtherPerCap'].to_numpy().reshape(-1, 1)).flatten()
 
+# Input variable correlation analysis
+correlation_matrix = communities_data[predictive_attributes+[goal_attribute]].corr(method='pearson')
+ax = heatmap(correlation_matrix, center=0, vmin=-1, vmax=1)
+plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 'communities_data_correlations.svg'), format='svg',
+            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
 stoppedhere
 
 #%% Data encoding
