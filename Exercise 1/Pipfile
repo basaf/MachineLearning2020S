@@ -12,6 +12,7 @@ pandas = "*"
 scikit-learn = "*"
 liac-arff = "*"
 xlrd = "*"
+seaborn = "*"
 
 [requires]
 python_version = "3.8"

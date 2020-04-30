@@ -35,12 +35,17 @@ def mean_absolute_percentage_error(y_true, y_pred):
 #    y_true, y_pred = np.array(y_true), np.array(y_pred)
 #    return np.sqrt(np.mean(np.square((y_true - y_pred)/ y_true)))* 100
 
-def checkPerformance(y_test, y_pred):
+def checkPerformance(y_test, y_pred, filename=None):
     plt.figure()
     plt.plot(y_test.values, label='true')
     plt.plot(y_pred, label='y_hat')
     plt.legend()
-    plt.show()
+
+    if filename is None:
+        plt.show()
+    else:
+        plt.tight_layout()
+        plt.savefig(filename, format='png')
 
     print('Mean Absolute Error (MAE):', metrics.mean_absolute_error(y_test, y_pred))
     print('Mean Absolute Percentage Error (MAPE):', mean_absolute_percentage_error(y_test, y_pred))
@@ -50,9 +55,7 @@ def checkPerformance(y_test, y_pred):
     print('Explained Variance:', metrics.explained_variance_score(y_test, y_pred))
 
 
-dataSetPath = os.path.join(cfg.default.real_estate_data, 'Real estate valuation data set.xlsx')
-
-rawData = pd.read_excel(dataSetPath)
+rawData = pd.read_excel(os.path.join(cfg.default.real_estate_data, 'Real estate valuation data set.xlsx'))
 
 # %% investigate data
 
@@ -75,50 +78,51 @@ y = data['Y house price of unit area']
 # %%
 # pd.scatter_matrix(data)
 
-# %%split data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-# %%Data scaling
+#%%Data scaling
 scaler = preprocessing.StandardScaler().fit(X_train)
-X_train_scaled = scaler.transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-# %%ridge regression
+X_train_scaled=scaler.transform(X_train)
+X_test_scaled=scaler.transform(X_test)
 
-# will be normalized by subtracting mean and dividing by l2-norm
-reg = linear_model.Ridge(alpha=.5)  # ,normalize=True)
-reg.fit(X_train, y_train)
-y_pred_reg = reg.predict(X_test)
+print('Ridge Linear Regression')
 
-checkPerformance(y_test, y_pred_reg)
+#will be normalized by subtracting mean and dividing by l2-norm
+reg = linear_model.Ridge(alpha=.5)#,normalize=True)
+reg.fit(X_train,y_train)
+y_pred_reg=reg.predict(X_test)
 
-# %%KNN
-# scaling - makes the reults worse!!??
+checkPerformance(y_test, y_pred_reg, os.path.join(cfg.default.real_estate_figures, 'real_estate_ridge_linear.png'))
 
-X_train_knn = X_train_scaled
-X_test_knn = X_test_scaled
-# Without scaling:
-# X_train_knn=X_train
-# X_test_knn=X_test
+print('KNN')
+#scaling - makes the reults worse!!??
 
-knn = KNeighborsRegressor(n_neighbors=5, weights='distance')  # distance performs better
-knn.fit(X_train_knn, y_train)
-y_pred_knn = knn.predict(X_test_knn)
+X_train_knn=X_train_scaled
+X_test_knn=X_test_scaled
+#Without scaling:
+#X_train_knn=X_train
+#X_test_knn=X_test
 
-checkPerformance(y_test, y_pred_knn)
+knn = KNeighborsRegressor(n_neighbors=5, weights='distance') #distance performs better
+knn.fit(X_train_knn,y_train)
+y_pred_knn=knn.predict(X_test_knn)
 
-# %%Decission Tree Regression
+checkPerformance(y_test, y_pred_knn, os.path.join(cfg.default.real_estate_figures, 'real_estate_knn.png'))
 
-dt = tree.DecisionTreeRegressor()  # MSE for measuring the quality of the split
-dt.fit(X_train, y_train)
-y_pred_dt = dt.predict(X_test)
+print('Decission Tree Regression')
 
-checkPerformance(y_test, y_pred_dt)
+dt = tree.DecisionTreeRegressor()
+dt.fit(X_train,y_train)
+y_pred_dt=dt.predict(X_test)
 
-# %%Multi-layer Perceptron
-X_train_mlp = X_train_scaled
-X_test_mlp = X_test_scaled
-mlp = neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50, 10), max_iter=400, verbose=True)
-mlp.fit(X_train_mlp, y_train)
-y_pred_mlp = mlp.predict(X_test_mlp)
+checkPerformance(y_test, y_pred_dt, os.path.join(cfg.default.real_estate_figures, 'real_estate_d_tree.png'))
 
-checkPerformance(y_test, y_pred_mlp)
+print('Multi-layer Perceptron')
+
+X_train_mlp=X_train_scaled
+X_test_mlp=X_test_scaled
+mlp=neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50,10), max_iter=400, verbose=False)
+mlp.fit(X_train_mlp,y_train)
+y_pred_mlp=mlp.predict(X_test_mlp)
+
+checkPerformance(y_test, y_pred_mlp, os.path.join(cfg.default.real_estate_figures, 'real_estate_mlp.png'))
