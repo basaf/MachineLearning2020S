@@ -7,6 +7,8 @@ Created on Thu Apr 23 08:07:04 2020
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import configuration as cfg
+import os
 
 from sklearn import linear_model
 from sklearn import metrics
@@ -16,6 +18,7 @@ from sklearn import tree
 from sklearn import neural_network
 
 from sklearn import preprocessing
+
 
 def plotPie(dataFrame):
     labels = dataFrame.astype('category').cat.categories.tolist()
@@ -42,10 +45,10 @@ def checkPerformance(y_test,y_pred):
     plt.show()
     
     print('Mean Absolute Error (MAE):', metrics.mean_absolute_error(y_test, y_pred))
-     print('Mean Absolute Percentage Error (MAPE):', mean_absolute_percentage_error(y_test, y_pred))
-   # print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
+    print('Mean Absolute Percentage Error (MAPE):', mean_absolute_percentage_error(y_test, y_pred))
+    # print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
     print('Root Mean Squared Error (RMSE):', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-    #print('Root Relative Squared Error:', mean_root_squared_percentage_error(y_test, y_pred))
+    # print('Root Relative Squared Error:', mean_root_squared_percentage_error(y_test, y_pred))
     print('Explained Variance:', metrics.explained_variance_score(y_test, y_pred))
     
 #%% data pre-processing
@@ -60,7 +63,7 @@ def checkPerformance(y_test,y_pred):
 #weather_description Categorical Longer textual description of the current weather
 #date_time DateTime Hour of the data collected in local CST time
 #traffic_volume Numeric Hourly I-94 ATR 301 reported westbound traffic volume
-dataSetPath='./DataSets/Metro_Interstate_Traffic_Volume.csv'
+dataSetPath = os.path.join(cfg.default.traffic_data, 'Metro_Interstate_Traffic_Volume.csv')
 
 rawData=pd.read_csv(dataSetPath)
 

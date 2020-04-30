@@ -44,7 +44,7 @@ def checkPerformance(y_test,y_pred):
     
 #%% data pre-processing
 # load dataset (.arff) into pandas DataFrame
-rawData = load(open(os.path.join(cfg.default.dataset_1_path,
+rawData = load(open(os.path.join(cfg.default.communities_data,
                                  'communities.arff'), 'r'))
 all_attributes = list(i[0] for i in rawData['attributes'])
 communities_data = pd.DataFrame(columns=all_attributes, data=rawData['data'])
