@@ -19,7 +19,6 @@ class Configuration:
         self._config = dict()
 
         # start read config file
-
         config = configparser.ConfigParser()
         config.read(config_file, encoding='utf8')
 
@@ -33,20 +32,29 @@ class Configuration:
                 self._config[name] = value if (value != '') else None
 
     @property
-    def dataset_1_path(self):
-        return self['DATASET_1_DATA_PATH']
+    def communities_data(self):
+        return self['DATASET_COMMUNITIES_DATA_PATH']
 
     @property
-    def dataset_2_path(self):
-        return self['DATASET_2_DATA_PATH']
+    def communities_figures(self):
+        return self['DATASET_COMMUNITIES_FIGURES_PATH']
 
     @property
-    def dataset_1_figures_path(self):
-        return self['DATASET_1_FIGURES_PATH']
+    def traffic_data(self):
+        return self['DATASET_TRAFFIC_DATA_PATH']
 
     @property
-    def dataset_2_figures_path(self):
-        return self['DATASET_2_FIGURES_PATH']
+    def traffic_figures(self):
+        return self['DATASET_TRAFFIC_FIGURES_PATH']
+
+    @property
+    def real_estate_data(self):
+        return self['DATASET_REAL_ESTATE_DATA_PATH']
+
+    @property
+    def real_estate_figures(self):
+        return self['DATASET_REAL_ESTATE_FIGURES_PATH']
+
 
     def __getitem__(self, item):
         # check if the item exists and if not return None
@@ -58,6 +66,6 @@ class Configuration:
 
 
 # singleton
-print(os.getcwd())
-print(os.path.join(os.getcwd(), '.config'))
+#print(os.getcwd())
+#print(os.path.join(os.getcwd(), '.config'))
 default = Configuration()
