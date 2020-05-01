@@ -46,5 +46,5 @@ def checkPerformance(y_test, y_pred):
         mean_root_squared_percentage_error))
     print('Explained Variance: {:.2f}'.format(explained_variance_score))
 
-    return MAE, MAPE, mean_squared_error, RMSE,
-        mean_root_squared_percentage_error, explained_variance_score
+    return MAE, MAPE, mean_squared_error, RMSE, mean_root_squared_percentage_error, explained_variance_score
+    
