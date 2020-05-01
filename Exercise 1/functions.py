@@ -33,16 +33,16 @@ def checkPerformance(y_test, y_pred):
     
     MAE = metrics.mean_absolute_error(y_test, y_pred)
     # MAPE = mean_absolute_percentage_error(y_test, y_pred)
-    mean_squared_error = metrics.mean_squared_error(y_test, y_pred)
+    MSE = metrics.mean_squared_error(y_test, y_pred)
     RMSE = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
     # mean_root_squared_perc_err = mean_root_squared_percentage_error(y_test, y_pred)
     explained_variance_score = metrics.explained_variance_score(y_test, y_pred)
 
     print('Mean Absolute Error (MAE): {:.2f}'.format(MAE))
     # print('Mean Absolute Percentage Error (MAPE): {:.2f}'.format(MAPE))
-    print('Mean Squared Error: {:.2f}'.format(mean_squared_error))
+    print('Mean Squared Error: {:.2f}'.format(MSE))
     print('Root Mean Squared Error (RMSE): {:.2f}'.format(RMSE))
     # print('Root Relative Squared Error: {:.2f}'.format(mean_root_squared_perc_err))
     print('Explained Variance: {:.2f}'.format(explained_variance_score))
 
-    return fig, MAE, mean_squared_error, RMSE, explained_variance_score
+    return fig, MAE, MSE, RMSE, explained_variance_score
