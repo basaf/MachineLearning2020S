@@ -110,13 +110,13 @@ X_train_scaled = scaler.transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
 #%% Ridge regression
-
 if False:
     alphas = [0, 0.25, 0.5, 0.75, 1]
     scalings = [True, False]
+
     index = pd.MultiIndex.from_product([alphas, scalings], names=['alpha', 'scaling'])
     RidgeRegression_errors = pd.DataFrame(index=index,
-        columns=['MAE', 'MSE', 'RMSE', 'explained_variance_score'])
+        columns=['MAE', 'MSE', 'RMSE', 'EV'])
 
     for alpha in alphas:
         for scaling in scalings:
@@ -149,36 +149,84 @@ if False:
     print(RidgeRegression_errors)
     RidgeRegression_errors.transpose().to_csv(
         os.path.join(cfg.default.communities_figures, 'RidgeRegression_errors.csv'),
-        index_label='alpha', sep=';', decimal=',')
+        sep=';', decimal=',')
+    RidgeRegression_errors.plot(rot='90')
+    plt.tight_layout()
+    plt.savefig(os.path.join(cfg.default.communities_figures, 'RidgeRegression_errors.png'),
+                            format='png', dpi=200,
+                            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
+                            )        
+        
 
-#%%KNN
-#scaling - makes the reults worse!!??
+#%% k-Nearest Neighbor Regression
+if False:
+    list_k = [1, 3, 5, 10, 100, 300]
+    scalings = [True, False]
+    weights = ['uniform', 'distance']
 
-X_train_knn=X_train_scaled
-X_test_knn=X_test_scaled
-#Without scaling:
-#X_train_knn=X_train
-#X_test_knn=X_test
+    index = pd.MultiIndex.from_product([list_k, scalings, weights], names=['k', 'scaling', 'weights'])
+    knn_errors = pd.DataFrame(index=index,
+        columns=['MAE', 'MSE', 'RMSE', 'EV'])
 
-knn = KNeighborsRegressor(n_neighbors=5, weights='distance') #distance performs better
-knn.fit(X_train_knn,y_train)
-y_pred_knn=knn.predict(X_test_knn)
+    for k in list_k:
+        for scaling in scalings:
+            for weight in weights:
+                if scaling:
+                    xtrain = X_train_scaled
+                    xtest = X_test_scaled
+                    normalize = False
+                    filename = 'k-NN_'+str(k)+'_'+weight+'_scaling.png'
+                else:  
+                    xtrain = X_train
+                    xtest = X_test
+                    normalize = True
+                    filename = 'k-NN_'+str(k)+'_'+weight+'_noScaling.png'
 
-functions.checkPerformance(y_test, y_pred_knn)
+                knn = KNeighborsRegressor(n_neighbors=k, weights=weight)
+                knn.fit(xtrain, y_train)
+                y_pred_knn = knn.predict(xtest)
 
-#%%Decission Tree Regression
+                res = functions.checkPerformance(y_test, y_pred_knn)
+                fig, errors = res[0], res[1:]
 
-dt = tree.DecisionTreeRegressor() #MSE for measuring the quality of the split 
-dt.fit(X_train,y_train)
-y_pred_dt=dt.predict(X_test)
+                fig.tight_layout()
+                fig.savefig(os.path.join(cfg.default.communities_figures, filename),
+                            format='png', dpi=200,
+                            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
+                            )
 
-functions.checkPerformance(y_test, y_pred_dt)
+                knn_errors.loc[k, scaling, weight][:] = errors
+                del xtrain, xtest
 
-#%%Multi-layer Perceptron
-X_train_mlp=X_train_scaled
-X_test_mlp=X_test_scaled
-mlp=neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50,10), max_iter=400,verbose=True)
-mlp.fit(X_train_mlp,y_train)
-y_pred_mlp=mlp.predict(X_test_mlp)
+    print(knn_errors)
+    knn_errors.transpose().to_csv(
+        os.path.join(cfg.default.communities_figures, 'knn_errors.csv'),
+        sep=';', decimal=',')
+    knn_errors.plot(rot='90')
+    plt.tight_layout()
+    plt.savefig(os.path.join(cfg.default.communities_figures, 'knn_errors.png'),
+                            format='png', dpi=200,
+                            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
+                            )
 
-functions.checkPerformance(y_test, y_pred_mlp)
+
+#%% Decision Tree Regression
+if False:
+    dt = tree.DecisionTreeRegressor() #MSE for measuring the quality of the split 
+    dt.fit(X_train,y_train)
+    y_pred_dt=dt.predict(X_test)
+
+    functions.checkPerformance(y_test, y_pred_dt)
+
+#%% Multi-layer Perceptron
+if False:
+    X_train_mlp=X_train_scaled
+    X_test_mlp=X_test_scaled
+    mlp=neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50,10), max_iter=400,verbose=True)
+    mlp.fit(X_train_mlp,y_train)
+    y_pred_mlp=mlp.predict(X_test_mlp)
+
+    functions.checkPerformance(y_test, y_pred_mlp)
+
+print()
+print('Done')
