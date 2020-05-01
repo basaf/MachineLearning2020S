@@ -134,7 +134,7 @@ if False:
             reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
             reg.fit(xtrain, y_train)
             y_pred_reg = reg.predict(xtest)
-            res = functions.checkPerformance(y_test, y_pred_reg)
+            res = functions.check_performance(y_test, y_pred_reg)
             fig, errors = res[0], res[1:]
 
             fig.tight_layout()
@@ -218,15 +218,6 @@ if False:
 
     functions.checkPerformance(y_test, y_pred_dt)
 
-#%% Multi-layer Perceptron
-if False:
-    X_train_mlp=X_train_scaled
-    X_test_mlp=X_test_scaled
-    mlp=neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50,10), max_iter=400,verbose=True)
-    mlp.fit(X_train_mlp,y_train)
-    y_pred_mlp=mlp.predict(X_test_mlp)
-
-    functions.checkPerformance(y_test, y_pred_mlp)
-
 print()
 print('Done')
+
