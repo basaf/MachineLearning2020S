@@ -18,7 +18,7 @@ def plotPie(dataFrame):
 
 def mean_absolute_percentage_error(y_true, y_pred): 
     y_true, y_pred = np.array(y_true), np.array(y_pred)
-    return np.mean(np.abs((y_true - y_pred) / y_true)* 100) 
+    return np.mean(np.abs((y_true - y_pred) / y_true)* 100)
 
 def mean_root_squared_percentage_error(y_true, y_pred): 
    y_true, y_pred = np.array(y_true), np.array(y_pred)
@@ -33,18 +33,16 @@ def checkPerformance(y_test, y_pred):
     
     MAE = metrics.mean_absolute_error(y_test, y_pred)
     MAPE = mean_absolute_percentage_error(y_test, y_pred)
-    mean_squared_error = metrics.mean_squared_error(y_test, y_pred)
+    # mean_squared_error = metrics.mean_squared_error(y_test, y_pred)
     RMSE = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
-    mean_root_squared_percentage_error = mean_root_squared_percentage_error(y_test, y_pred)
+    # mean_root_squared_perc_err = mean_root_squared_percentage_error(y_test, y_pred)
     explained_variance_score = metrics.explained_variance_score(y_test, y_pred)
 
     print('Mean Absolute Error (MAE): {:.2f}'.format(MAE))
     print('Mean Absolute Percentage Error (MAPE): {:.2f}'.format(MAPE))
-    print('Mean Squared Error: {:.2f}'.format(mean_squared_error))
+    # print('Mean Squared Error: {:.2f}'.format(mean_squared_error))
     print('Root Mean Squared Error (RMSE): {:.2f}'.format(RMSE))
-    print('Root Relative Squared Error: {:.2f}'.format(
-        mean_root_squared_percentage_error))
+    # print('Root Relative Squared Error: {:.2f}'.format(mean_root_squared_perc_err))
     print('Explained Variance: {:.2f}'.format(explained_variance_score))
 
-    return MAE, MAPE, mean_squared_error, RMSE, mean_root_squared_percentage_error, explained_variance_score
-    
+    return fig, MAE, MAPE, RMSE, explained_variance_score

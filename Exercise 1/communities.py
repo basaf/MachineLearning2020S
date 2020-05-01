@@ -27,7 +27,6 @@ from sklearn import preprocessing
 
 import functions
 
-   
 #%% data pre-processing
 # load dataset (.arff) into pandas DataFrame
 rawData = load(open(os.path.join(cfg.default.communities_data,
@@ -107,7 +106,6 @@ X_test = imp.transform(X_test)
 
 #%% Data scaling (remove mean and scale to unit variance)
 scaler = preprocessing.StandardScaler().fit(X_train)
-# TODO: Check if y has to be transformed, too
 X_train_scaled = scaler.transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
@@ -115,13 +113,32 @@ X_test_scaled = scaler.transform(X_test)
 reg = linear_model.Ridge(alpha=0.5)
 reg.fit(X_train_scaled, y_train)
 y_pred_reg = reg.predict(X_test_scaled)
-functions.checkPerformance(y_test, y_pred_reg)
+res = functions.checkPerformance(y_test, y_pred_reg)
+fig, errors = res[0], res[1:]
+
+plt.figure = fig
+plt.tight_layout()
+plt.savefig(os.path.join(cfg.default.communities_figures, 
+            'RidgeRegression_0.5_scaling.png'),
+            format='png', dpi=200,
+            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
+            )
+stophere
 
 # The same without scaling
 reg = linear_model.Ridge(alpha=0.5, normalize=True)
 reg.fit(X_train, y_train)
 y_pred_reg = reg.predict(X_test)
-functions.checkPerformance(y_test, y_pred_reg)
+res = functions.checkPerformance(y_test, y_pred_reg)
+fig, errors = res[0], res[1:]
+
+plt.tight_layout()
+plt.savefig(os.path.join(cfg.default.communities_figures, 
+            'RidgeRegression_0.5_noScaling.png'),
+            format='png', dpi=200,
+            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
+            )
+
 
 stophere
 #%%KNN
