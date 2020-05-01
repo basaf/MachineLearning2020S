@@ -134,7 +134,7 @@ if False:
             reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
             reg.fit(xtrain, y_train)
             y_pred_reg = reg.predict(xtest)
-            res = functions.checkPerformance(y_test, y_pred_reg)
+            res = functions.check_performance(y_test, y_pred_reg)
             fig, errors = res[0], res[1:]
 
             fig.tight_layout()
@@ -164,7 +164,7 @@ knn = KNeighborsRegressor(n_neighbors=5, weights='distance') #distance performs 
 knn.fit(X_train_knn,y_train)
 y_pred_knn=knn.predict(X_test_knn)
 
-functions.checkPerformance(y_test, y_pred_knn)
+functions.check_performance(y_test, y_pred_knn)
 
 #%%Decission Tree Regression
 
@@ -172,7 +172,7 @@ dt = tree.DecisionTreeRegressor() #MSE for measuring the quality of the split
 dt.fit(X_train,y_train)
 y_pred_dt=dt.predict(X_test)
 
-functions.checkPerformance(y_test, y_pred_dt)
+functions.check_performance(y_test, y_pred_dt)
 
 #%%Multi-layer Perceptron
 X_train_mlp=X_train_scaled
@@ -181,4 +181,4 @@ mlp=neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50,10), max_i
 mlp.fit(X_train_mlp,y_train)
 y_pred_mlp=mlp.predict(X_test_mlp)
 
-functions.checkPerformance(y_test, y_pred_mlp)
+functions.check_performance(y_test, y_pred_mlp)

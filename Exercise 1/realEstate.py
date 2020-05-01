@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
 import configuration as cfg
 import os
 
@@ -15,44 +14,9 @@ from sklearn import neural_network
 from sklearn import preprocessing
 
 import helper
+import functions
+
 from seaborn import heatmap
-
-
-def mean_absolute_percentage_error(y_true, y_pred):
-    y_true, y_pred = np.array(y_true), np.array(y_pred)
-    return np.mean(np.abs((y_true - y_pred) / y_true) * 100)
-
-
-# def mean_root_squared_percentage_error(y_true, y_pred):
-#    y_true, y_pred = np.array(y_true), np.array(y_pred)
-#    return np.sqrt(np.mean(np.square((y_true - y_pred)/ y_true)))* 100
-
-def checkPerformance(y_test, y_pred, filename=None):
-    plt.figure()
-    plt.plot(y_test.values, label='true')
-    plt.plot(y_pred, label='y_hat')
-    plt.legend()
-
-    if filename is None:
-        plt.show()
-    else:
-        plt.tight_layout()
-        plt.savefig(filename + ".png", format='png')
-
-        f = open(filename + '.txt', 'w')
-        f.write(f'Mean Absolute Error (MAE): {metrics.mean_absolute_error(y_test, y_pred)}\n')
-        f.write(f'Mean Absolute Percentage Error (MAPE): {mean_absolute_percentage_error(y_test, y_pred)}\n')
-        f.write(f'Root Mean Squared Error (RMSE): {np.sqrt(metrics.mean_squared_error(y_test, y_pred))}\n')
-        f.write(f'Explained Variance: {metrics.explained_variance_score(y_test, y_pred)}\n')
-        f.close()
-
-    print('Mean Absolute Error (MAE):', metrics.mean_absolute_error(y_test, y_pred))
-    print('Mean Absolute Percentage Error (MAPE):', mean_absolute_percentage_error(y_test, y_pred))
-    # print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
-    print('Root Mean Squared Error (RMSE):', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-    # print('Root Relative Squared Error:', mean_root_squared_percentage_error(y_test, y_pred))
-    print('Explained Variance:', metrics.explained_variance_score(y_test, y_pred))
-
 
 rawData = pd.read_excel(os.path.join(cfg.default.real_estate_data, 'Real estate valuation data set.xlsx'))
 
@@ -70,7 +34,7 @@ ax.set_xticklabels(
     horizontalalignment='right'
 );
 plt.tight_layout()
-plt.savefig(os.path.join(cfg.default.real_estate_figures,'real_estate_corr.png'), format='png')
+plt.savefig(os.path.join(cfg.default.real_estate_figures, 'real_estate_corr.png'), format='png')
 
 # change the transaction date to year, and month field
 transactionDate = rawData['X1 transaction date']
@@ -110,14 +74,14 @@ reg = linear_model.Ridge(alpha=.5)
 reg.fit(X_train, y_train)
 y_pred_reg = reg.predict(X_test)
 
-checkPerformance(y_test, y_pred_reg, os.path.join(cfg.default.real_estate_figures, 'real_estate_ridge_linear'))
+functions.check_performance(y_test, y_pred_reg, os.path.join(cfg.default.real_estate_figures, 'real_estate_ridge_linear'))
 
 # will be normalized by subtracting mean and dividing by l2-norm
 reg = linear_model.Ridge(alpha=.5, normalize=True)
 reg.fit(X_train, y_train)
 y_pred_reg = reg.predict(X_test)
 
-checkPerformance(y_test, y_pred_reg, os.path.join(cfg.default.real_estate_figures, 'real_estate_ridge_linear_norm'))
+functions.check_performance(y_test, y_pred_reg, os.path.join(cfg.default.real_estate_figures, 'real_estate_ridge_linear_norm'))
 
 print('KNN')
 
@@ -125,46 +89,64 @@ print('KNN')
 X_train_knn = X_train
 X_test_knn = X_test
 
-knn = KNeighborsRegressor(n_neighbors=5, weights='distance') #distance performs better
-knn.fit(X_train_knn,y_train)
-y_pred_knn=knn.predict(X_test_knn)
+knn = KNeighborsRegressor(n_neighbors=5, weights='distance')  # distance performs better
+knn.fit(X_train_knn, y_train)
+y_pred_knn = knn.predict(X_test_knn)
 
-checkPerformance(y_test, y_pred_knn, os.path.join(cfg.default.real_estate_figures, 'real_estate_knn'))
+functions.check_performance(y_test, y_pred_knn, os.path.join(cfg.default.real_estate_figures, 'real_estate_knn'))
 
 # with std scaler
 X_train_knn = X_train_scaled_std
 X_test_knn = X_test_scaled_std
 
-knn = KNeighborsRegressor(n_neighbors=5, weights='distance') #distance performs better
-knn.fit(X_train_knn,y_train)
-y_pred_knn=knn.predict(X_test_knn)
+knn = KNeighborsRegressor(n_neighbors=5, weights='distance')  # distance performs better
+knn.fit(X_train_knn, y_train)
+y_pred_knn = knn.predict(X_test_knn)
 
-checkPerformance(y_test, y_pred_knn, os.path.join(cfg.default.real_estate_figures, 'real_estate_knn_std'))
+functions.check_performance(y_test, y_pred_knn, os.path.join(cfg.default.real_estate_figures, 'real_estate_knn_std'))
 
 # with min max scaler
 X_train_knn = X_train_scaled_min_max
 X_test_knn = X_test_scaled_min_max
 
-knn = KNeighborsRegressor(n_neighbors=5, weights='distance') #distance performs better
-knn.fit(X_train_knn,y_train)
-y_pred_knn=knn.predict(X_test_knn)
+knn = KNeighborsRegressor(n_neighbors=5, weights='distance')  # distance performs better
+knn.fit(X_train_knn, y_train)
+y_pred_knn = knn.predict(X_test_knn)
 
-checkPerformance(y_test, y_pred_knn, os.path.join(cfg.default.real_estate_figures, 'real_estate_knn_min_max'))
+functions.check_performance(y_test, y_pred_knn, os.path.join(cfg.default.real_estate_figures, 'real_estate_knn_min_max'))
 
 print('Decission Tree Regression')
 
 dt = tree.DecisionTreeRegressor()
-dt.fit(X_train,y_train)
-y_pred_dt=dt.predict(X_test)
+dt.fit(X_train, y_train)
+y_pred_dt = dt.predict(X_test)
 
-checkPerformance(y_test, y_pred_dt, os.path.join(cfg.default.real_estate_figures, 'real_estate_d_tree'))
+functions.check_performance(y_test, y_pred_dt, os.path.join(cfg.default.real_estate_figures, 'real_estate_d_tree'))
 
 print('Multi-layer Perceptron')
+# without scaler
+X_train_mlp = X_train
+X_test_mlp = X_test
+mlp = neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50, 10), max_iter=400, verbose=False)
+mlp.fit(X_train_mlp, y_train)
+y_pred_mlp = mlp.predict(X_test_mlp)
 
-X_train_mlp=X_train_scaled
-X_test_mlp=X_test_scaled
-mlp=neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50,10), max_iter=400, verbose=False)
-mlp.fit(X_train_mlp,y_train)
-y_pred_mlp=mlp.predict(X_test_mlp)
+functions.check_performance(y_test, y_pred_mlp, os.path.join(cfg.default.real_estate_figures, 'real_estate_mlp'))
 
-checkPerformance(y_test, y_pred_mlp, os.path.join(cfg.default.real_estate_figures, 'real_estate_mlp'))
+# with std scaler
+X_train_mlp = X_train_scaled_std
+X_test_mlp = X_test_scaled_std
+mlp = neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50, 10), max_iter=400, verbose=False)
+mlp.fit(X_train_mlp, y_train)
+y_pred_mlp = mlp.predict(X_test_mlp)
+
+functions.check_performance(y_test, y_pred_mlp, os.path.join(cfg.default.real_estate_figures, 'real_estate_mlp_std'))
+
+# with min max scaler
+X_train_mlp = X_train_scaled_min_max
+X_test_mlp = X_test_scaled_min_max
+mlp = neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50, 10), max_iter=400, verbose=False)
+mlp.fit(X_train_mlp, y_train)
+y_pred_mlp = mlp.predict(X_test_mlp)
+
+functions.check_performance(y_test, y_pred_mlp, os.path.join(cfg.default.real_estate_figures, 'real_estate_mlp_min_max'))

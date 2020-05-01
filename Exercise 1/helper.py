@@ -17,7 +17,7 @@ def boxplot_raw_data(data: pd.DataFrame, columns: list, style='seaborn-poster', 
         p.grid(False)
 
     if save_fig_path is not None:
-        plt.savefig(save_fig_path, format='png')
+        plt.savefig(save_fig_path, dpi=300, format='png')
         plt.close(figure)
     else:
         plt.show()
@@ -41,17 +41,7 @@ def plot_time_series_data(data: pd.DataFrame, columns: list, style='seaborn', sa
     figure.align_ylabels()
 
     if save_fig_path is not None:
-        plt.savefig(save_fig_path, format='png')
+        plt.savefig(save_fig_path, dpi=300, format='png')
         plt.close(figure)
     else:
         plt.show()
-
-
-def plotPie(dataFrame) -> None:
-    labels = dataFrame.astype('category').cat.categories.tolist()
-    counts = dataFrame.value_counts()
-    sizes = [counts[var_cat] for var_cat in labels]
-    fig1, ax1 = plt.subplots()
-    ax1.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True)  # autopct is show the % on plot
-    ax1.axis('equal')
-    plt.show()
