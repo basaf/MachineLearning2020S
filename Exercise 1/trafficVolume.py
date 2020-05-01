@@ -7,15 +7,18 @@ Created on Thu Apr 23 08:07:04 2020
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
 from sklearn import linear_model
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn import tree
-from sklearn import neural_network
+
+from sklearn.ensemble import RandomForestRegressor
 
 from sklearn import preprocessing
+from sklearn.model_selection import GridSearchCV
 
 def plotPie(dataFrame):
     labels = dataFrame.astype('category').cat.categories.tolist()
@@ -36,17 +39,20 @@ def mean_absolute_percentage_error(y_true, y_pred):
 
 def checkPerformance(y_test,y_pred):
     plt.figure()
-    plt.plot(y_test.values,label='true')
-    plt.plot(y_pred,label='y_hat')
+    plt.plot(y_test.values,label='true',alpha=0.7)
+    plt.plot(y_pred,label='prediction',alpha=0.7)
+    plt.xlabel('Samples')
+    plt.ylabel('Traffic Volume')
     plt.legend()
     plt.show()
     
     print('Mean Absolute Error (MAE):', metrics.mean_absolute_error(y_test, y_pred))
-     print('Mean Absolute Percentage Error (MAPE):', mean_absolute_percentage_error(y_test, y_pred))
+    print('Mean Absolute Percentage Error (MAPE):', mean_absolute_percentage_error(y_test, y_pred))
    # print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
     print('Root Mean Squared Error (RMSE):', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
     #print('Root Relative Squared Error:', mean_root_squared_percentage_error(y_test, y_pred))
     print('Explained Variance:', metrics.explained_variance_score(y_test, y_pred))
+    print('R Squared:', metrics.r2_score(y_test, y_pred))
     
 #%% data pre-processing
 #http://archive.ics.uci.edu/ml/datasets/Metro+Interstate+Traffic+Volume#
@@ -67,21 +73,73 @@ rawData=pd.read_csv(dataSetPath)
 #%% investigate data
 #plt.figure()
 #rawData.boxplot()
-plt.figure()
-rawData['temp'].plot()
-plt.title('temp')
-plt.ylabel('Temperature [°K]')
-plt.xlabel('Index')
-plt.figure()
+#plt.figure()
+#rawData['temp'].plot()
+#plt.title('temp')
+#plt.ylabel('Temperature [°K]')
+#plt.xlabel('Index')
+#plt.figure()
+#
+#rawData['rain_1h'].plot()
+#plt.title('rain_1h')
+#plt.ylabel('Rain per hour [mm/h]')
+#plt.xlabel('Index')
+#plt.figure()
+#rawData['snow_1h'].plot()
+#plt.title('snow_1h')
 
-rawData['rain_1h'].plot()
-plt.title('rain_1h')
-plt.ylabel('Rain per hour [mm/h]')
-plt.xlabel('Index')
+#Correlation Plot
+corr = rawData.corr()
 plt.figure()
-rawData['snow_1h'].plot()
+sns.heatmap(corr,annot=True,linewidths=0.5)#,cmap='twilight')
+plt.show()
+plt.tight_layout()
+
+#visualize categories
+plt.figure()
+rawData.hist()
+plt.show()
+plt.tight_layout()
+
+#show box plot of raw data
+plt.figure()
+plt.subplot(3,2,1)
+plt.boxplot(rawData['clouds_all'])
+plt.title('clouds_all')
+
+plt.subplot(3,2,2)
+plt.boxplot(rawData['rain_1h'])
+plt.title('rain_1h')
+
+plt.subplot(3,2,3)
+plt.boxplot(rawData['snow_1h'])
 plt.title('snow_1h')
 
+plt.subplot(3,2,4)
+plt.boxplot(rawData['temp'])
+plt.title('temp')
+
+plt.subplot(3,2,5)
+plt.boxplot(rawData['traffic_volume'])
+plt.title('traffic_volume')
+
+plt.show()
+plt.tight_layout()
+
+#% count plots
+plt.figure()
+sns.countplot(y='weather_main', data=rawData)
+plt.tight_layout()
+
+plt.figure()
+sns.countplot(y='weather_description', data=rawData)
+plt.tight_layout()
+
+
+plt.figure()
+sns.countplot(y='holiday', data= rawData.loc[rawData.holiday != 'None'])
+plt.show()
+plt.tight_layout()
 #change category values to numerical
 nbHolidayCat=rawData['holiday'].value_counts().count() #12
 nbWeatherMainCat=rawData['weather_main'].value_counts().count()#11
@@ -113,8 +171,19 @@ data=data.drop(['date_time'],axis=1)
 
 
 #ignore weather description and only use weatherMain with hotEncoding
+#ignore
 data=data.drop(['weather_description'],axis=1)
+#one-hot-encoding
+#data=pd.get_dummies(data, columns=['weather_description'], prefix = ['weather_description'])
+#label encoding
+#data['weather_description']=data['weather_description'].astype('category')
+#data['weather_description']=data['weather_description'].cat.codes
+
+#one-hot-encoding
 data=pd.get_dummies(data, columns=['weather_main'], prefix = ['weatherMain'])
+#or label-encoding
+#data['weather_main']=data['weather_main'].astype('category')
+#data['weather_main']=data['weather_main'].cat.codes
 
 X=data.drop(['traffic_volume'],axis=1)
 y=data['traffic_volume']
@@ -123,26 +192,35 @@ y=data['traffic_volume']
 #pd.scatter_matrix(data)
 
 #%%split data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=5)
 
-#%%Data scaling
-scaler = preprocessing.StandardScaler().fit(X_train)
-X_train_scaled=scaler.transform(X_train)
-X_test_scaled=scaler.transform(X_test)
+#%Data scaling
+scaler1 = preprocessing.StandardScaler().fit(X_train)
+scaler2 = preprocessing.MinMaxScaler().fit(X_train)
+
+X_train_scaled1=scaler1.transform(X_train)
+X_test_scaled1=scaler1.transform(X_test)
+
+X_train_scaled2=scaler2.transform(X_train)
+X_test_scaled2=scaler2.transform(X_test)
+
 #%%ridge regression
-
+X_train_RR=X_train_scaled2
+X_test_RR=X_test_scaled2
+#X_train_RR=X_train
+#X_test_RR=X_test
 #will be normalized by subtracting mean and dividing by l2-norm
-reg = linear_model.Ridge(alpha=.5)#,normalize=True)
-reg.fit(X_train,y_train)
-y_pred_reg=reg.predict(X_test)
+reg = linear_model.Ridge(alpha=100, normalize=False)
+reg.fit(X_train_RR,y_train)
+y_pred_reg=reg.predict(X_test_RR)
 
 checkPerformance(y_test, y_pred_reg)
 
 #%%KNN
 #scaling - makes the reults worse!!??
 
-X_train_knn=X_train_scaled
-X_test_knn=X_test_scaled
+X_train_knn=X_train_scaled2
+X_test_knn=X_test_scaled2
 #Without scaling:
 #X_train_knn=X_train
 #X_test_knn=X_test
@@ -155,17 +233,33 @@ checkPerformance(y_test, y_pred_knn)
 
 #%%Decission Tree Regression
 
+X_train_dt=X_train
+X_test_dt=X_test
+#X_train_dt=X_train_scaled2
+#X_test_dt=X_test_scaled2
+
 dt = tree.DecisionTreeRegressor() #MSE for measuring the quality of the split 
-dt.fit(X_train,y_train)
-y_pred_dt=dt.predict(X_test)
+
+
+
+dt.fit(X_train_dt,y_train)
+
+
+
+y_pred_dt=dt.predict(X_test_dt)
 
 checkPerformance(y_test, y_pred_dt)
 
-#%%Multi-layer Perceptron
-X_train_mlp=X_train_scaled
-X_test_mlp=X_test_scaled
-mlp=neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50,10), max_iter=400,verbose=True)
-mlp.fit(X_train_mlp,y_train)
-y_pred_mlp=mlp.predict(X_test_mlp)
+#%% Random Forest
+X_train_rf=X_train
+X_test_rf=X_test
 
-checkPerformance(y_test, y_pred_mlp)
+rf = RandomForestRegressor(n_estimators=100)
+
+rf.fit(X_train_rf,y_train)
+y_pred_rf=rf.predict(X_test_rf)
+
+checkPerformance(y_test, y_pred_rf)
+
+
+
