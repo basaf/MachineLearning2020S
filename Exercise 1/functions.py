@@ -9,7 +9,7 @@ import numpy as np
 from sklearn import metrics
 
 # damit man latex in den labels von den plots verwenden kann
-matplotlib.rcParams['text.usetex'] = True
+# matplotlib.rcParams['text.usetex'] = True
 
 
 def plotPie(dataFrame):
@@ -34,7 +34,7 @@ def mean_root_squared_percentage_error(y_true, y_pred):
 
 def check_performance(y_test, y_pred, filename=None):
     fig = plt.figure()
-    plt.plot(y_test.values, label='y')
+    plt.plot(y_test, label='y')
     plt.plot(y_pred, label='\^{y}')
     plt.legend()
 

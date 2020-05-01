@@ -114,7 +114,8 @@ if False:
     alphas = [0, 0.25, 0.5, 0.75, 1]
     scalings = [True, False]
 
-    index = pd.MultiIndex.from_product([alphas, scalings], names=['alpha', 'scaling'])
+    index = pd.MultiIndex.from_product([alphas, scalings],
+                                       names=['alpha', 'scaling'])
     RidgeRegression_errors = pd.DataFrame(index=index,
         columns=['MAE', 'MSE', 'RMSE', 'EV'])
 
@@ -124,24 +125,19 @@ if False:
                 xtrain = X_train_scaled
                 xtest = X_test_scaled
                 normalize = False
-                filename = 'RidgeRegression_'+str(alpha)+'_scaling.png'
+                filename = 'RidgeRegression_'+str(alpha)+'_scaling'
             else:  
                 xtrain = X_train
                 xtest = X_test
                 normalize = True
-                filename = 'RidgeRegression_'+str(alpha)+'_noScaling.png'
+                filename = 'RidgeRegression_'+str(alpha)+'_noScaling'
             
             reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
             reg.fit(xtrain, y_train)
             y_pred_reg = reg.predict(xtest)
-            res = functions.check_performance(y_test, y_pred_reg)
+            res = functions.check_performance(y_test, y_pred_reg,
+                os.path.join(cfg.default.communities_figures, filename))
             fig, errors = res[0], res[1:]
-
-            fig.tight_layout()
-            fig.savefig(os.path.join(cfg.default.communities_figures, filename),
-                        format='png', dpi=200,
-                        metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
-                        )
 
             RidgeRegression_errors.loc[alpha, scaling][:] = errors
             del xtrain, xtest
@@ -164,7 +160,8 @@ if False:
     scalings = [True, False]
     weights = ['uniform', 'distance']
 
-    index = pd.MultiIndex.from_product([list_k, scalings, weights], names=['k', 'scaling', 'weights'])
+    index = pd.MultiIndex.from_product([list_k, scalings, weights],
+                                       names=['k', 'scaling', 'weights'])
     knn_errors = pd.DataFrame(index=index,
         columns=['MAE', 'MSE', 'RMSE', 'EV'])
 
@@ -175,25 +172,20 @@ if False:
                     xtrain = X_train_scaled
                     xtest = X_test_scaled
                     normalize = False
-                    filename = 'k-NN_'+str(k)+'_'+weight+'_scaling.png'
+                    filename = 'k-NN_'+str(k)+'_'+weight+'_scaling'
                 else:  
                     xtrain = X_train
                     xtest = X_test
                     normalize = True
-                    filename = 'k-NN_'+str(k)+'_'+weight+'_noScaling.png'
+                    filename = 'k-NN_'+str(k)+'_'+weight+'_noScaling'
 
                 knn = KNeighborsRegressor(n_neighbors=k, weights=weight)
                 knn.fit(xtrain, y_train)
                 y_pred_knn = knn.predict(xtest)
 
-                res = functions.checkPerformance(y_test, y_pred_knn)
+                res = functions.check_performance(y_test, y_pred_knn,
+                    os.path.join(cfg.default.communities_figures, filename))
                 fig, errors = res[0], res[1:]
-
-                fig.tight_layout()
-                fig.savefig(os.path.join(cfg.default.communities_figures, filename),
-                            format='png', dpi=200,
-                            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
-                            )
 
                 knn_errors.loc[k, scaling, weight][:] = errors
                 del xtrain, xtest
@@ -211,12 +203,15 @@ if False:
 
 
 #%% Decision Tree Regression
-if False:
+if True:
     dt = tree.DecisionTreeRegressor() #MSE for measuring the quality of the split 
     dt.fit(X_train,y_train)
     y_pred_dt=dt.predict(X_test)
 
-    functions.checkPerformance(y_test, y_pred_dt)
+    filename = 'DTRegressor'
+    functions.check_performance(y_test, y_pred_dt,
+        os.path.join(cfg.default.communities_figures, filename))
+
 
 print()
 print('Done')
