@@ -25,27 +25,8 @@ from sklearn import neural_network
 
 from sklearn import preprocessing
 
-def plotPie(dataFrame):
-    labels = dataFrame.astype('category').cat.categories.tolist()
-    counts = dataFrame.value_counts()
-    sizes = [counts[var_cat] for var_cat in labels]
-    fig1, ax1 = plt.subplots()
-    ax1.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True) #autopct is show the % on plot
-    ax1.axis('equal')
-    plt.show()
+import functions
 
-def checkPerformance(y_test,y_pred):
-    plt.figure()
-    plt.plot(y_test.values,label='true')
-    plt.plot(y_pred,label='y_hat')
-    plt.legend()
-    plt.show()
-    
-    print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))  
-    print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
-    print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-    print('Explained Variance:', metrics.explained_variance_score(y_test, y_pred))
-    
 #%% data pre-processing
 # load dataset (.arff) into pandas DataFrame
 rawData = load(open(os.path.join(cfg.default.communities_data,
@@ -53,7 +34,7 @@ rawData = load(open(os.path.join(cfg.default.communities_data,
 all_attributes = list(i[0] for i in rawData['attributes'])
 communities_data = pd.DataFrame(columns=all_attributes, data=rawData['data'])
 
-# divide attributes in not_predictive, predictive and goal
+# distinguish attributes in not_predictive, predictive and goal
 not_predictive_attributes = [
     'state',
     'county',
@@ -75,15 +56,6 @@ if False:
     communities_data[predictive_attributes[30:60]].boxplot()
     communities_data[predictive_attributes[60:90]].boxplot()
 
-# plt.show()
-# plt.figure()
-# rawData['temp'].plot()
-# plt.figure()
-# rawData['rain_1h'].plot()
-# plt.figure()
-# rawData['snow_1h'].plot()
-
-
 #%% Treat missing values
 missing_values = (communities_data[predictive_attributes+[goal_attribute]].
                   isnull().sum().sum())
@@ -100,12 +72,9 @@ attributes_to_delete = communities_data[predictive_attributes].columns[
 for x in attributes_to_delete:
     predictive_attributes.remove(x)
 
-# Impute mean value of attribute using sklearn (even if pandas would be faster)
 print('Missing in "OtherPerCap": '+
       str(communities_data['OtherPerCap'].isnull().sum()))
-imp = SimpleImputer(missing_values=np.nan, strategy='mean')
-communities_data['OtherPerCap'] = imp.fit_transform(
-    communities_data['OtherPerCap'].to_numpy().reshape(-1, 1)).flatten()
+# -> impute mean value of attribute, but do the split before
 
 # Input variable correlation analysis
 correlation_matrix = (communities_data[predictive_attributes+[goal_attribute]].
@@ -116,7 +85,7 @@ if False:
                 xticklabels=False, yticklabels=False)
     # plt.gcf().subplots_adjust(bottom=0.48, left=0.27, right=0.99, top=0.98)
     plt.tight_layout()
-    plt.savefig(os.path.join(cfg.default.dataset_1_figures_path, 
+    plt.savefig(os.path.join(cfg.default.dataset_communities_figures_path, 
                 'communities_data_correlations.png'),
                 format='png', dpi=200,
                 metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
@@ -126,53 +95,61 @@ if False:
 # Not necessary 
 
 #%% Split data
-X = communities_data[predictive_attributes]
-y = communities_data[goal_attribute] 
+X = communities_data[predictive_attributes].to_numpy()
+y = communities_data[goal_attribute].to_numpy() 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-#%% Data scaling
+#%% Impute mean value of attributes
+imp = SimpleImputer(missing_values=np.nan, strategy='mean')
+X_train = imp.fit_transform(X_train)
+X_test = imp.transform(X_test)
+
+#%% Data scaling (remove mean and scale to unit variance)
 scaler = preprocessing.StandardScaler().fit(X_train)
 X_train_scaled = scaler.transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-stophere
+#%% Ridge regression
 
-#%% Data encoding
-#first attempt:
-#make holiday binary - because ther only a few days in the data set (reduce curse of dimensionality)
-data=rawData.copy()
-data.loc[data.holiday == 'None', 'holiday']=0
-data.loc[data.holiday != 0, 'holiday']=1
+if False:
+    alphas = [0, 0.25, 0.5, 0.75, 1]
+    scalings = [True, False]
+    index = pd.MultiIndex.from_product([alphas, scalings], names=['alpha', 'scaling'])
+    RidgeRegression_errors = pd.DataFrame(index=index,
+        columns=['MAE', 'MSE', 'RMSE', 'explained_variance_score'])
 
+    for alpha in alphas:
+        for scaling in scalings:
+            if scaling:
+                xtrain = X_train_scaled
+                xtest = X_test_scaled
+                normalize = False
+                filename = 'RidgeRegression_'+str(alpha)+'_scaling.png'
+            else:  
+                xtrain = X_train
+                xtest = X_test
+                normalize = True
+                filename = 'RidgeRegression_'+str(alpha)+'_noScaling.png'
+            
+            reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
+            reg.fit(xtrain, y_train)
+            y_pred_reg = reg.predict(xtest)
+            res = functions.checkPerformance(y_test, y_pred_reg)
+            fig, errors = res[0], res[1:]
 
-#use month and weekday and hour of day as input with simple label encoding
-data['date_time']=pd.to_datetime(data['date_time'])
+            fig.tight_layout()
+            fig.savefig(os.path.join(cfg.default.communities_figures, filename),
+                        format='png', dpi=200,
+                        metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
+                        )
 
-data.insert(8,'month',data['date_time'].dt.month)
-data.insert(9,'dayOfWeek',data['date_time'].dt.dayofweek)
-data.insert(10,'hourOfDay',data['date_time'].dt.hour)
-data=data.drop(['date_time'],axis=1)
+            RidgeRegression_errors.loc[alpha, scaling][:] = errors
+            del xtrain, xtest
 
-#ignore weather description and only use weatherMain with hotEncoding
-data=data.drop(['weather_description'],axis=1)
-data=pd.get_dummies(data, columns=['weather_main'], prefix = ['weatherMain'])
-
-X=data.drop(['traffic_volume'],axis=1)
-y=data['traffic_volume']
-
-#%%split data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-scaler = preprocessing.StandardScaler().fit(X_train)
-X_train_scaled=scaler.transform(X_train)
-X_test_scaled=scaler.transform(X_test)
-#%%ridge regression
-
-#will be normalized by subtracting mean and dividing by l2-norm
-reg = linear_model.Ridge(alpha=.5)#,normalize=True)
-reg.fit(X_train,y_train)
-y_pred_reg=reg.predict(X_test)
-
-checkPerformance(y_test, y_pred_reg)
+    print(RidgeRegression_errors)
+    RidgeRegression_errors.transpose().to_csv(
+        os.path.join(cfg.default.communities_figures, 'RidgeRegression_errors.csv'),
+        index_label='alpha', sep=';', decimal=',')
 
 #%%KNN
 #scaling - makes the reults worse!!??
@@ -187,7 +164,7 @@ knn = KNeighborsRegressor(n_neighbors=5, weights='distance') #distance performs 
 knn.fit(X_train_knn,y_train)
 y_pred_knn=knn.predict(X_test_knn)
 
-checkPerformance(y_test, y_pred_knn)
+functions.checkPerformance(y_test, y_pred_knn)
 
 #%%Decission Tree Regression
 
@@ -195,7 +172,7 @@ dt = tree.DecisionTreeRegressor() #MSE for measuring the quality of the split
 dt.fit(X_train,y_train)
 y_pred_dt=dt.predict(X_test)
 
-checkPerformance(y_test, y_pred_dt)
+functions.checkPerformance(y_test, y_pred_dt)
 
 #%%Multi-layer Perceptron
 X_train_mlp=X_train_scaled
@@ -204,4 +181,4 @@ mlp=neural_network.MLPRegressor(solver='adam', hidden_layer_sizes=(50,10), max_i
 mlp.fit(X_train_mlp,y_train)
 y_pred_mlp=mlp.predict(X_test_mlp)
 
-checkPerformance(y_test, y_pred_mlp)
+functions.checkPerformance(y_test, y_pred_mlp)
