@@ -40,7 +40,7 @@ def checkPerformance(y_test, y_pred):
 
     print('Mean Absolute Error (MAE): {:.2f}'.format(MAE))
     # print('Mean Absolute Percentage Error (MAPE): {:.2f}'.format(MAPE))
-    print('Mean Squared Error: {:.2f}'.format(MSE))
+    print('Mean Squared Error (MSE): {:.2f}'.format(MSE))
     print('Root Mean Squared Error (RMSE): {:.2f}'.format(RMSE))
     # print('Root Relative Squared Error: {:.2f}'.format(mean_root_squared_perc_err))
     print('Explained Variance: {:.2f}'.format(explained_variance_score))

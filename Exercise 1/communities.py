@@ -110,37 +110,47 @@ X_train_scaled = scaler.transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
 #%% Ridge regression
-reg = linear_model.Ridge(alpha=0.5)
-reg.fit(X_train_scaled, y_train)
-y_pred_reg = reg.predict(X_test_scaled)
-res = functions.checkPerformance(y_test, y_pred_reg)
-fig, errors = res[0], res[1:]
 
-plt.figure = fig
-plt.tight_layout()
-plt.savefig(os.path.join(cfg.default.communities_figures, 
-            'RidgeRegression_0.5_scaling.png'),
-            format='png', dpi=200,
-            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
-            )
-stophere
+if False:
+    alphas = [0, 0.25, 0.5, 0.75, 1]
+    scalings = [True, False]
+    index = pd.MultiIndex.from_product([alphas, scalings], names=['alpha', 'scaling'])
+    RidgeRegression_errors = pd.DataFrame(index=index,
+        columns=['MAE', 'MSE', 'RMSE', 'explained_variance_score'])
 
-# The same without scaling
-reg = linear_model.Ridge(alpha=0.5, normalize=True)
-reg.fit(X_train, y_train)
-y_pred_reg = reg.predict(X_test)
-res = functions.checkPerformance(y_test, y_pred_reg)
-fig, errors = res[0], res[1:]
+    for alpha in alphas:
+        for scaling in scalings:
+            if scaling:
+                xtrain = X_train_scaled
+                xtest = X_test_scaled
+                normalize = False
+                filename = 'RidgeRegression_'+str(alpha)+'_scaling.png'
+            else:  
+                xtrain = X_train
+                xtest = X_test
+                normalize = True
+                filename = 'RidgeRegression_'+str(alpha)+'_noScaling.png'
+            
+            reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
+            reg.fit(xtrain, y_train)
+            y_pred_reg = reg.predict(xtest)
+            res = functions.checkPerformance(y_test, y_pred_reg)
+            fig, errors = res[0], res[1:]
 
-plt.tight_layout()
-plt.savefig(os.path.join(cfg.default.communities_figures, 
-            'RidgeRegression_0.5_noScaling.png'),
-            format='png', dpi=200,
-            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
-            )
+            fig.tight_layout()
+            fig.savefig(os.path.join(cfg.default.communities_figures, filename),
+                        format='png', dpi=200,
+                        metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
+                        )
 
+            RidgeRegression_errors.loc[alpha, scaling][:] = errors
+            del xtrain, xtest
 
-stophere
+    print(RidgeRegression_errors)
+    RidgeRegression_errors.transpose().to_csv(
+        os.path.join(cfg.default.communities_figures, 'RidgeRegression_errors.csv'),
+        index_label='alpha', sep=';', decimal=',')
+
 #%%KNN
 #scaling - makes the reults worse!!??
 
