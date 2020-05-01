@@ -39,7 +39,7 @@ def check_performance(y_test, y_pred, filename=None):
         f = open(filename + '.txt', 'w')
         f.write(f'Mean Absolute Error (MAE): {MAE:.2f}\n')
         f.write(f'Mean Absolute Percentage Error (MAPE): {MAPE:.2f}\n')
-        f.write(f'Mean Squared Error (MSE): {:.2f}'.format(MSE))
+        f.write(f'Mean Squared Error (MSE): {MSE:.2f}\n')
         f.write(f'Root Mean Squared Error (RMSE): {RMSE:.2f}\n')
         f.write(f'Explained Variance (EV): {EV:.2f}\n')
         f.close()
