@@ -112,14 +112,14 @@ X_train_scaled = scaler.transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
 #%% Ridge regression
-if True:
-    alphas = [0, 0.25, 0.5, 0.75, 1]
+if False:
+    alphas = [0, 0.5, 1, 5, 10, 50, 100]
     scalings = ['scaling', 'noScaling']
     index = pd.MultiIndex.from_product([alphas, scalings],
                                        names=['alpha', 'scaling'])
     RidgeRegression_errors = pd.DataFrame(index=index,
         columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-
+    # Change parameters
     for alpha in alphas:
         for scaling in scalings:
             if scaling == 'scaling':
@@ -130,7 +130,7 @@ if True:
                 xtrain = X_train
                 xtest = X_test
                 normalize = True
-            filename = 'RidgeRegression_'+str(alpha)+scaling
+            filename = 'RidgeRegression_'+str(alpha)+'_'+scaling
             
             reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
             reg.fit(xtrain, y_train)
@@ -144,97 +144,56 @@ if True:
     
     print(RidgeRegression_errors)
     RidgeRegression_errors.transpose().to_csv(
-        os.path.join(cfg.default.communities_figures, 'RidgeRegression_errors.csv'),
+        os.path.join(cfg.default.communities_figures,
+                     'RidgeRegression_errors.csv'),
         sep=';', decimal=',')
 
-    # RidgeRegression_errors.plot(rot='90')
-
-    # Variante 0
-    # labels = [key for key in RidgeRegression_errors.loc[(slice(None),'scaling'),
-    #                                     slice(None)].keys()]
-    # ax = plt.gca()
-    # ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'scaling'),
-    #                                     slice(None)].to_numpy(),
-    #         marker='o', linestyle='-', label=labels)
-    # ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'noScaling'),
-    #                                     slice(None)].to_numpy(),
-    #         marker='o', linestyle='--')
-    # plt.grid()
-    # plt.legend()
-    # plt.tight_layout()
-    # plt.show()
-
-    # Variante 0.1
-    plt.figure()
-    ax = plt.gca()
-    sns.set_palette(sns.color_palette('hls', 12))
+    # Plot errors over parameters of algorithm
+    with sns.color_palette(n_colors=len(RidgeRegression_errors.keys())):
+        fig = plt.figure()
+        ax = fig.add_subplot()
     for key in RidgeRegression_errors.keys():
         ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'scaling'),
-                                            key].to_numpy(),
+                key].to_numpy(),
                 marker='o', linestyle='-', label=key+' scaled')
-    sns.set_palette(sns.color_palette('hls', 12))
     for key in RidgeRegression_errors.keys():
         ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'noScaling'),
-                                            key].to_numpy(),
+                key].to_numpy(),
                 marker='o', linestyle='--', label=key+' not scaled')
+    plt.ylim([0, 1])
+    plt.xlabel(r'$\alpha$')
     plt.grid()
-    plt.legend()
-    plt.tight_layout()
+    plt.legend(ncol=2, loc='upper left', bbox_to_anchor=(0, -0.15))
     plt.show()
-
-    # # Variante 1
-    # ax = plt.gca()
-    # RidgeRegression_errors.loc[(slice(None),'scaling'), slice(None)].plot(
-    #     ax=ax,
-    #     rot='90', marker='o', linestyle='-', grid=True)
-    # RidgeRegression_errors.loc[(slice(None),'noScaling'), slice(None)].plot(
-    #     ax=ax,
-    #     rot='90', marker='o', linestyle='--', grid=True)        
-    # plt.show()
-
-    # # Variante 2
-    # ax = plt.gca()
-    # for key in RidgeRegression_errors.keys():
-    #     RidgeRegression_errors.loc[(slice(None), slice(None)), key].plot(
-    #         ax=ax,
-    #         rot='90', marker='o', linestyle='--', grid=True)
-    # # RidgeRegression_errors.loc[(slice(None),'noScaling'), slice(None)].plot(
-    # #     ax=ax,
-    # #     rot='90', marker='o', linestyle='-', grid=True)
-    # plt.legend()        
-    # plt.show()
-
-    
-    plt.savefig(os.path.join(cfg.default.communities_figures, 'RidgeRegression_errors.png'),
-                            format='png', dpi=200,
-                            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
-                            )        
+    fig.savefig(os.path.join(cfg.default.communities_figures,
+                            'RidgeRegression_errors.png'),
+                format='png', dpi=200, bbox_inches='tight',
+                metadata={'Creator': '', 'Author': '', 'Title': '',
+                        'Producer': ''},
+                )
         
 
 #%% k-Nearest Neighbor Regression
 if False:
-    list_k = [1, 3, 5, 10, 100, 300]
-    scalings = [True, False]
+    list_k = [1, 3, 5, 10, 20, 50, 100, 300]
+    scalings = ['scaling', 'noScaling']
     weights = ['uniform', 'distance']
 
     index = pd.MultiIndex.from_product([list_k, scalings, weights],
                                        names=['k', 'scaling', 'weights'])
     knn_errors = pd.DataFrame(index=index,
         columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-
+    # Change parameters
     for k in list_k:
         for scaling in scalings:
             for weight in weights:
-                if scaling:
+                if scaling == 'scaling':
                     xtrain = X_train_scaled
                     xtest = X_test_scaled
-                    normalize = False
-                    filename = 'k-NN_'+str(k)+'_'+weight+'_scaling'
                 else:  
                     xtrain = X_train
                     xtest = X_test
-                    normalize = True
-                    filename = 'k-NN_'+str(k)+'_'+weight+'_noScaling'
+                filename = 'k-NN_'+str(k)+'_'+weight+'_'+scaling
 
                 knn = KNeighborsRegressor(n_neighbors=k, weights=weight)
                 knn.fit(xtrain, y_train)
@@ -249,16 +208,41 @@ if False:
     knn_errors.transpose().to_csv(
         os.path.join(cfg.default.communities_figures, 'knn_errors.csv'),
         sep=';', decimal=',')
-    knn_errors.plot(rot='90')
-    plt.tight_layout()
-    plt.savefig(os.path.join(cfg.default.communities_figures, 'knn_errors.png'),
-                            format='png', dpi=200,
-                            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
-                            )
 
+    # Plot errors over parameters of algorithm
+    with sns.color_palette(n_colors=len(knn_errors.keys())):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+    for key in knn_errors.keys():
+        ax.plot(list_k, knn_errors.loc[(slice(None),'scaling', 'uniform'),
+                key].to_numpy(),
+                marker='o', linestyle='-', label=key+' scaled, unif')
+    for key in knn_errors.keys():
+        ax.plot(list_k, knn_errors.loc[(slice(None),'scaling', 'distance'),
+                key].to_numpy(),
+                marker='o', linestyle='-.', label=key+' scaled, dist')
+    for key in knn_errors.keys():
+        ax.plot(list_k, knn_errors.loc[(slice(None),'noScaling', 'uniform'),
+                key].to_numpy(),
+                marker='o', linestyle='--', label=key+' not scaled, unif')
+    for key in knn_errors.keys():
+        ax.plot(list_k, knn_errors.loc[(slice(None),'noScaling', 'distance'),
+                key].to_numpy(),
+                marker='o', linestyle=':', label=key+' not scaled, dist')
+    plt.ylim([0, 1])
+    plt.xlabel(r'$k$')
+    plt.grid()
+    plt.legend(ncol=2, loc='upper left', bbox_to_anchor=(0, -0.15))
+    plt.show()
+    fig.savefig(os.path.join(cfg.default.communities_figures,
+                            'knn_errors.png'),
+                format='png', dpi=200, bbox_inches='tight',
+                metadata={'Creator': '', 'Author': '', 'Title': '',
+                        'Producer': ''},
+                )
 
 #%% Decision Tree Regression
-if False:
+if True:
 
     stoppedhere
 
