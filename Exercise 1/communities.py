@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.impute import SimpleImputer
 from seaborn import heatmap
+import seaborn as sns
 
 import numpy as np
 
@@ -113,7 +114,7 @@ X_test_scaled = scaler.transform(X_test)
 #%% Ridge regression
 if True:
     alphas = [0, 0.25, 0.5, 0.75, 1]
-    scalings = [True, False]
+    scalings = ['scaling', 'noScaling']
     index = pd.MultiIndex.from_product([alphas, scalings],
                                        names=['alpha', 'scaling'])
     RidgeRegression_errors = pd.DataFrame(index=index,
@@ -121,16 +122,15 @@ if True:
 
     for alpha in alphas:
         for scaling in scalings:
-            if scaling:
+            if scaling == 'scaling':
                 xtrain = X_train_scaled
                 xtest = X_test_scaled
                 normalize = False
-                filename = 'RidgeRegression_'+str(alpha)+'_scaling'
             else:  
                 xtrain = X_train
                 xtest = X_test
                 normalize = True
-                filename = 'RidgeRegression_'+str(alpha)+'_noScaling'
+            filename = 'RidgeRegression_'+str(alpha)+scaling
             
             reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
             reg.fit(xtrain, y_train)
@@ -146,8 +146,65 @@ if True:
     RidgeRegression_errors.transpose().to_csv(
         os.path.join(cfg.default.communities_figures, 'RidgeRegression_errors.csv'),
         sep=';', decimal=',')
-    RidgeRegression_errors.plot(rot='90')
+
+    # RidgeRegression_errors.plot(rot='90')
+
+    # Variante 0
+    # labels = [key for key in RidgeRegression_errors.loc[(slice(None),'scaling'),
+    #                                     slice(None)].keys()]
+    # ax = plt.gca()
+    # ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'scaling'),
+    #                                     slice(None)].to_numpy(),
+    #         marker='o', linestyle='-', label=labels)
+    # ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'noScaling'),
+    #                                     slice(None)].to_numpy(),
+    #         marker='o', linestyle='--')
+    # plt.grid()
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.show()
+
+    # Variante 0.1
+    plt.figure()
+    ax = plt.gca()
+    sns.set_palette(sns.color_palette('hls', 12))
+    for key in RidgeRegression_errors.keys():
+        ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'scaling'),
+                                            key].to_numpy(),
+                marker='o', linestyle='-', label=key+' scaled')
+    sns.set_palette(sns.color_palette('hls', 12))
+    for key in RidgeRegression_errors.keys():
+        ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'noScaling'),
+                                            key].to_numpy(),
+                marker='o', linestyle='--', label=key+' not scaled')
+    plt.grid()
+    plt.legend()
     plt.tight_layout()
+    plt.show()
+
+    # # Variante 1
+    # ax = plt.gca()
+    # RidgeRegression_errors.loc[(slice(None),'scaling'), slice(None)].plot(
+    #     ax=ax,
+    #     rot='90', marker='o', linestyle='-', grid=True)
+    # RidgeRegression_errors.loc[(slice(None),'noScaling'), slice(None)].plot(
+    #     ax=ax,
+    #     rot='90', marker='o', linestyle='--', grid=True)        
+    # plt.show()
+
+    # # Variante 2
+    # ax = plt.gca()
+    # for key in RidgeRegression_errors.keys():
+    #     RidgeRegression_errors.loc[(slice(None), slice(None)), key].plot(
+    #         ax=ax,
+    #         rot='90', marker='o', linestyle='--', grid=True)
+    # # RidgeRegression_errors.loc[(slice(None),'noScaling'), slice(None)].plot(
+    # #     ax=ax,
+    # #     rot='90', marker='o', linestyle='-', grid=True)
+    # plt.legend()        
+    # plt.show()
+
+    
     plt.savefig(os.path.join(cfg.default.communities_figures, 'RidgeRegression_errors.png'),
                             format='png', dpi=200,
                             metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
