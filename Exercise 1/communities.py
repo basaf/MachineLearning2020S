@@ -243,57 +243,66 @@ if False:
 
 #%% Decision Tree Regression
 if True:
+    max_depths = [1, 10, 30, 50, 100, 300]  # , 500]
+    min_weight_fraction_leafs = [.0, .125, .25, .375, .5]
+    # https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
 
-    stoppedhere
-
-    max_depths = [1, 5, 10, 100, 300]
-    min_samples_leaf = [1, 5, 10, 100, 300]
-# https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
-
-    index = pd.MultiIndex.from_product([max_depths, weights],
-                                       names=['max_depths', 'weights'])
-    knn_errors = pd.DataFrame(index=index,
+    index = pd.MultiIndex.from_product([max_depths, min_weight_fraction_leafs],
+                                       names=['max_depths',
+                                              'min_weight_fraction_leaf'])
+    dt_errors = pd.DataFrame(index=index,
         columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
 
     for max_depth in max_depths:
-        for scaling in scalings:
-            for weight in weights:
-                if scaling:
-                    xtrain = X_train_scaled
-                    xtest = X_test_scaled
-                    normalize = False
-                    filename = 'DTRegressor_'+str(max_depth)+'_'+weight+'_scaling'
-                else:  
-                    xtrain = X_train
-                    xtest = X_test
-                    normalize = True
-                    filename = 'DTRegressor_'+str(max_depth)+'_'+weight+'_noScaling'
+        for min_weight_fraction_leaf in min_weight_fraction_leafs:
+            xtrain = X_train
+            xtest = X_test
+            filename = 'DTRegressor_'+str(max_depth)+'_'+str(min_weight_fraction_leaf)
 
-                dt = tree.DecisionTreeRegressor(max_depth=max_depth) #MSE for measuring the quality of the split 
-                dt.fit(X_train,y_train)
-                y_pred_dt = dt.predict(X_test)  
+            dt = tree.DecisionTreeRegressor(max_depth=max_depth,
+                min_weight_fraction_leaf=min_weight_fraction_leaf)
+            dt.fit(xtrain, y_train)
+            y_pred_dt = dt.predict(xtest)  
 
-                errors = functions.check_performance(y_test, y_pred_dt,
-                    os.path.join(cfg.default.communities_figures, filename))
-                dt_errors.loc[max_depth, scaling, weight][:] = errors
-                del xtrain, xtest
+            errors = functions.check_performance(y_test, y_pred_dt,
+                os.path.join(cfg.default.communities_figures, filename))
+            dt_errors.loc[max_depth, min_weight_fraction_leaf][:] = errors
+            del xtrain, xtest
 
     print(dt_errors)
     dt_errors.transpose().to_csv(
         os.path.join(cfg.default.communities_figures, 'dt_errors.csv'),
         sep=';', decimal=',')
-    dt_errors.plot(rot='90')
-    plt.tight_layout()
-    plt.savefig(os.path.join(cfg.default.communities_figures, 'dt_errors.png'),
-                            format='png', dpi=200,
-                            metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
-                            )
+
+    # Plot errors over parameters of algorithm
+    with sns.color_palette(n_colors=len(dt_errors.keys())):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+    linestyle_cycle = ['-', '--', '-.', ':', '-', '--', '-.', ':']
+    marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*']
+    for idx, key2 in enumerate(min_weight_fraction_leafs):
+        linestyle = linestyle_cycle[idx]
+        marker = marker_cycle[idx]
+        for key in dt_errors.keys():
+            ax.plot(max_depths, dt_errors.loc[(slice(None), key2),
+                    key].to_numpy(),
+                    marker=marker, linestyle=linestyle, label=str(key)+', '+str(key2))
+    plt.ylim([0, 1])
+    plt.xlabel(r'$\mathrm{max depth}$')
+    plt.grid()
+    plt.legend(ncol=5, loc='upper left', bbox_to_anchor=(0, -0.15))
+    plt.show()
+    fig.savefig(os.path.join(cfg.default.communities_figures,
+                            'dt_errors.png'),
+                format='png', dpi=200, bbox_inches='tight',
+                metadata={'Creator': '', 'Author': '', 'Title': '',
+                        'Producer': ''},
+                )
 
 
 
-
-
-
+# %%
+    stophere
 
     filename = 'DTRegressor'
     functions.check_performance(y_test, y_pred_dt)  # ,
@@ -303,5 +312,3 @@ print()
 print('Done')
 
 
-
-# %%
