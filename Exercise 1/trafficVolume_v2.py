@@ -2,7 +2,7 @@
 """
 Created on Sun May  3 15:26:31 2020
 
-@author: guser
+@author: Pannosch, Steindl, Windholz
 """
 
 # -*- coding: utf-8 -*-
@@ -13,6 +13,7 @@ import os
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
+from sklearn import preprocessing
 
 import helper
 import functions
@@ -128,8 +129,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 #%%
 print('Ridge Linear Regression')
 
-#alpha_list = [0, .1, 1, 5, 10]
-alpha_list = [ 1, 5]
+alpha_list = [0, .1, 1, 5, 10]
+
 
 functions.ridge_regression(X_train, X_test, y_train, y_test, alpha_list, True,
                            cfg.default.traffic_figures, 'ridge_reg')
@@ -144,26 +145,25 @@ functions.knn(X_train, X_test, y_train, y_test, k_values, True, ['uniform', 'dis
 #%%
 print('Decission Tree Regression')
 
-max_depths = [1, 10, 30, 50, 100, 300]
+max_depths = [50, 100, 300, 400]
 min_weight_fraction_leafs = [.0, .125, .25, .375, .5]
-min_samples_leaf=[1, 10, 100, 200]
+min_samples_leaf=[1, 10, 50, 100]
 
 functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight_fraction_leafs, min_samples_leaf,
                         cfg.default.traffic_figures, 'dtree')
 
 #%%
-print('Random Forest')
+print('MLP')
 
-X_train_rf = X_train
-X_test_rf = X_test
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-n_values = [10, 30, 60, 100, 150]
+max_iteration = 800
+solver = 'adam' # lbfgs, adam, sgd
+alpha = [0.01,0.001]
 
-for n in n_values:
-    rf = RandomForestRegressor(n_estimators=n)
+list_hidden_layer_sizes = [[40], [60, 20]]
 
-    rf.fit(X_train_rf, y_train)
-    y_pred_rf = rf.predict(X_test_rf)
-
-    functions.check_performance(y_test, y_pred_rf,
-                                os.path.join(cfg.default.traffic_figures, f'real_estate_rf_{str(n)}'))
+functions.mlp(X_train_scaled, X_test_scaled, y_train, y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
+        cfg.default.traffic_figures, 'mlp')

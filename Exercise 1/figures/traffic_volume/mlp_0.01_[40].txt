@@ -1,0 +1,5 @@
+Mean Absolute Error (MAE): 719.92
+Mean Absolute Percentage Error (MAPE): 131.02
+Mean Squared Error (MSE): 896370.34
+Root Mean Squared Error (RMSE): 946.77
+Explained Variance (EV): 0.77
