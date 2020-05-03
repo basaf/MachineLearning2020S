@@ -129,3 +129,16 @@ functions.decision_tree(X_train, X_test, Y_train, Y_test, max_depths, min_weight
                         cfg.default.student_figures, 'dtree')
 
 print('MLP')
+
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+max_iteration = 1000
+solver = 'lbfgs' # lbfgs, adam, sgd
+alpha = [0.001, 0.0001, 0.00001]
+
+list_hidden_layer_sizes = [[10], [5, 2, 5], [60, 20]]
+
+functions.mlp(X_train_scaled, X_test_scaled, Y_train, Y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
+        cfg.default.student_figures, 'mlp')

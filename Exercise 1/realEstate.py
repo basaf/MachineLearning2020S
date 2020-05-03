@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn import preprocessing
+
 import configuration as cfg
 import os
 
@@ -78,3 +80,16 @@ functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight
                         cfg.default.real_estate_figures, 'dtree')
 
 print('MLP')
+
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+max_iteration = 1000
+solver = 'lbfgs' # lbfgs, adam, sgd
+alpha = [0.001, 0.0001, 0.00001]
+
+list_hidden_layer_sizes = [[10], [5, 2, 5], [60, 20]]
+
+functions.mlp(X_train_scaled, X_test_scaled, y_train, y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
+        cfg.default.real_estate_figures, 'mlp')
