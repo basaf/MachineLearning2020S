@@ -129,15 +129,15 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 #%%
 print('Ridge Linear Regression')
 
-alpha_list = [0, .1, 1, 5, 10]
-
-
+alpha_list = [0, 0.01,0.1, 1, ]
+#alpha_list = [ 1,  10]
 functions.ridge_regression(X_train, X_test, y_train, y_test, alpha_list, True,
                            cfg.default.traffic_figures, 'ridge_reg')
 
 #%%
 print('KNN')
 
+#k_values = [1, 7]
 k_values = [1, 3, 5, 7, 10]
 
 functions.knn(X_train, X_test, y_train, y_test, k_values, True, ['uniform', 'distance'],
@@ -161,9 +161,9 @@ X_test_scaled = scaler.transform(X_test)
 
 max_iteration = 800
 solver = 'adam' # lbfgs, adam, sgd
-alpha = [0.01,0.001]
+alpha = [0.01,0.001,0.0001]
 
-list_hidden_layer_sizes = [[40], [60, 20]]
+list_hidden_layer_sizes = [[40],[10,10], [60, 20]]
 
 functions.mlp(X_train_scaled, X_test_scaled, y_train, y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
         cfg.default.traffic_figures, 'mlp')

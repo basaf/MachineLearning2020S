@@ -116,21 +116,21 @@ def ridge_regression(X_train: np.array, X_test: np.array, Y_train: np.array, Y_t
     with sns.color_palette(n_colors=len(errors.keys())):
         fig = plt.figure()
     
-    plotIndex=1
+   
     if scaling is True:
-        for key in errors.keys():
-            ax = fig.add_subplot(5,1,plotIndex)
+        for pos,key in enumerate(errors.keys()):
+            ax = fig.add_subplot(5,1,pos+1)
             ax.set_title(key)
             ax.plot(alphas, errors.loc[(slice(None), 'scaling'), key].to_numpy(),
                     marker='o', linestyle='-', label='scaled', alpha=0.8)
-            plotIndex=plotIndex+1
+            
     
-    plotIndex=1
-    for key in errors.keys():
-        ax = fig.add_subplot(5,1,plotIndex)
+    
+    for pos, key in enumerate(errors.keys()):
+        ax = fig.add_subplot(5,1,pos+1)
         ax.plot(alphas, errors.loc[(slice(None), 'noScaling'), key].to_numpy(),
                 marker='o', linestyle='--', label='not scaled', alpha=0.8)
-        plotIndex=plotIndex+1
+        
     # plt.ylim([0, 1])
     plt.xlabel(r'$\alpha$')
     plt.grid()
@@ -184,38 +184,35 @@ def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
     with sns.color_palette(n_colors=len(knn_errors.keys())):
         fig = plt.figure()
         #ax = fig.add_subplot()
-    plotIndex=1    
-    for key in knn_errors.keys():
-        ax = fig.add_subplot(5,1,plotIndex)
+       
+    for pos, key in enumerate(knn_errors.keys()):
+        ax = fig.add_subplot(5,1,pos+1)
         ax.set_title(key)
         
         ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'uniform'),
                                        key].to_numpy(),
                 marker='o', linestyle='-', label='scaled, unif')
-        plotIndex=plotIndex+1
-    
-    plotIndex=1     
-    for key in knn_errors.keys():
-        ax = fig.add_subplot(5,1,plotIndex)
+ 
+    for pos, key in enumerate(knn_errors.keys()):
+        ax = fig.add_subplot(5,1,pos+1)
         ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'distance'),
                                        key].to_numpy(),
                 marker='o', linestyle='-.', label='scaled, dist')
-        plotIndex=plotIndex+1
-    plotIndex=1    
-    for key in knn_errors.keys():
-        ax = fig.add_subplot(5,1,plotIndex)
+  
+    for pos, key in enumerate(knn_errors.keys()):
+        ax = fig.add_subplot(5,1,pos+1)
         ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'uniform'),
                                        key].to_numpy(),
                 marker='o', linestyle='--', label='not scaled, unif')
-        plotIndex=plotIndex+1
         
-    plotIndex=1     
-    for key in knn_errors.keys():
-        ax = fig.add_subplot(5,1,plotIndex)
+        
+        
+    for pos, key in enumerate(knn_errors.keys()):
+        ax = fig.add_subplot(5,1,pos+1)
         ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'distance'),
                                        key].to_numpy(),
                 marker='o', linestyle=':', label='not scaled, dist')
-        plotIndex=plotIndex+1
+        
     # plt.ylim([0, 1])
     plt.xlabel(r'$k$')
     plt.grid()
@@ -318,20 +315,26 @@ def mlp(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(mlp_errors.keys())):
         fig = plt.figure()
-        ax = fig.add_subplot()
+        #ax = fig.add_subplot()
 
     linestyle_cycle = ['-', '--', '-.', ':'] * 3  # to have enough elements (quick&dirty)
     marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*'] * 3  # to have enough elements (quick&dirty)
     for idx, key2 in enumerate(list_hidden_layer_sizes):
         linestyle = linestyle_cycle[idx]
         marker = marker_cycle[idx]
-        for key in mlp_errors.keys():
+        
+        
+        for pos,key in enumerate(mlp_errors.keys()):
+            ax = fig.add_subplot(5,1,pos+1)
+            ax.set_title(key)
             ax.semilogx(list_alpha, mlp_errors.loc[(slice(None), str(key2)), key].to_numpy(),
                         marker=marker, linestyle=linestyle,
-                        label=str(key) + ', ' + str(key2))
+                        label=str(key2))
+            
     # plt.ylim([0, 1])
     plt.xlabel(r'$\alpha$')
     plt.grid()
     plt.legend(title='hidden_layer_sizes', ncol=len(list_hidden_layer_sizes), loc='upper center', bbox_to_anchor=(0.5, -0.15))
+    plt.tight_layout()
     fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
     plt.close(fig)
