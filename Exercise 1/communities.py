@@ -87,7 +87,7 @@ if False:
                 xticklabels=False, yticklabels=False)
     # plt.gcf().subplots_adjust(bottom=0.48, left=0.27, right=0.99, top=0.98)
     plt.tight_layout()
-    plt.savefig(os.path.join(cfg.default.dataset_communities_figures_path, 
+    plt.savefig(os.path.join(cfg.default.communities_figures, 
                 'communities_data_correlations.png'),
                 format='png', dpi=200,
                 metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''},
@@ -113,41 +113,41 @@ X_train_scaled = scaler.transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
 #%% Ridge regression
-if False:
+if True:
     alpha_list = [0, 0.5, 1, 5, 10, 50, 100]
     functions.ridge_regression(X_train, X_test, y_train, y_test, alpha_list,
-                               True, cfg.default.real_estate_figures,
+                               True, cfg.default.communities_figures,
                                'ridge_reg')
 
 #%% k-Nearest Neighbor Regression
-if False:
+if True:
     k_values = [1, 3, 5, 10, 20, 50, 100, 300]
     functions.knn(X_train, X_test, y_train, y_test, k_values, True,
-                  ['uniform', 'distance'], cfg.default.real_estate_figures,
+                  ['uniform', 'distance'], cfg.default.communities_figures,
                   'knn')
 
 #%% Decision Tree Regression
-if False:
+if True:
     max_depths = [1, 10, 50, 100, 200, 500]
     min_samples_leaf = [1, 10, 100, 200]
     min_weight_fraction_leafs = [.0, .1, .2, .35, .5]
 
     functions.decision_tree(X_train, X_test, y_train, y_test, max_depths,
                             min_weight_fraction_leafs, min_samples_leaf,
-                            cfg.default.real_estate_figures, 'dtree')
+                            cfg.default.communities_figures, 'dtree')
 
 # %% Multi-layer Perceptron Regressor
-if False:
+if True:
     solver = 'lbfgs'  # default=’adam’
     # ‘adam’ works for large datasets (with thousands of training samples or more) in terms of both training time and validation score​
     # ‘lbfgs’ for small datasets can converge faster and perform better
     max_iteration = 800  # default=200
     alpha = [1e-7, 1e-4, 1e-1]  # usually in the range 10.0 ** -np.arange(1, 7)
-    list_hidden_layer_sizes = [[10], [5, 2, 5], [60, 20]]
+    list_hidden_layer_sizes = [[90, 90], [180, 90, 180], [180, 180, 180]]
 
 
     functions.mlp(X_train_scaled, X_test_scaled, y_train, y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
-            cfg.default.real_estate_figures, 'mlp')
+            cfg.default.communities_figures, 'mlp')
 
 
 #%% Finish
