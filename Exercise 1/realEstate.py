@@ -77,18 +77,4 @@ min_samples_leaf=[1, 10, 100, 200]
 functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight_fraction_leafs, min_samples_leaf,
                         cfg.default.real_estate_figures, 'dtree')
 
-print('Random Forest')
-
-X_train_rf = X_train
-X_test_rf = X_test
-
-n_values = [10, 30, 60, 100, 150]
-
-for n in n_values:
-    rf = RandomForestRegressor(n_estimators=n)
-
-    rf.fit(X_train_rf, y_train)
-    y_pred_rf = rf.predict(X_test_rf)
-
-    functions.check_performance(y_test, y_pred_rf,
-                                os.path.join(cfg.default.real_estate_figures, f'real_estate_rf_{str(n)}'))
+print('MLP')
