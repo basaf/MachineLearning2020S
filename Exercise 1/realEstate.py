@@ -4,13 +4,8 @@ import matplotlib.pyplot as plt
 import configuration as cfg
 import os
 
-from sklearn import linear_model
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn import tree
 from sklearn.ensemble import RandomForestRegressor
-
-from sklearn import preprocessing
 
 import helper
 import functions
@@ -45,8 +40,8 @@ plt.close(figure)
 # change the transaction date to year, and month field
 transactionDate = rawData['X1 transaction date']
 
-transactionMonth = ((rawData['X1 transaction date'] - rawData['X1 transaction date'].astype(int)) / (1 / 12)).astype(
-    int)
+transactionMonth = \
+    ((rawData['X1 transaction date'] - rawData['X1 transaction date'].astype(int)) / (1 / 12)).astype(int)
 transactionYear = rawData['X1 transaction date'].astype(int)
 
 data = rawData.copy()
@@ -57,20 +52,7 @@ data['X1 transaction month'] = transactionMonth.values
 X = data.drop(['Y house price of unit area'], axis=1).to_numpy()
 y = data['Y house price of unit area'].to_numpy()
 
-# %%
-# pd.scatter_matrix(data)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-
-# %%Data scaling
-scaler_std = preprocessing.StandardScaler().fit(X_train)
-scaler_min_max = preprocessing.MinMaxScaler().fit(X_train)
-
-X_train_scaled_std = scaler_std.transform(X_train)
-X_test_scaled_std = scaler_std.transform(X_test)
-
-X_train_scaled_min_max = scaler_min_max.transform(X_train)
-X_test_scaled_min_max = scaler_min_max.transform(X_test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=5)
 
 print('Ridge Linear Regression')
 
@@ -95,18 +77,4 @@ min_samples_leaf=[1, 10, 100, 200]
 functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight_fraction_leafs, min_samples_leaf,
                         cfg.default.real_estate_figures, 'dtree')
 
-print('Random Forest')
-
-X_train_rf = X_train
-X_test_rf = X_test
-
-n_values = [10, 30, 60, 100, 150]
-
-for n in n_values:
-    rf = RandomForestRegressor(n_estimators=n)
-
-    rf.fit(X_train_rf, y_train)
-    y_pred_rf = rf.predict(X_test_rf)
-
-    functions.check_performance(y_test, y_pred_rf,
-                                os.path.join(cfg.default.real_estate_figures, f'real_estate_rf_{str(n)}'))
+print('MLP')
