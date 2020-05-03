@@ -140,6 +140,7 @@ plt.figure()
 sns.countplot(y='holiday', data= rawData.loc[rawData.holiday != 'None'])
 plt.show()
 plt.tight_layout()
+
 #change category values to numerical
 nbHolidayCat=rawData['holiday'].value_counts().count() #12
 nbWeatherMainCat=rawData['weather_main'].value_counts().count()#11
