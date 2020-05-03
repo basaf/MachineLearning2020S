@@ -16,7 +16,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
 def check_performance(y_test, y_pred, filename=None):
     # Line plot
     plt.figure()
-    plt.plot(y_test.values, label=r'$y$')
+    plt.plot(y_test, label=r'$y$')
     plt.plot(y_pred, label=r'$\hat y$')
     plt.grid()
     plt.legend()

@@ -244,95 +244,72 @@ if False:
 #%% Decision Tree Regression
 # Variant a
 if True:
-    list_max_depth = [1, 10, 50, 100, 300]  # , 500]
-    list_min_samples_leaf = [1, 10, 100]
-    list_min_weight_fraction_leaf = [.0, .1, .15, .2, .3, .5]
-    # https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
+    list_max_depth = [1, 10, 50, 100, 200, 500]
+    list_min_samples_leaf = [1, 10, 100, 200]
+    list_min_weight_fraction_leaf = [.0, .1, .2, .35, .5]
 
-    index = pd.MultiIndex.from_product([list_max_depth, list_min_weight_fraction_leaf],
+    index = pd.MultiIndex.from_product([list_max_depth,
+                                        list_min_samples_leaf,
+                                        list_min_weight_fraction_leaf],
                                        names=['max_depth',
+                                              'min_samples_leaf',
                                               'min_weight_fraction_leaf'])
     dt_errors = pd.DataFrame(index=index,
         columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
 
     for max_depth in list_max_depth:
-        for min_weight_fraction_leaf in list_min_weight_fraction_leaf:
-            xtrain = X_train
-            xtest = X_test
-            filename = 'DTRegressor_'+str(max_depth)+'_'+str(min_weight_fraction_leaf)
-
-            dt = tree.DecisionTreeRegressor(max_depth=max_depth,
-                min_weight_fraction_leaf=min_weight_fraction_leaf)
-            dt.fit(xtrain, y_train)
-            y_pred_dt = dt.predict(xtest)  
-
-            errors = functions.check_performance(y_test, y_pred_dt,
-                os.path.join(cfg.default.communities_figures, filename))
-            dt_errors.loc[max_depth, min_weight_fraction_leaf][:] = errors
-            del xtrain, xtest
-
-    print(dt_errors)
-    dt_errors.transpose().to_csv(
-        os.path.join(cfg.default.communities_figures, 'dt_errors.csv'),
-        sep=';', decimal=',')
-# Variant b
-if True:
-    list_max_depth = [1, 10, 30, 50, 100, 300]  # , 500]
-    list_min_samples_leaf = [1, 5, 10, 50, 100]
-    # https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
-
-    index = pd.MultiIndex.from_product([list_max_depth, list_min_samples_leaf],
-                                       names=['max_depth',
-                                              'min_samples_leaf'])
-    dt_errors = pd.DataFrame(index=index,
-        columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-
-    for max_depth in list_max_depth:
         for min_samples_leaf in list_min_samples_leaf:
-            xtrain = X_train
-            xtest = X_test
-            filename = 'DTRegressor_'+str(max_depth)+'_'+str(min_samples_leaf)
+            for min_weight_fraction_leaf in list_min_weight_fraction_leaf:
+                xtrain = X_train
+                xtest = X_test
+                filename = 'DTRegressor_'+str(max_depth)+'_'+str(min_samples_leaf)+'_'+str(min_weight_fraction_leaf)
 
-            dt = tree.DecisionTreeRegressor(max_depth=max_depth,
-                min_samples_leaf=min_samples_leaf)
-            dt.fit(xtrain, y_train)
-            y_pred_dt = dt.predict(xtest)  
+                dt = tree.DecisionTreeRegressor(
+                    max_depth=max_depth,
+                    min_samples_leaf=min_samples_leaf,
+                    min_weight_fraction_leaf=min_weight_fraction_leaf)
+                dt.fit(xtrain, y_train)
+                y_pred_dt = dt.predict(xtest)  
 
-            errors = functions.check_performance(y_test, y_pred_dt,
-                os.path.join(cfg.default.communities_figures, filename))
-            dt_errors.loc[max_depth, min_samples_leaf][:] = errors
-            del xtrain, xtest
+                errors = functions.check_performance(y_test, y_pred_dt,
+                    os.path.join(cfg.default.communities_figures, filename))
+                dt_errors.loc[max_depth,
+                              min_samples_leaf,
+                              min_weight_fraction_leaf][:] = errors
+                del xtrain, xtest
 
     print(dt_errors)
     dt_errors.transpose().to_csv(
         os.path.join(cfg.default.communities_figures, 'dt_errors.csv'),
         sep=';', decimal=',')
-
+    
     # Plot errors over parameters of algorithm
-    with sns.color_palette(n_colors=len(dt_errors.keys())):
-        fig = plt.figure()
-        ax = fig.add_subplot()
-    linestyle_cycle = ['-', '--', '-.', ':']*3  # to have enough elements (quick&dirty)
-    marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*']*3  # to have enough elements (quick&dirty)
-    for idx, key2 in enumerate(list_min_samples_leaf):
-        linestyle = linestyle_cycle[idx]
-        marker = marker_cycle[idx]
-        for key in dt_errors.keys():
-            ax.plot(list_max_depth, dt_errors.loc[(slice(None), key2),
-                    key].to_numpy(),
-                    marker=marker, linestyle=linestyle, label=str(key)+', '+str(key2))
-    plt.ylim([0, 1])
-    plt.xlabel(r'$\mathrm{max depth}$')
-    plt.grid()
-    plt.legend(ncol=5, loc='upper left', bbox_to_anchor=(0, -0.15))
-    plt.show()
-    fig.savefig(os.path.join(cfg.default.communities_figures,
-                            'dt_errors.png'),
-                format='png', dpi=200, bbox_inches='tight',
-                metadata={'Creator': '', 'Author': '', 'Title': '',
-                        'Producer': ''},
-                )
-
+    for key3 in list_min_weight_fraction_leaf:
+        with sns.color_palette(n_colors=len(dt_errors.keys())):
+            fig = plt.figure()
+            ax = fig.add_subplot()
+        linestyle_cycle = ['-', '--', '-.', ':']*3  # to have enough elements (quick&dirty)
+        marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*']*3  # to have enough elements (quick&dirty)
+        for idx, key2 in enumerate(list_min_samples_leaf):
+            linestyle = linestyle_cycle[idx]
+            marker = marker_cycle[idx]
+            for key in dt_errors.keys():
+                ax.plot(list_max_depth, dt_errors.loc[(slice(None), key2, key3),
+                        key].to_numpy(),
+                        marker=marker, linestyle=linestyle, label=str(key)+', '+str(key2))
+        plt.ylim([0, 1])
+        plt.xlabel('max_depth')
+        plt.grid()
+        plt.legend(title='min_samples_leaf', ncol=len(list_min_samples_leaf),
+                   loc='upper left', bbox_to_anchor=(0, -0.15))
+        plt.title('min_weight_fraction_leaf: '+str(key3))
+        plt.show()
+        fig.savefig(os.path.join(cfg.default.communities_figures,
+                                'dt_errors_'+str(key3)+'.png'),
+                    format='png', dpi=200, bbox_inches='tight',
+                    metadata={'Creator': '', 'Author': '', 'Title': '',
+                            'Producer': ''},
+                    )
 
 
 # %%
