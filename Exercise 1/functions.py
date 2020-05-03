@@ -25,6 +25,7 @@ def check_performance(y_test, y_pred, filename=None):
     else:
         plt.tight_layout()
         plt.savefig(filename + ".png", format='png')
+        plt.close()
 
     # Scatter plot
     plt.figure()
@@ -37,6 +38,7 @@ def check_performance(y_test, y_pred, filename=None):
     else:
         plt.tight_layout()
         plt.savefig(filename + "_scatter.png", format='png')
+        plt.close()
 
     # Error values
     MAE = metrics.mean_absolute_error(y_test, y_pred)
