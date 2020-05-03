@@ -124,14 +124,13 @@ def ridge_regression(X_train: np.array, X_test: np.array, Y_train: np.array, Y_t
                     marker='o', linestyle='-', label='scaled', alpha=0.8)
         ax.plot(alphas, errors.loc[(slice(None), 'noScaling'), key].to_numpy(),
                 marker='o', linestyle='--', label='not scaled', alpha=0.8)
-        
-    # plt.ylim([0, 1])
+        plt.grid()
+
+    plt.subplots_adjust(hspace=2.2)    
     plt.xlabel(r'$\alpha$')
-    plt.grid()
-    plt.legend(ncol=2, loc='upper left', bbox_to_anchor=(0, -0.15))
-    # plt.show()
-    plt.tight_layout()
-    fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
+    plt.legend(ncol=2, loc='upper center', bbox_to_anchor=(0.5, -1.7))
+    fig.savefig(os.path.join(path, filename + '_errors.png'), format='png',
+                dpi=200, bbox_inches='tight')
     plt.close(fig)
 
 
@@ -193,13 +192,13 @@ def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
 
         ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'distance'), key].to_numpy(),
                 marker='o', linestyle=':', label='not scaled, dist')
-        
-    # plt.ylim([0, 1])
+        plt.grid()
+
+    plt.subplots_adjust(hspace=2.2)   
     plt.xlabel(r'$k$')
-    plt.grid()
-    plt.legend(ncol=4, loc='upper left', bbox_to_anchor=(0, -0.15))
-    plt.tight_layout()
-    fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
+    plt.legend(ncol=4, loc='upper center', bbox_to_anchor=(0.5, -1.7))
+    fig.savefig(os.path.join(path, filename + '_errors.png'), format='png',
+                             dpi=200, bbox_inches='tight')
     plt.close(fig)
 
 
@@ -254,16 +253,12 @@ def decision_tree(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test
                 ax.plot(list_max_depth, dt_errors.loc[(slice(None), key2, key3),
                                                       key].to_numpy(),
                         marker=marker, linestyle=linestyle, label=str(key2))
-        # plt.ylim([0, 1])
+                plt.grid() 
+
+        plt.subplots_adjust(hspace=2.2)  
         plt.xlabel('max_depth')
-        plt.grid()
-        #plt.legend(title='min_weight_fraction_leaf: ' + str(key3)+'\nmin_samples_leaf', ncol=len(list_min_samples_leaf),
-         #          loc='upper left', bbox_to_anchor=(0, -0.15))
-        plt.legend(title='min_weight_fraction_leaf: ' + str(key3)+'\nmin_samples_leaf:', ncol=len(list_min_samples_leaf),loc='lower left', bbox_to_anchor=(0, -0.25))
+        plt.legend(title='min_weight_fraction_leaf: ' + str(key3)+'\nmin_samples_leaf:', ncol=len(list_min_samples_leaf),loc='upper center', bbox_to_anchor=(0.5, -1.9))
         
-        #plt.title('min_weight_fraction_leaf: ' + str(key3))
-        
-        plt.tight_layout()
         fig.savefig(os.path.join(path, filename + '_errors_' + str(key3) + '.png'),
                     format='png', dpi=200, bbox_inches='tight')
         plt.close(fig)
