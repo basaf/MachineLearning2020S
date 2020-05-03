@@ -99,7 +99,8 @@ if False:
 #%% Split data
 X = communities_data[predictive_attributes].to_numpy()
 y = communities_data[goal_attribute].to_numpy() 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+                                                    random_state=1)
 
 #%% Impute mean value of attributes
 imp = SimpleImputer(missing_values=np.nan, strategy='mean')
@@ -242,8 +243,7 @@ if False:
                 )
 
 #%% Decision Tree Regression
-# Variant a
-if True:
+if False:
     list_max_depth = [1, 10, 50, 100, 200, 500]
     list_min_samples_leaf = [1, 10, 100, 200]
     list_min_weight_fraction_leaf = [.0, .1, .2, .35, .5]
@@ -296,7 +296,8 @@ if True:
             for key in dt_errors.keys():
                 ax.plot(list_max_depth, dt_errors.loc[(slice(None), key2, key3),
                         key].to_numpy(),
-                        marker=marker, linestyle=linestyle, label=str(key)+', '+str(key2))
+                        marker=marker, linestyle=linestyle,
+                        label=str(key)+', '+str(key2))
         plt.ylim([0, 1])
         plt.xlabel('max_depth')
         plt.grid()
@@ -312,14 +313,94 @@ if True:
                     )
 
 
-# %%
+# %% Multi-layer Perceptron Regressor
 if False:
-    stophere
+    solver = 'lbfgs'  # default=’adam’
+    # ‘adam’ works for large datasets (with thousands of training samples or more) in terms of both training time and validation score​
+    # ‘lbfgs’ for small datasets can converge faster and perform better
+    max_iter = 800  # default=200
 
-    filename = 'DTRegressor'
-    functions.check_performance(y_test, y_pred_dt)  # ,
-        # os.path.join(cfg.default.communities_figures, filename))
+    list_alpha = [1e-7, 1e-4, 1e-1]  # usually in the range 10.0 ** -np.arange(1, 7)
+   
+    # Rules of thumb:​
+    # - Number of hidden layer neurons ~ 2/3 (70-90%) of inputs​
+    # - Number of hidden layer neurons should be less than double the number
+    # of neurons in input layer
+    no_of_inputs = X_train.shape[1]
+    list_neurons_per_hidden_layer = no_of_inputs * np.array([.9, 1.8])
+    list_no_of_hidden_layers = [4, 8]
+    # automatic generation of list_hidden_layer_size
+    list_hidden_layer_sizes = []
+    for i in list_neurons_per_hidden_layer:
+        for k in list_no_of_hidden_layers:
+            tuple_sizes = ()
+            for j in range(k):
+                tuple_sizes = tuple_sizes + (int(i), )
+            list_hidden_layer_sizes.append(tuple_sizes)
+    # print(list_hidden_layer_sizes)
 
+    index = pd.MultiIndex.from_product(
+        [list_alpha, [str(x) for x in list_hidden_layer_sizes]],
+        names=['alpha', 'hidden_layer_sizes'])
+    mlp_errors = pd.DataFrame(index=index,
+        columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
+    # Change parameters
+    for alpha in list_alpha:
+        for hidden_layer_sizes in list_hidden_layer_sizes:
+            xtrain = X_train_scaled
+            xtest = X_test_scaled
+            filename = 'MLP_'+str(alpha)+'_'+str(hidden_layer_sizes)
+
+            mlp = neural_network.MLPRegressor(solver=solver,
+                max_iter=max_iter,
+                alpha=alpha,
+                hidden_layer_sizes=hidden_layer_sizes,
+                verbose=True)    
+
+            mlp.fit(xtrain, y_train)
+            y_pred_mlp = mlp.predict(xtest)
+
+            errors = functions.check_performance(y_test, y_pred_mlp,
+                os.path.join(cfg.default.communities_figures, filename))
+            mlp_errors.loc[alpha, str(hidden_layer_sizes)][:] = errors
+
+            del xtrain, xtest
+    
+    print(mlp_errors)
+    mlp_errors.transpose().to_csv(
+        os.path.join(cfg.default.communities_figures,
+                     'mlp_errors.csv'),
+        sep=';', decimal=',')
+
+    # Plot errors over parameters of algorithm
+    with sns.color_palette(n_colors=len(mlp_errors.keys())):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+
+    linestyle_cycle = ['-', '--', '-.', ':']*3  # to have enough elements (quick&dirty)
+    marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*']*3  # to have enough elements (quick&dirty)
+    for idx, key2 in enumerate(list_hidden_layer_sizes):
+        linestyle = linestyle_cycle[idx]
+        marker = marker_cycle[idx]
+        for key in mlp_errors.keys():
+            ax.semilogx(list_alpha, mlp_errors.loc[(slice(None), str(key2)),
+                    key].to_numpy(),
+                    marker=marker, linestyle=linestyle,
+                    label=str(key)+', '+str(key2))
+    plt.ylim([0, 1])
+    plt.xlabel(r'$\alpha$')
+    plt.grid()
+    plt.legend(title='hidden_layer_sizes', ncol=2,
+               loc='upper center', bbox_to_anchor=(0.5, -0.15))
+    plt.show()
+    fig.savefig(os.path.join(cfg.default.communities_figures,
+                            'mlp_errors.png'),
+                format='png', dpi=200, bbox_inches='tight',
+                metadata={'Creator': '', 'Author': '', 'Title': '',
+                        'Producer': ''},
+                )
+
+#%% Finish
 print()
 print('Done')
 

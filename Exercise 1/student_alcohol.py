@@ -78,13 +78,13 @@ X = data.drop(['G3'], axis=1)
 Y = data['G3']
 
 # %% investigate data
-helper.boxplot_raw_data(rawData, X.columns,
+helper.boxplot_raw_data(rawData, X.columns, figsize=(15.00, 40.00),
                         save_fig_path=os.path.join(cfg.default.student_figures, 'student_box_plot.png'))
 
 correlation_matrix = (X.corr(method='pearson'))
 
 ax = heatmap(correlation_matrix, xticklabels=correlation_matrix.columns,
-             yticklabels=correlation_matrix.columns, annot=True)
+             yticklabels=correlation_matrix.columns, annot=False)
 ax.set_xticklabels(
     ax.get_xticklabels(),
     rotation=45,
@@ -100,12 +100,45 @@ plt.tight_layout()
 plt.savefig(os.path.join(cfg.default.student_figures, 'student_target_hist.png'), format='png')
 plt.close(figure)
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+X = X.to_numpy()
+Y = Y.to_numpy()
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=5)
 
 print('Ridge Linear Regression')
 
+alpha_list = [0, .1, 0.3, .5, 1, 1.2]
+
+functions.ridge_regression(X_train, X_test, Y_train, Y_test, alpha_list, True,
+                           cfg.default.student_figures, 'ridge_reg')
+
 print('KNN')
+
+k_values = [1, 2, 5, 7, 10]
+
+functions.knn(X_train, X_test, Y_train, Y_test, k_values, True, ['uniform', 'distance'],
+              cfg.default.student_figures, 'knn')
 
 print('Decission Tree Regression')
 
-print('Random Forest')
+max_depths = [1, 10, 30, 50, 100, 300]
+min_weight_fraction_leafs = [.0, .125, .25, .375, .5]
+min_samples_leaf=[1, 10, 100, 200]
+
+functions.decision_tree(X_train, X_test, Y_train, Y_test, max_depths, min_weight_fraction_leafs, min_samples_leaf,
+                        cfg.default.student_figures, 'dtree')
+
+print('MLP')
+
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+max_iteration = 1000
+solver = 'lbfgs' # lbfgs, adam, sgd
+alpha = [0.001, 0.0001, 0.00001]
+
+list_hidden_layer_sizes = [[10], [5, 2, 5], [60, 20]]
+
+functions.mlp(X_train_scaled, X_test_scaled, Y_train, Y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
+        cfg.default.student_figures, 'mlp')

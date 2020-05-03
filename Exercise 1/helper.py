@@ -3,11 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def boxplot_raw_data(data: pd.DataFrame, columns: list, style='seaborn-poster', save_fig_path=None, sharex=False) -> None:
+def boxplot_raw_data(data: pd.DataFrame, columns: list, style='seaborn-poster', save_fig_path=None, sharex=False, **fig_args) -> None:
     plt.style.use([style, 'fast'])
 
     # figsize is in inches, A4 = 8.27 x 11.69
-    figure, ax = plt.subplots(len(columns), 1, sharex=sharex, tight_layout=True)
+    figure, ax = plt.subplots(len(columns), 1, sharex=sharex, tight_layout=True, **fig_args)
 
     for num, column in enumerate(columns):
         p = ax[num]

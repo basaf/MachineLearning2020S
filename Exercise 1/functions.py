@@ -9,6 +9,7 @@ import pandas as pd
 from sklearn import metrics, linear_model
 from sklearn import preprocessing
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn import neural_network
 from sklearn import tree
 import functions
 import os
@@ -256,3 +257,55 @@ def decision_tree(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test
         fig.savefig(os.path.join(path, filename + '_errors_' + str(key3) + '.png'),
                     format='png', dpi=200, bbox_inches='tight')
         plt.close(fig)
+
+
+def mlp(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
+        max_iter: int = 800, solver: str = 'lbfgs', list_alpha=[1e-7, 1e-4, 1e-1], list_hidden_layer_sizes = [[10]],
+        path: str = None, filename: str = None): #list_neurons_per_hidden_layer, list_no_of_hidden_layers,
+
+    index = pd.MultiIndex.from_product(
+        [list_alpha, [str(x) for x in list_hidden_layer_sizes]],
+        names=['alpha', 'hidden_layer_sizes'])
+    mlp_errors = pd.DataFrame(index=index,
+                              columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
+    # Change parameters
+    for alpha in list_alpha:
+        for hidden_layer_sizes in list_hidden_layer_sizes:
+            mlp = neural_network.MLPRegressor(solver=solver,
+                                              max_iter=max_iter,
+                                              alpha=alpha,
+                                              hidden_layer_sizes=hidden_layer_sizes,
+                                              verbose=True,
+                                              random_state=5)
+
+            mlp.fit(X_train, Y_train)
+            y_pred_mlp = mlp.predict(X_test)
+
+            errors = functions.check_performance(Y_test, y_pred_mlp,
+                                                 os.path.join(path, filename + '_' + str(alpha) + '_' + str(
+                                                     hidden_layer_sizes)))
+            mlp_errors.loc[alpha, str(hidden_layer_sizes)][:] = errors
+
+    print(mlp_errors)
+    mlp_errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
+
+    # Plot errors over parameters of algorithm
+    with sns.color_palette(n_colors=len(mlp_errors.keys())):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+
+    linestyle_cycle = ['-', '--', '-.', ':'] * 3  # to have enough elements (quick&dirty)
+    marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*'] * 3  # to have enough elements (quick&dirty)
+    for idx, key2 in enumerate(list_hidden_layer_sizes):
+        linestyle = linestyle_cycle[idx]
+        marker = marker_cycle[idx]
+        for key in mlp_errors.keys():
+            ax.semilogx(list_alpha, mlp_errors.loc[(slice(None), str(key2)), key].to_numpy(),
+                        marker=marker, linestyle=linestyle,
+                        label=str(key) + ', ' + str(key2))
+    # plt.ylim([0, 1])
+    plt.xlabel(r'$\alpha$')
+    plt.grid()
+    plt.legend(title='hidden_layer_sizes', ncol=len(list_hidden_layer_sizes), loc='upper center', bbox_to_anchor=(0.5, -0.15))
+    fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
+    plt.close(fig)

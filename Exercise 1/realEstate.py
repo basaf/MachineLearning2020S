@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn import preprocessing
+
 import configuration as cfg
 import os
 
@@ -77,18 +79,17 @@ min_samples_leaf=[1, 10, 100, 200]
 functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight_fraction_leafs, min_samples_leaf,
                         cfg.default.real_estate_figures, 'dtree')
 
-print('Random Forest')
+print('MLP')
 
-X_train_rf = X_train
-X_test_rf = X_test
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-n_values = [10, 30, 60, 100, 150]
+max_iteration = 1000
+solver = 'lbfgs' # lbfgs, adam, sgd
+alpha = [0.001, 0.0001, 0.00001]
 
-for n in n_values:
-    rf = RandomForestRegressor(n_estimators=n)
+list_hidden_layer_sizes = [[10], [5, 2, 5], [60, 20]]
 
-    rf.fit(X_train_rf, y_train)
-    y_pred_rf = rf.predict(X_test_rf)
-
-    functions.check_performance(y_test, y_pred_rf,
-                                os.path.join(cfg.default.real_estate_figures, f'real_estate_rf_{str(n)}'))
+functions.mlp(X_train_scaled, X_test_scaled, y_train, y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
+        cfg.default.real_estate_figures, 'mlp')
