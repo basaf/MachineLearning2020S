@@ -3,19 +3,20 @@
 common functions for all datasets
 """
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import metrics
+
 
 def mean_absolute_percentage_error(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     return np.mean(np.abs((y_true - y_pred) / y_true) * 100)
 
+
 def check_performance(y_test, y_pred, filename=None):
     # Line plot
     plt.figure()
-    plt.plot(y_test, label=r'$y$')
+    plt.plot(y_test.values, label=r'$y$')
     plt.plot(y_pred, label=r'$\hat y$')
     plt.grid()
     plt.legend()
@@ -51,9 +52,7 @@ def check_performance(y_test, y_pred, filename=None):
     print('Explained Variance (EV): {:.2f}'.format(EV))
     print()
     
-    if filename is None:
-        pass
-    else:
+    if filename is not None:
         f = open(filename + '.txt', 'w')
         f.write(f'Mean Absolute Error (MAE): {MAE:.2f}\n')
         f.write(f'Mean Absolute Percentage Error (MAPE): {MAPE:.2f}\n')
