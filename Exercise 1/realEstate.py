@@ -90,8 +90,9 @@ print('Decission Tree Regression')
 
 max_depths = [1, 10, 30, 50, 100, 300]
 min_weight_fraction_leafs = [.0, .125, .25, .375, .5]
+min_samples_leaf=[1, 10, 100, 200]
 
-functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight_fraction_leafs,
+functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight_fraction_leafs, min_samples_leaf,
                         cfg.default.real_estate_figures, 'dtree')
 
 print('Random Forest')
