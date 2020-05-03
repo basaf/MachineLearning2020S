@@ -54,8 +54,8 @@ data.drop('X1 transaction date', axis=1, inplace=True)
 data['X1 transaction year'] = transactionYear.values
 data['X1 transaction month'] = transactionMonth.values
 
-X = data.drop(['Y house price of unit area'], axis=1)
-y = data['Y house price of unit area']
+X = data.drop(['Y house price of unit area'], axis=1).to_numpy()
+y = data['Y house price of unit area'].to_numpy()
 
 # %%
 # pd.scatter_matrix(data)
@@ -74,87 +74,38 @@ X_test_scaled_min_max = scaler_min_max.transform(X_test)
 
 print('Ridge Linear Regression')
 
-alpha_list = [0, .1, .5, 1, 1.5, 2]
+alpha_list = [0, .1, 0.3, .5, 1, 1.2]
 
-for alpha in alpha_list:
-    reg = linear_model.Ridge(alpha=alpha, normalize=False)
-    reg.fit(X_train, y_train)
-    y_pred_reg = reg.predict(X_test)
-
-    functions.check_performance(y_test, y_pred_reg,
-                                os.path.join(cfg.default.real_estate_figures, f'real_estate_ridge_{str(alpha*10)}'))
-
-    # will be normalized by subtracting mean and dividing by l2-norm
-    reg = linear_model.Ridge(alpha=alpha, normalize=True)
-    reg.fit(X_train, y_train)
-    y_pred_reg = reg.predict(X_test)
-
-    functions.check_performance(y_test, y_pred_reg,
-                                os.path.join(cfg.default.real_estate_figures, f'real_estate_ridge_{str(alpha*10)}_norm'))
-
-    reg = linear_model.Ridge(alpha=alpha, normalize=False)
-    reg.fit(X_train_scaled_std, y_train)
-    y_pred_reg = reg.predict(X_test)
-
-    functions.check_performance(y_test, y_pred_reg,
-                                os.path.join(cfg.default.real_estate_figures, f'real_estate_ridge_{str(alpha*10)}_scaled'))
+functions.ridge_regression(X_train, X_test, y_train, y_test, alpha_list, True,
+                           cfg.default.real_estate_figures, 'ridge_reg')
 
 print('KNN')
 
 k_values = [1, 2, 5, 7, 10]
 
-for k in k_values:
-
-    # without scaling
-    X_train_knn = X_train
-    X_test_knn = X_test
-
-    knn = KNeighborsRegressor(n_neighbors=k, weights='distance')  # distance performs better
-    knn.fit(X_train_knn, y_train)
-    y_pred_knn = knn.predict(X_test_knn)
-
-    functions.check_performance(y_test, y_pred_knn, os.path.join(cfg.default.real_estate_figures, f'real_estate_knn_{str(k)}'))
-
-    # with std scaler
-    X_train_knn = X_train_scaled_std
-    X_test_knn = X_test_scaled_std
-
-    knn = KNeighborsRegressor(n_neighbors=k, weights='distance')  # distance performs better
-    knn.fit(X_train_knn, y_train)
-    y_pred_knn = knn.predict(X_test_knn)
-
-    functions.check_performance(y_test, y_pred_knn, os.path.join(cfg.default.real_estate_figures, f'real_estate_knn_{str(k)}_std'))
-
-    # with min max scaler
-    X_train_knn = X_train_scaled_min_max
-    X_test_knn = X_test_scaled_min_max
-
-    knn = KNeighborsRegressor(n_neighbors=k, weights='distance')  # distance performs better
-    knn.fit(X_train_knn, y_train)
-    y_pred_knn = knn.predict(X_test_knn)
-
-    functions.check_performance(y_test, y_pred_knn,
-                                os.path.join(cfg.default.real_estate_figures, f'real_estate_knn_{str(k)}_min_max'))
+functions.knn(X_train, X_test, y_train, y_test, k_values, True, ['uniform', 'distance'],
+              cfg.default.real_estate_figures, 'knn')
 
 print('Decission Tree Regression')
 
-dt = tree.DecisionTreeRegressor()
-dt.fit(X_train, y_train)
-y_pred_dt = dt.predict(X_test)
+max_depths = [1, 10, 30, 50, 100, 300]
+min_weight_fraction_leafs = [.0, .125, .25, .375, .5]
 
-functions.check_performance(y_test, y_pred_dt, os.path.join(cfg.default.real_estate_figures, 'real_estate_d_tree'))
+functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight_fraction_leafs,
+                        cfg.default.real_estate_figures, 'dtree')
 
 print('Random Forest')
 
-X_train_rf=X_train
-X_test_rf=X_test
+X_train_rf = X_train
+X_test_rf = X_test
 
 n_values = [10, 30, 60, 100, 150]
 
 for n in n_values:
     rf = RandomForestRegressor(n_estimators=n)
 
-    rf.fit(X_train_rf,y_train)
-    y_pred_rf=rf.predict(X_test_rf)
+    rf.fit(X_train_rf, y_train)
+    y_pred_rf = rf.predict(X_test_rf)
 
-    functions.check_performance(y_test, y_pred_rf, os.path.join(cfg.default.real_estate_figures, f'real_estate_rf_{str(n)}'))
+    functions.check_performance(y_test, y_pred_rf,
+                                os.path.join(cfg.default.real_estate_figures, f'real_estate_rf_{str(n)}'))

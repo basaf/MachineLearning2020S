@@ -5,7 +5,14 @@ common functions for all datasets
 
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn import metrics
+import pandas as pd
+from sklearn import metrics, linear_model
+from sklearn import preprocessing
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn import tree
+import functions
+import os
+import seaborn as sns
 
 
 def mean_absolute_percentage_error(y_true, y_pred):
@@ -13,10 +20,10 @@ def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(np.abs((y_true - y_pred) / y_true) * 100)
 
 
-def check_performance(y_test, y_pred, filename=None):
+def check_performance(y_test: np.array, y_pred: np.array, filename=None):
     # Line plot
     plt.figure()
-    plt.plot(y_test.values, label=r'$y$')
+    plt.plot(y_test, label=r'$y$')
     plt.plot(y_pred, label=r'$\hat y$')
     plt.grid()
     plt.legend()
@@ -53,7 +60,7 @@ def check_performance(y_test, y_pred, filename=None):
     print('Root Mean Squared Error (RMSE): {:.2f}'.format(RMSE))
     print('Explained Variance (EV): {:.2f}'.format(EV))
     print()
-    
+
     if filename is not None:
         f = open(filename + '.txt', 'w')
         f.write(f'Mean Absolute Error (MAE): {MAE:.2f}\n')
@@ -64,3 +71,176 @@ def check_performance(y_test, y_pred, filename=None):
         f.close()
 
     return MAE, MAPE, MSE, RMSE, EV
+
+
+def ridge_regression(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
+                     alphas=[0, 0.5, 1, 5, 10, 50, 100], scaling: bool = True, path: str = None, filename: str = None):
+    if scaling is True:
+        scalings = ['scaling', 'noScaling']
+        scaler = preprocessing.StandardScaler().fit(X_train)
+        X_train_scaled = scaler.transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+    else:
+        scalings = ['noScaling']
+
+    index = pd.MultiIndex.from_product([alphas, scalings], names=['alpha', 'scaling'])
+    errors = pd.DataFrame(index=index,
+                          columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
+    # Change parameters
+    for alpha in alphas:
+        for s in scalings:
+            if s == 'scaling':
+                xtrain = X_train_scaled
+                xtest = X_test_scaled
+                normalize = False
+            else:
+                xtrain = X_train
+                xtest = X_test
+                normalize = True
+
+            reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
+            reg.fit(xtrain, Y_train)
+            y_pred_reg = reg.predict(xtest)
+
+            test_errors = functions.check_performance(Y_test, y_pred_reg,
+                                                      os.path.join(path, filename + '_' + str(alpha) + '_' + s))
+            errors.loc[alpha, s][:] = test_errors
+
+            del xtrain, xtest
+
+    print(errors)
+    errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
+
+    # Plot errors over parameters of algorithm
+    with sns.color_palette(n_colors=len(errors.keys())):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+    if scaling is True:
+        for key in errors.keys():
+            ax.plot(alphas, errors.loc[(slice(None), 'scaling'), key].to_numpy(),
+                    marker='o', linestyle='-', label=key + ' scaled', alpha=0.8)
+    for key in errors.keys():
+        ax.plot(alphas, errors.loc[(slice(None), 'noScaling'), key].to_numpy(),
+                marker='o', linestyle='--', label=key + ' not scaled', alpha=0.8)
+    # plt.ylim([0, 1])
+    plt.xlabel(r'$\alpha$')
+    plt.grid()
+    plt.legend(ncol=2, loc='upper left', bbox_to_anchor=(0, -0.15))
+    # plt.show()
+    fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
+    plt.close(fig)
+
+
+def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
+        list_k=[1, 3, 5], scaling: bool = True, weights=['uniform', 'distance'],
+        path: str = None, filename: str = None):
+    if scaling is True:
+        scalings = ['scaling', 'noScaling']
+        scaler = preprocessing.StandardScaler().fit(X_train)
+        X_train_scaled = scaler.transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+    else:
+        scalings = ['noScaling']
+
+    index = pd.MultiIndex.from_product([list_k, scalings, weights],
+                                       names=['k', 'scaling', 'weights'])
+    knn_errors = pd.DataFrame(index=index,
+                              columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
+    # Change parameters
+    for k in list_k:
+        for s in scalings:
+            for weight in weights:
+                if s == 'scaling':
+                    xtrain = X_train_scaled
+                    xtest = X_test_scaled
+                else:
+                    xtrain = X_train
+                    xtest = X_test
+
+                knn = KNeighborsRegressor(n_neighbors=k, weights=weight)
+                knn.fit(xtrain, Y_train)
+                y_pred_knn = knn.predict(xtest)
+
+                errors = functions.check_performance(Y_test, y_pred_knn,
+                                                     os.path.join(path,
+                                                                  filename + '_' + str(k) + '_' + weight + '_' + s))
+                knn_errors.loc[k, s, weight][:] = errors
+                del xtrain, xtest
+
+    print(knn_errors)
+    knn_errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
+
+    # Plot errors over parameters of algorithm
+    with sns.color_palette(n_colors=len(knn_errors.keys())):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+    for key in knn_errors.keys():
+        ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'uniform'),
+                                       key].to_numpy(),
+                marker='o', linestyle='-', label=key + ' scaled, unif')
+    for key in knn_errors.keys():
+        ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'distance'),
+                                       key].to_numpy(),
+                marker='o', linestyle='-.', label=key + ' scaled, dist')
+    for key in knn_errors.keys():
+        ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'uniform'),
+                                       key].to_numpy(),
+                marker='o', linestyle='--', label=key + ' not scaled, unif')
+    for key in knn_errors.keys():
+        ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'distance'),
+                                       key].to_numpy(),
+                marker='o', linestyle=':', label=key + ' not scaled, dist')
+    # plt.ylim([0, 1])
+    plt.xlabel(r'$k$')
+    plt.grid()
+    plt.legend(ncol=4, loc='upper left', bbox_to_anchor=(0, -0.15))
+    fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
+    plt.close(fig)
+
+
+def decision_tree(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
+                  max_depths=[1, 10, 30, 50, 100, 300], min_weight_fraction_leafs=[.0, .125, .25, .375, .5],
+                  path: str = None, filename: str = None):
+    index = pd.MultiIndex.from_product([max_depths, min_weight_fraction_leafs],
+                                       names=['max_depths',
+                                              'min_weight_fraction_leaf'])
+    dt_errors = pd.DataFrame(index=index,
+                             columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
+
+    for max_depth in max_depths:
+        for min_weight_fraction_leaf in min_weight_fraction_leafs:
+            xtrain = X_train
+            xtest = X_test
+
+            dt = tree.DecisionTreeRegressor(max_depth=max_depth,
+                                            min_weight_fraction_leaf=min_weight_fraction_leaf)
+            dt.fit(xtrain, Y_train)
+            y_pred_dt = dt.predict(xtest)
+
+            errors = functions.check_performance(Y_test, y_pred_dt,
+                                                 os.path.join(path, filename + '_' + str(max_depth) + '_' + str(
+                                                     min_weight_fraction_leaf)))
+            dt_errors.loc[max_depth, min_weight_fraction_leaf][:] = errors
+            del xtrain, xtest
+
+    print(dt_errors)
+    dt_errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
+
+    # Plot errors over parameters of algorithm
+    with sns.color_palette(n_colors=len(dt_errors.keys())):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+    linestyle_cycle = ['-', '--', '-.', ':', '-', '--', '-.', ':']
+    marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*']
+    for idx, key2 in enumerate(min_weight_fraction_leafs):
+        linestyle = linestyle_cycle[idx]
+        marker = marker_cycle[idx]
+        for key in dt_errors.keys():
+            ax.plot(max_depths, dt_errors.loc[(slice(None), key2), key].to_numpy(),
+                    marker=marker, linestyle=linestyle, label=str(key) + ', ' + str(key2))
+    # plt.ylim([0, 1])
+    plt.xlabel(r'$\mathrm{max depth}$')
+    plt.grid()
+    plt.legend(ncol=5, loc='upper left', bbox_to_anchor=(0, -0.15))
+    fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
+    plt.close(fig)
