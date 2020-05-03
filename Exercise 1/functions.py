@@ -115,19 +115,28 @@ def ridge_regression(X_train: np.array, X_test: np.array, Y_train: np.array, Y_t
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(errors.keys())):
         fig = plt.figure()
-        ax = fig.add_subplot()
+    
+    plotIndex=1
     if scaling is True:
         for key in errors.keys():
+            ax = fig.add_subplot(5,1,plotIndex)
+            ax.set_title(key)
             ax.plot(alphas, errors.loc[(slice(None), 'scaling'), key].to_numpy(),
-                    marker='o', linestyle='-', label=key + ' scaled', alpha=0.8)
+                    marker='o', linestyle='-', label='scaled', alpha=0.8)
+            plotIndex=plotIndex+1
+    
+    plotIndex=1
     for key in errors.keys():
+        ax = fig.add_subplot(5,1,plotIndex)
         ax.plot(alphas, errors.loc[(slice(None), 'noScaling'), key].to_numpy(),
-                marker='o', linestyle='--', label=key + ' not scaled', alpha=0.8)
+                marker='o', linestyle='--', label='not scaled', alpha=0.8)
+        plotIndex=plotIndex+1
     # plt.ylim([0, 1])
     plt.xlabel(r'$\alpha$')
     plt.grid()
     plt.legend(ncol=2, loc='upper left', bbox_to_anchor=(0, -0.15))
     # plt.show()
+    plt.tight_layout()
     fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
     plt.close(fig)
 
@@ -174,27 +183,44 @@ def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(knn_errors.keys())):
         fig = plt.figure()
-        ax = fig.add_subplot()
+        #ax = fig.add_subplot()
+    plotIndex=1    
     for key in knn_errors.keys():
+        ax = fig.add_subplot(5,1,plotIndex)
+        ax.set_title(key)
+        
         ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'uniform'),
                                        key].to_numpy(),
-                marker='o', linestyle='-', label=key + ' scaled, unif')
+                marker='o', linestyle='-', label='scaled, unif')
+        plotIndex=plotIndex+1
+    
+    plotIndex=1     
     for key in knn_errors.keys():
+        ax = fig.add_subplot(5,1,plotIndex)
         ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'distance'),
                                        key].to_numpy(),
-                marker='o', linestyle='-.', label=key + ' scaled, dist')
+                marker='o', linestyle='-.', label='scaled, dist')
+        plotIndex=plotIndex+1
+    plotIndex=1    
     for key in knn_errors.keys():
+        ax = fig.add_subplot(5,1,plotIndex)
         ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'uniform'),
                                        key].to_numpy(),
-                marker='o', linestyle='--', label=key + ' not scaled, unif')
+                marker='o', linestyle='--', label='not scaled, unif')
+        plotIndex=plotIndex+1
+        
+    plotIndex=1     
     for key in knn_errors.keys():
+        ax = fig.add_subplot(5,1,plotIndex)
         ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'distance'),
                                        key].to_numpy(),
-                marker='o', linestyle=':', label=key + ' not scaled, dist')
+                marker='o', linestyle=':', label='not scaled, dist')
+        plotIndex=plotIndex+1
     # plt.ylim([0, 1])
     plt.xlabel(r'$k$')
     plt.grid()
     plt.legend(ncol=4, loc='upper left', bbox_to_anchor=(0, -0.15))
+    plt.tight_layout()
     fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
     plt.close(fig)
 
