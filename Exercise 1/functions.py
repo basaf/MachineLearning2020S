@@ -115,19 +115,13 @@ def ridge_regression(X_train: np.array, X_test: np.array, Y_train: np.array, Y_t
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(errors.keys())):
         fig = plt.figure()
-    
-   
-    if scaling is True:
-        for pos,key in enumerate(errors.keys()):
-            ax = fig.add_subplot(5,1,pos+1)
-            ax.set_title(key)
-            ax.plot(alphas, errors.loc[(slice(None), 'scaling'), key].to_numpy(),
-                    marker='o', linestyle='-', label='scaled', alpha=0.8)
-            
-    
-    
+
     for pos, key in enumerate(errors.keys()):
         ax = fig.add_subplot(5,1,pos+1)
+        ax.set_title(key)
+        if scaling is True:
+            ax.plot(alphas, errors.loc[(slice(None), 'scaling'), key].to_numpy(),
+                    marker='o', linestyle='-', label='scaled', alpha=0.8)
         ax.plot(alphas, errors.loc[(slice(None), 'noScaling'), key].to_numpy(),
                 marker='o', linestyle='--', label='not scaled', alpha=0.8)
         
@@ -183,34 +177,21 @@ def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(knn_errors.keys())):
         fig = plt.figure()
-        #ax = fig.add_subplot()
        
     for pos, key in enumerate(knn_errors.keys()):
         ax = fig.add_subplot(5,1,pos+1)
         ax.set_title(key)
         
-        ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'uniform'),
-                                       key].to_numpy(),
+        ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'uniform'), key].to_numpy(),
                 marker='o', linestyle='-', label='scaled, unif')
- 
-    for pos, key in enumerate(knn_errors.keys()):
-        ax = fig.add_subplot(5,1,pos+1)
-        ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'distance'),
-                                       key].to_numpy(),
+
+        ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'distance'), key].to_numpy(),
                 marker='o', linestyle='-.', label='scaled, dist')
-  
-    for pos, key in enumerate(knn_errors.keys()):
-        ax = fig.add_subplot(5,1,pos+1)
-        ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'uniform'),
-                                       key].to_numpy(),
+
+        ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'uniform'), key].to_numpy(),
                 marker='o', linestyle='--', label='not scaled, unif')
-        
-        
-        
-    for pos, key in enumerate(knn_errors.keys()):
-        ax = fig.add_subplot(5,1,pos+1)
-        ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'distance'),
-                                       key].to_numpy(),
+
+        ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'distance'), key].to_numpy(),
                 marker='o', linestyle=':', label='not scaled, dist')
         
     # plt.ylim([0, 1])
@@ -315,15 +296,13 @@ def mlp(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(mlp_errors.keys())):
         fig = plt.figure()
-        #ax = fig.add_subplot()
 
     linestyle_cycle = ['-', '--', '-.', ':'] * 3  # to have enough elements (quick&dirty)
     marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*'] * 3  # to have enough elements (quick&dirty)
     for idx, key2 in enumerate(list_hidden_layer_sizes):
         linestyle = linestyle_cycle[idx]
         marker = marker_cycle[idx]
-        
-        
+
         for pos,key in enumerate(mlp_errors.keys()):
             ax = fig.add_subplot(5,1,pos+1)
             ax.set_title(key)
