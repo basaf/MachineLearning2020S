@@ -114,291 +114,41 @@ X_test_scaled = scaler.transform(X_test)
 
 #%% Ridge regression
 if False:
-    alphas = [0, 0.5, 1, 5, 10, 50, 100]
-    scalings = ['scaling', 'noScaling']
-    index = pd.MultiIndex.from_product([alphas, scalings],
-                                       names=['alpha', 'scaling'])
-    RidgeRegression_errors = pd.DataFrame(index=index,
-        columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-    # Change parameters
-    for alpha in alphas:
-        for scaling in scalings:
-            if scaling == 'scaling':
-                xtrain = X_train_scaled
-                xtest = X_test_scaled
-                normalize = False
-            else:  
-                xtrain = X_train
-                xtest = X_test
-                normalize = True
-            filename = 'RidgeRegression_'+str(alpha)+'_'+scaling
-            
-            reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
-            reg.fit(xtrain, y_train)
-            y_pred_reg = reg.predict(xtest)
-
-            errors = functions.check_performance(y_test, y_pred_reg,
-                os.path.join(cfg.default.communities_figures, filename))
-            RidgeRegression_errors.loc[alpha, scaling][:] = errors
-
-            del xtrain, xtest
-    
-    print(RidgeRegression_errors)
-    RidgeRegression_errors.transpose().to_csv(
-        os.path.join(cfg.default.communities_figures,
-                     'RidgeRegression_errors.csv'),
-        sep=';', decimal=',')
-
-    # Plot errors over parameters of algorithm
-    with sns.color_palette(n_colors=len(RidgeRegression_errors.keys())):
-        fig = plt.figure()
-        ax = fig.add_subplot()
-    for key in RidgeRegression_errors.keys():
-        ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'scaling'),
-                key].to_numpy(),
-                marker='o', linestyle='-', label=key+' scaled')
-    for key in RidgeRegression_errors.keys():
-        ax.plot(alphas, RidgeRegression_errors.loc[(slice(None),'noScaling'),
-                key].to_numpy(),
-                marker='o', linestyle='--', label=key+' not scaled')
-    plt.ylim([0, 1])
-    plt.xlabel(r'$\alpha$')
-    plt.grid()
-    plt.legend(ncol=2, loc='upper left', bbox_to_anchor=(0, -0.15))
-    plt.show()
-    fig.savefig(os.path.join(cfg.default.communities_figures,
-                            'RidgeRegression_errors.png'),
-                format='png', dpi=200, bbox_inches='tight',
-                metadata={'Creator': '', 'Author': '', 'Title': '',
-                        'Producer': ''},
-                )
-        
+    alpha_list = [0, 0.5, 1, 5, 10, 50, 100]
+    functions.ridge_regression(X_train, X_test, y_train, y_test, alpha_list,
+                               True, cfg.default.real_estate_figures,
+                               'ridge_reg')
 
 #%% k-Nearest Neighbor Regression
 if False:
-    list_k = [1, 3, 5, 10, 20, 50, 100, 300]
-    scalings = ['scaling', 'noScaling']
-    weights = ['uniform', 'distance']
-
-    index = pd.MultiIndex.from_product([list_k, scalings, weights],
-                                       names=['k', 'scaling', 'weights'])
-    knn_errors = pd.DataFrame(index=index,
-        columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-    # Change parameters
-    for k in list_k:
-        for scaling in scalings:
-            for weight in weights:
-                if scaling == 'scaling':
-                    xtrain = X_train_scaled
-                    xtest = X_test_scaled
-                else:  
-                    xtrain = X_train
-                    xtest = X_test
-                filename = 'k-NN_'+str(k)+'_'+weight+'_'+scaling
-
-                knn = KNeighborsRegressor(n_neighbors=k, weights=weight)
-                knn.fit(xtrain, y_train)
-                y_pred_knn = knn.predict(xtest)
-
-                errors = functions.check_performance(y_test, y_pred_knn,
-                    os.path.join(cfg.default.communities_figures, filename))
-                knn_errors.loc[k, scaling, weight][:] = errors
-                del xtrain, xtest
-
-    print(knn_errors)
-    knn_errors.transpose().to_csv(
-        os.path.join(cfg.default.communities_figures, 'knn_errors.csv'),
-        sep=';', decimal=',')
-
-    # Plot errors over parameters of algorithm
-    with sns.color_palette(n_colors=len(knn_errors.keys())):
-        fig = plt.figure()
-        ax = fig.add_subplot()
-    for key in knn_errors.keys():
-        ax.plot(list_k, knn_errors.loc[(slice(None),'scaling', 'uniform'),
-                key].to_numpy(),
-                marker='o', linestyle='-', label=key+' scaled, unif')
-    for key in knn_errors.keys():
-        ax.plot(list_k, knn_errors.loc[(slice(None),'scaling', 'distance'),
-                key].to_numpy(),
-                marker='o', linestyle='-.', label=key+' scaled, dist')
-    for key in knn_errors.keys():
-        ax.plot(list_k, knn_errors.loc[(slice(None),'noScaling', 'uniform'),
-                key].to_numpy(),
-                marker='o', linestyle='--', label=key+' not scaled, unif')
-    for key in knn_errors.keys():
-        ax.plot(list_k, knn_errors.loc[(slice(None),'noScaling', 'distance'),
-                key].to_numpy(),
-                marker='o', linestyle=':', label=key+' not scaled, dist')
-    plt.ylim([0, 1])
-    plt.xlabel(r'$k$')
-    plt.grid()
-    plt.legend(ncol=2, loc='upper left', bbox_to_anchor=(0, -0.15))
-    plt.show()
-    fig.savefig(os.path.join(cfg.default.communities_figures,
-                            'knn_errors.png'),
-                format='png', dpi=200, bbox_inches='tight',
-                metadata={'Creator': '', 'Author': '', 'Title': '',
-                        'Producer': ''},
-                )
+    k_values = [1, 3, 5, 10, 20, 50, 100, 300]
+    functions.knn(X_train, X_test, y_train, y_test, k_values, True,
+                  ['uniform', 'distance'], cfg.default.real_estate_figures,
+                  'knn')
 
 #%% Decision Tree Regression
 if False:
-    list_max_depth = [1, 10, 50, 100, 200, 500]
-    list_min_samples_leaf = [1, 10, 100, 200]
-    list_min_weight_fraction_leaf = [.0, .1, .2, .35, .5]
+    max_depths = [1, 10, 50, 100, 200, 500]
+    min_samples_leaf = [1, 10, 100, 200]
+    min_weight_fraction_leafs = [.0, .1, .2, .35, .5]
 
-    index = pd.MultiIndex.from_product([list_max_depth,
-                                        list_min_samples_leaf,
-                                        list_min_weight_fraction_leaf],
-                                       names=['max_depth',
-                                              'min_samples_leaf',
-                                              'min_weight_fraction_leaf'])
-    dt_errors = pd.DataFrame(index=index,
-        columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-
-    for max_depth in list_max_depth:
-        for min_samples_leaf in list_min_samples_leaf:
-            for min_weight_fraction_leaf in list_min_weight_fraction_leaf:
-                xtrain = X_train
-                xtest = X_test
-                filename = 'DTRegressor_'+str(max_depth)+'_'+str(min_samples_leaf)+'_'+str(min_weight_fraction_leaf)
-
-                dt = tree.DecisionTreeRegressor(
-                    max_depth=max_depth,
-                    min_samples_leaf=min_samples_leaf,
-                    min_weight_fraction_leaf=min_weight_fraction_leaf)
-                dt.fit(xtrain, y_train)
-                y_pred_dt = dt.predict(xtest)  
-
-                errors = functions.check_performance(y_test, y_pred_dt,
-                    os.path.join(cfg.default.communities_figures, filename))
-                dt_errors.loc[max_depth,
-                              min_samples_leaf,
-                              min_weight_fraction_leaf][:] = errors
-                del xtrain, xtest
-
-    print(dt_errors)
-    dt_errors.transpose().to_csv(
-        os.path.join(cfg.default.communities_figures, 'dt_errors.csv'),
-        sep=';', decimal=',')
-    
-    # Plot errors over parameters of algorithm
-    for key3 in list_min_weight_fraction_leaf:
-        with sns.color_palette(n_colors=len(dt_errors.keys())):
-            fig = plt.figure()
-            ax = fig.add_subplot()
-        linestyle_cycle = ['-', '--', '-.', ':']*3  # to have enough elements (quick&dirty)
-        marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*']*3  # to have enough elements (quick&dirty)
-        for idx, key2 in enumerate(list_min_samples_leaf):
-            linestyle = linestyle_cycle[idx]
-            marker = marker_cycle[idx]
-            for key in dt_errors.keys():
-                ax.plot(list_max_depth, dt_errors.loc[(slice(None), key2, key3),
-                        key].to_numpy(),
-                        marker=marker, linestyle=linestyle,
-                        label=str(key)+', '+str(key2))
-        plt.ylim([0, 1])
-        plt.xlabel('max_depth')
-        plt.grid()
-        plt.legend(title='min_samples_leaf', ncol=len(list_min_samples_leaf),
-                   loc='upper left', bbox_to_anchor=(0, -0.15))
-        plt.title('min_weight_fraction_leaf: '+str(key3))
-        plt.show()
-        fig.savefig(os.path.join(cfg.default.communities_figures,
-                                'dt_errors_'+str(key3)+'.png'),
-                    format='png', dpi=200, bbox_inches='tight',
-                    metadata={'Creator': '', 'Author': '', 'Title': '',
-                            'Producer': ''},
-                    )
-
+    functions.decision_tree(X_train, X_test, y_train, y_test, max_depths,
+                            min_weight_fraction_leafs, min_samples_leaf,
+                            cfg.default.real_estate_figures, 'dtree')
 
 # %% Multi-layer Perceptron Regressor
 if False:
     solver = 'lbfgs'  # default=’adam’
     # ‘adam’ works for large datasets (with thousands of training samples or more) in terms of both training time and validation score​
     # ‘lbfgs’ for small datasets can converge faster and perform better
-    max_iter = 800  # default=200
+    max_iteration = 800  # default=200
+    alpha = [1e-7, 1e-4, 1e-1]  # usually in the range 10.0 ** -np.arange(1, 7)
+    list_hidden_layer_sizes = [[10], [5, 2, 5], [60, 20]]
 
-    list_alpha = [1e-7, 1e-4, 1e-1]  # usually in the range 10.0 ** -np.arange(1, 7)
-   
-    # Rules of thumb:​
-    # - Number of hidden layer neurons ~ 2/3 (70-90%) of inputs​
-    # - Number of hidden layer neurons should be less than double the number
-    # of neurons in input layer
-    no_of_inputs = X_train.shape[1]
-    list_neurons_per_hidden_layer = no_of_inputs * np.array([.9, 1.8])
-    list_no_of_hidden_layers = [4, 8]
-    # automatic generation of list_hidden_layer_size
-    list_hidden_layer_sizes = []
-    for i in list_neurons_per_hidden_layer:
-        for k in list_no_of_hidden_layers:
-            tuple_sizes = ()
-            for j in range(k):
-                tuple_sizes = tuple_sizes + (int(i), )
-            list_hidden_layer_sizes.append(tuple_sizes)
-    # print(list_hidden_layer_sizes)
 
-    index = pd.MultiIndex.from_product(
-        [list_alpha, [str(x) for x in list_hidden_layer_sizes]],
-        names=['alpha', 'hidden_layer_sizes'])
-    mlp_errors = pd.DataFrame(index=index,
-        columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-    # Change parameters
-    for alpha in list_alpha:
-        for hidden_layer_sizes in list_hidden_layer_sizes:
-            xtrain = X_train_scaled
-            xtest = X_test_scaled
-            filename = 'MLP_'+str(alpha)+'_'+str(hidden_layer_sizes)
+    functions.mlp(X_train_scaled, X_test_scaled, y_train, y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
+            cfg.default.real_estate_figures, 'mlp')
 
-            mlp = neural_network.MLPRegressor(solver=solver,
-                max_iter=max_iter,
-                alpha=alpha,
-                hidden_layer_sizes=hidden_layer_sizes,
-                verbose=True)    
-
-            mlp.fit(xtrain, y_train)
-            y_pred_mlp = mlp.predict(xtest)
-
-            errors = functions.check_performance(y_test, y_pred_mlp,
-                os.path.join(cfg.default.communities_figures, filename))
-            mlp_errors.loc[alpha, str(hidden_layer_sizes)][:] = errors
-
-            del xtrain, xtest
-    
-    print(mlp_errors)
-    mlp_errors.transpose().to_csv(
-        os.path.join(cfg.default.communities_figures,
-                     'mlp_errors.csv'),
-        sep=';', decimal=',')
-
-    # Plot errors over parameters of algorithm
-    with sns.color_palette(n_colors=len(mlp_errors.keys())):
-        fig = plt.figure()
-        ax = fig.add_subplot()
-
-    linestyle_cycle = ['-', '--', '-.', ':']*3  # to have enough elements (quick&dirty)
-    marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*']*3  # to have enough elements (quick&dirty)
-    for idx, key2 in enumerate(list_hidden_layer_sizes):
-        linestyle = linestyle_cycle[idx]
-        marker = marker_cycle[idx]
-        for key in mlp_errors.keys():
-            ax.semilogx(list_alpha, mlp_errors.loc[(slice(None), str(key2)),
-                    key].to_numpy(),
-                    marker=marker, linestyle=linestyle,
-                    label=str(key)+', '+str(key2))
-    plt.ylim([0, 1])
-    plt.xlabel(r'$\alpha$')
-    plt.grid()
-    plt.legend(title='hidden_layer_sizes', ncol=2,
-               loc='upper center', bbox_to_anchor=(0.5, -0.15))
-    plt.show()
-    fig.savefig(os.path.join(cfg.default.communities_figures,
-                            'mlp_errors.png'),
-                format='png', dpi=200, bbox_inches='tight',
-                metadata={'Creator': '', 'Author': '', 'Title': '',
-                        'Producer': ''},
-                )
 
 #%% Finish
 print()
