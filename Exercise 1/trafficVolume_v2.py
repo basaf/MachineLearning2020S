@@ -146,8 +146,11 @@ functions.knn(X_train, X_test, y_train, y_test, k_values, True, ['uniform', 'dis
 print('Decission Tree Regression')
 
 max_depths = [50, 100, 300, 400]
+
 min_weight_fraction_leafs = [.0, .125, .25, .375, .5]
+
 min_samples_leaf=[1, 10, 50, 100]
+
 
 functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight_fraction_leafs, min_samples_leaf,
                         cfg.default.traffic_figures, 'dtree')
