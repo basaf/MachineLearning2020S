@@ -242,19 +242,21 @@ if False:
                 )
 
 #%% Decision Tree Regression
+# Variant a
 if True:
-    max_depths = [1, 10, 30, 50, 100, 300]  # , 500]
-    min_weight_fraction_leafs = [.0, .125, .25, .375, .5]
+    list_max_depth = [1, 10, 50, 100, 300]  # , 500]
+    list_min_samples_leaf = [1, 10, 100]
+    list_min_weight_fraction_leaf = [.0, .1, .15, .2, .3, .5]
     # https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
 
-    index = pd.MultiIndex.from_product([max_depths, min_weight_fraction_leafs],
-                                       names=['max_depths',
+    index = pd.MultiIndex.from_product([list_max_depth, list_min_weight_fraction_leaf],
+                                       names=['max_depth',
                                               'min_weight_fraction_leaf'])
     dt_errors = pd.DataFrame(index=index,
         columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
 
-    for max_depth in max_depths:
-        for min_weight_fraction_leaf in min_weight_fraction_leafs:
+    for max_depth in list_max_depth:
+        for min_weight_fraction_leaf in list_min_weight_fraction_leaf:
             xtrain = X_train
             xtest = X_test
             filename = 'DTRegressor_'+str(max_depth)+'_'+str(min_weight_fraction_leaf)
@@ -273,18 +275,50 @@ if True:
     dt_errors.transpose().to_csv(
         os.path.join(cfg.default.communities_figures, 'dt_errors.csv'),
         sep=';', decimal=',')
+# Variant b
+if True:
+    list_max_depth = [1, 10, 30, 50, 100, 300]  # , 500]
+    list_min_samples_leaf = [1, 5, 10, 50, 100]
+    # https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
+
+    index = pd.MultiIndex.from_product([list_max_depth, list_min_samples_leaf],
+                                       names=['max_depth',
+                                              'min_samples_leaf'])
+    dt_errors = pd.DataFrame(index=index,
+        columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
+
+    for max_depth in list_max_depth:
+        for min_samples_leaf in list_min_samples_leaf:
+            xtrain = X_train
+            xtest = X_test
+            filename = 'DTRegressor_'+str(max_depth)+'_'+str(min_samples_leaf)
+
+            dt = tree.DecisionTreeRegressor(max_depth=max_depth,
+                min_samples_leaf=min_samples_leaf)
+            dt.fit(xtrain, y_train)
+            y_pred_dt = dt.predict(xtest)  
+
+            errors = functions.check_performance(y_test, y_pred_dt,
+                os.path.join(cfg.default.communities_figures, filename))
+            dt_errors.loc[max_depth, min_samples_leaf][:] = errors
+            del xtrain, xtest
+
+    print(dt_errors)
+    dt_errors.transpose().to_csv(
+        os.path.join(cfg.default.communities_figures, 'dt_errors.csv'),
+        sep=';', decimal=',')
 
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(dt_errors.keys())):
         fig = plt.figure()
         ax = fig.add_subplot()
-    linestyle_cycle = ['-', '--', '-.', ':', '-', '--', '-.', ':']
-    marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*']
-    for idx, key2 in enumerate(min_weight_fraction_leafs):
+    linestyle_cycle = ['-', '--', '-.', ':']*3  # to have enough elements (quick&dirty)
+    marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*']*3  # to have enough elements (quick&dirty)
+    for idx, key2 in enumerate(list_min_samples_leaf):
         linestyle = linestyle_cycle[idx]
         marker = marker_cycle[idx]
         for key in dt_errors.keys():
-            ax.plot(max_depths, dt_errors.loc[(slice(None), key2),
+            ax.plot(list_max_depth, dt_errors.loc[(slice(None), key2),
                     key].to_numpy(),
                     marker=marker, linestyle=linestyle, label=str(key)+', '+str(key2))
     plt.ylim([0, 1])
@@ -302,6 +336,7 @@ if True:
 
 
 # %%
+if False:
     stophere
 
     filename = 'DTRegressor'
