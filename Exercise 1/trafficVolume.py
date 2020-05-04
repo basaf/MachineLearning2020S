@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sun May  3 15:26:31 2020
-
-@author: Pannosch, Steindl, Windholz
-"""
-
-# -*- coding: utf-8 -*-
 import pandas as pd
 import matplotlib.pyplot as plt
 import configuration as cfg
