@@ -114,21 +114,23 @@ def ridge_regression(X_train: np.array, X_test: np.array, Y_train: np.array, Y_t
 
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(errors.keys())):
-        fig = plt.figure()
+        #fig = plt.figure()
+        fig, ax = plt.subplots(len(errors.keys()), 1, sharex=True, tight_layout=True)
 
     for pos, key in enumerate(errors.keys()):
-        ax = fig.add_subplot(5, 1, pos + 1)
-        ax.set_title(key)
+        #ax = fig.add_subplot(5, 1, pos + 1)
+        ax[pos].set_title(key)
+        ax[pos].grid(True)
+
         if scaling is True:
-            ax.plot(alphas, errors.loc[(slice(None), 'scaling'), key].to_numpy(),
-                    marker='o', linestyle='-', label='scaled', alpha=0.8)
-        ax.plot(alphas, errors.loc[(slice(None), 'noScaling'), key].to_numpy(),
-                marker='o', linestyle='--', label='not scaled', alpha=0.8)
-        plt.grid()
+            ax[pos].plot(alphas, errors.loc[(slice(None), 'scaling'), key].to_numpy(),
+                         marker='o', linestyle='-', label='scaled', alpha=0.8)
+        ax[pos].plot(alphas, errors.loc[(slice(None), 'noScaling'), key].to_numpy(),
+                     marker='o', linestyle='--', label='not scaled', alpha=0.8)
 
     plt.subplots_adjust(hspace=2.2)
     plt.xlabel(r'$\alpha$')
-    plt.legend(ncol=2, loc='upper center', bbox_to_anchor=(0.5, -1.7))
+    plt.legend(ncol=2, loc='upper center', bbox_to_anchor=(0.5, -0.7))
     fig.savefig(os.path.join(path, filename + '_errors.png'), format='png',
                 dpi=200, bbox_inches='tight')
     plt.close(fig)
@@ -175,28 +177,29 @@ def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
 
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(knn_errors.keys())):
-        fig = plt.figure()
+        #fig = plt.figure()
+        fig, ax = plt.subplots(len(knn_errors.keys()), 1, sharex=True, tight_layout=True)
 
     for pos, key in enumerate(knn_errors.keys()):
-        ax = fig.add_subplot(5, 1, pos + 1)
-        ax.set_title(key)
+        #ax = fig.add_subplot(5, 1, pos + 1)
+        ax[pos].set_title(key)
+        ax[pos].grid(True)
 
-        ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'uniform'), key].to_numpy(),
+        ax[pos].plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'uniform'), key].to_numpy(),
                 marker='o', linestyle='-', label='scaled, unif')
 
-        ax.plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'distance'), key].to_numpy(),
+        ax[pos].plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'distance'), key].to_numpy(),
                 marker='o', linestyle='-.', label='scaled, dist')
 
-        ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'uniform'), key].to_numpy(),
+        ax[pos].plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'uniform'), key].to_numpy(),
                 marker='o', linestyle='--', label='not scaled, unif')
 
-        ax.plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'distance'), key].to_numpy(),
+        ax[pos].plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'distance'), key].to_numpy(),
                 marker='o', linestyle=':', label='not scaled, dist')
-        plt.grid()
 
     plt.subplots_adjust(hspace=2.2)
     plt.xlabel(r'$k$')
-    plt.legend(ncol=4, loc='upper center', bbox_to_anchor=(0.5, -1.7))
+    plt.legend(ncol=4, loc='upper center', bbox_to_anchor=(0.5, -0.7))
     fig.savefig(os.path.join(path, filename + '_errors.png'), format='png',
                 dpi=200, bbox_inches='tight')
     plt.close(fig)
@@ -240,7 +243,7 @@ def decision_tree(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test
     # Plot errors over parameters of algorithm
     for key3 in list_min_weight_fraction_leaf:
         with sns.color_palette(n_colors=len(dt_errors.keys())):
-            fig = plt.figure()
+            fig, ax = plt.subplots(len(dt_errors.keys()), 1, sharex=True, tight_layout=True)
             # ax = fig.add_subplot()
         linestyle_cycle = ['-', '--', '-.', ':'] * 3  # to have enough elements (quick&dirty)
         marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*'] * 3  # to have enough elements (quick&dirty)
@@ -248,18 +251,16 @@ def decision_tree(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test
             linestyle = linestyle_cycle[idx]
             marker = marker_cycle[idx]
             for pos, key in enumerate(dt_errors.keys()):
-                ax = fig.add_subplot(5, 1, pos + 1)
-                ax.set_title(key)
-                ax.plot(list_max_depth, dt_errors.loc[(slice(None), key2, key3),
-                                                      key].to_numpy(),
-                        marker=marker, linestyle=linestyle, label=str(key2))
-                plt.grid()
+                # ax = fig.add_subplot(5, 1, pos + 1)
+                ax[pos].set_title(key)
+                ax[pos].grid(True)
+                ax[pos].plot(list_max_depth, dt_errors.loc[(slice(None), key2, key3), key].to_numpy(),
+                             marker=marker, linestyle=linestyle, label=str(key2))
 
-        plt.subplots_adjust(hspace=2.2)
+        plt.subplots_adjust(hspace=2.4)
         plt.xlabel('max_depth')
         plt.legend(title='min_weight_fraction_leaf: ' + str(key3) + '\nmin_samples_leaf:',
-                   ncol=len(list_min_samples_leaf), loc='upper center', bbox_to_anchor=(0.5, -1.9))
-
+                   ncol=len(list_min_samples_leaf), loc='upper center', bbox_to_anchor=(0.5, -0.7))
         fig.savefig(os.path.join(path, filename + '_errors_' + str(key3) + '.png'),
                     format='png', dpi=200, bbox_inches='tight')
         plt.close(fig)
@@ -305,7 +306,7 @@ def mlp(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
     lines = []
     for pos, key in enumerate(mlp_errors.keys()):
         ax[pos].set_title(key)
-        ax[pos].grid()
+        ax[pos].grid(True)
         lines = []
         for idx, key2 in enumerate(list_hidden_layer_sizes):
             lines.append(ax[pos].semilogx(list_alpha, mlp_errors.loc[(slice(None), str(key2)), key].to_numpy(),
