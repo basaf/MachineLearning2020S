@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 27 14:31:00 2020
 
-@author: Steindl, Windholz
-"""
 from arff import load
 import configuration as cfg
 import os
@@ -26,7 +22,7 @@ from sklearn import neural_network
 
 from sklearn import preprocessing
 
-import functions
+import functions_communities
 import helper
 
 #%% data pre-processing
@@ -85,7 +81,6 @@ correlation_matrix = (communities_data[predictive_attributes+[goal_attribute]].
 if False:
     ax = heatmap(correlation_matrix, center=0, vmin=-1, vmax=1, square=True,
                 xticklabels=False, yticklabels=False)
-    # plt.gcf().subplots_adjust(bottom=0.48, left=0.27, right=0.99, top=0.98)
     plt.tight_layout()
     plt.savefig(os.path.join(cfg.default.communities_figures, 
                 'communities_data_correlations.png'),
@@ -113,21 +108,21 @@ X_train_scaled = scaler.transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
 #%% Ridge regression
-if True:
-    alpha_list = [0, 0.5, 1, 5, 10, 50, 100]
+if False:
+    alpha_list = [0, 1e-4, 1e-2, 1, 5, 10, 50, 100]
     functions.ridge_regression(X_train, X_test, y_train, y_test, alpha_list,
                                True, cfg.default.communities_figures,
                                'ridge_reg')
 
 #%% k-Nearest Neighbor Regression
-if True:
+if False:
     k_values = [1, 3, 5, 10, 20, 50, 100, 300]
     functions.knn(X_train, X_test, y_train, y_test, k_values, True,
                   ['uniform', 'distance'], cfg.default.communities_figures,
                   'knn')
 
 #%% Decision Tree Regression
-if True:
+if False:
     max_depths = [1, 10, 50, 100, 200, 500]
     min_samples_leaf = [1, 10, 100, 200]
     min_weight_fraction_leafs = [.0, .1, .2, .35, .5]
@@ -137,14 +132,13 @@ if True:
                             cfg.default.communities_figures, 'dtree')
 
 # %% Multi-layer Perceptron Regressor
-if True:
+if False:
     solver = 'lbfgs'  # default=’adam’
     # ‘adam’ works for large datasets (with thousands of training samples or more) in terms of both training time and validation score​
     # ‘lbfgs’ for small datasets can converge faster and perform better
     max_iteration = 800  # default=200
     alpha = [1e-7, 1e-4, 1e-1]  # usually in the range 10.0 ** -np.arange(1, 7)
     list_hidden_layer_sizes = [[90, 90], [180, 90, 180], [180, 180, 180]]
-
 
     functions.mlp(X_train_scaled, X_test_scaled, y_train, y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
             cfg.default.communities_figures, 'mlp')
