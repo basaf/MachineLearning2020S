@@ -1,151 +1,84 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Apr 23 08:07:04 2020
+Created on Sun May  3 15:26:31 2020
 
-@author: guser
+@author: Pannosch, Steindl, Windholz
 """
+
+# -*- coding: utf-8 -*-
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
+import configuration as cfg
+import os
 
-from sklearn import linear_model
-from sklearn import metrics
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn import tree
-
 from sklearn.ensemble import RandomForestRegressor
-
 from sklearn import preprocessing
-from sklearn.model_selection import GridSearchCV
 
-def plotPie(dataFrame):
-    labels = dataFrame.astype('category').cat.categories.tolist()
-    counts = dataFrame.value_counts()
-    sizes = [counts[var_cat] for var_cat in labels]
-    fig1, ax1 = plt.subplots()
-    ax1.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True) #autopct is show the % on plot
-    ax1.axis('equal')
-    plt.show()
+import helper
+import functions
 
-def mean_absolute_percentage_error(y_true, y_pred): 
-    y_true, y_pred = np.array(y_true), np.array(y_pred)
-    return np.mean(np.abs((y_true - y_pred) / y_true)* 100) 
+import seaborn as sns
+from seaborn import heatmap
 
-#def mean_root_squared_percentage_error(y_true, y_pred): 
-#    y_true, y_pred = np.array(y_true), np.array(y_pred)
-#    return np.sqrt(np.mean(np.square((y_true - y_pred)/ y_true)))* 100 
+import numpy as np
 
-def checkPerformance(y_test,y_pred):
-    plt.figure()
-    plt.plot(y_test.values,label='true',alpha=0.7)
-    plt.plot(y_pred,label='prediction',alpha=0.7)
-    plt.xlabel('Samples')
-    plt.ylabel('Traffic Volume')
-    plt.legend()
-    plt.show()
-    
-    print('Mean Absolute Error (MAE):', metrics.mean_absolute_error(y_test, y_pred))
-    print('Mean Absolute Percentage Error (MAPE):', mean_absolute_percentage_error(y_test, y_pred))
-   # print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
-    print('Root Mean Squared Error (RMSE):', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-    #print('Root Relative Squared Error:', mean_root_squared_percentage_error(y_test, y_pred))
-    print('Explained Variance:', metrics.explained_variance_score(y_test, y_pred))
-    print('R Squared:', metrics.r2_score(y_test, y_pred))
-    
-#%% data pre-processing
-#http://archive.ics.uci.edu/ml/datasets/Metro+Interstate+Traffic+Volume#
-
-#holiday Categorical US National holidays plus regional holiday, Minnesota State Fair
-#temp Numeric Average temp in kelvin
-#rain_1h Numeric Amount in mm of rain that occurred in the hour
-#snow_1h Numeric Amount in mm of snow that occurred in the hour
-#clouds_all Numeric Percentage of cloud cover
-#weather_main Categorical Short textual description of the current weather
-#weather_description Categorical Longer textual description of the current weather
-#date_time DateTime Hour of the data collected in local CST time
-#traffic_volume Numeric Hourly I-94 ATR 301 reported westbound traffic volume
 dataSetPath='./DataSets/Metro_Interstate_Traffic_Volume.csv'
-
 rawData=pd.read_csv(dataSetPath)
 
-#%% investigate data
-#plt.figure()
-#rawData.boxplot()
-#plt.figure()
-#rawData['temp'].plot()
-#plt.title('temp')
-#plt.ylabel('Temperature [°K]')
-#plt.xlabel('Index')
-#plt.figure()
-#
-#rawData['rain_1h'].plot()
-#plt.title('rain_1h')
-#plt.ylabel('Rain per hour [mm/h]')
-#plt.xlabel('Index')
-#plt.figure()
-#rawData['snow_1h'].plot()
-#plt.title('snow_1h')
 
-#Correlation Plot
-corr = rawData.corr()
+#investigate data
+
+#%% box plot
+helper.boxplot_raw_data(rawData, rawData.columns[[1, 2, 3, 4, 8]],
+                        save_fig_path=os.path.join(cfg.default.traffic_figures, 'traffic_volume_box_plot.png'))
+
+
+#%% plt correlation matrix
 plt.figure()
-sns.heatmap(corr,annot=True,linewidths=0.5)#,cmap='twilight')
-plt.show()
+correlation_matrix = (rawData.loc[:, rawData.columns[[1, 2, 3, 4, 8]]].corr(method='pearson'))
+
+ax = heatmap(correlation_matrix, xticklabels=correlation_matrix.columns,
+             yticklabels=correlation_matrix.columns, annot=True)
+ax.set_xticklabels(
+    ax.get_xticklabels(),
+    rotation=45,
+    horizontalalignment='right'
+);
 plt.tight_layout()
+plt.savefig(os.path.join(cfg.default.traffic_figures, 'traffic_volume_corr.png'), format='png')
+plt.close()
 
-#visualize categories
-plt.figure()
+#%% plot histogram
+figure = plt.figure()
 rawData.hist()
-plt.show()
 plt.tight_layout()
+plt.savefig(os.path.join(cfg.default.traffic_figures, 'traffic_volume_hist.png'), format='png')
+plt.close(figure)
 
-#show box plot of raw data
-plt.figure()
-plt.subplot(3,2,1)
-plt.boxplot(rawData['clouds_all'])
-plt.title('clouds_all')
-
-plt.subplot(3,2,2)
-plt.boxplot(rawData['rain_1h'])
-plt.title('rain_1h')
-
-plt.subplot(3,2,3)
-plt.boxplot(rawData['snow_1h'])
-plt.title('snow_1h')
-
-plt.subplot(3,2,4)
-plt.boxplot(rawData['temp'])
-plt.title('temp')
-
-plt.subplot(3,2,5)
-plt.boxplot(rawData['traffic_volume'])
-plt.title('traffic_volume')
-
-plt.show()
-plt.tight_layout()
-
-#% count plots
+#%% count plots of categorical
 plt.figure()
 sns.countplot(y='weather_main', data=rawData)
 plt.tight_layout()
+plt.savefig(os.path.join(cfg.default.traffic_figures, 'weather_main_count.png'), format='png')
+plt.close(figure)
 
 plt.figure()
 sns.countplot(y='weather_description', data=rawData)
 plt.tight_layout()
+plt.savefig(os.path.join(cfg.default.traffic_figures, 'weather_description_count.png'), format='png')
+plt.close(figure)
 
 
 plt.figure()
 sns.countplot(y='holiday', data= rawData.loc[rawData.holiday != 'None'])
 plt.show()
 plt.tight_layout()
+plt.savefig(os.path.join(cfg.default.traffic_figures, 'holiday_count.png'), format='png')
+plt.close(figure)
 
-#change category values to numerical
-nbHolidayCat=rawData['holiday'].value_counts().count() #12
-nbWeatherMainCat=rawData['weather_main'].value_counts().count()#11
-nbWeatherDescription=rawData['weather_description'].value_counts().count() #38
 
+#%%
 #%% remove outliers
 #remove temperatrues with 0°K
 rawData['temp'].replace(0,np.NaN, inplace=True)
@@ -153,6 +86,7 @@ rawData['temp'].replace(0,np.NaN, inplace=True)
 rawData.loc[rawData['rain_1h'] > 9000, 'rain_1h']=np.NaN
 
 rawData=rawData.dropna()
+
 #%% Data encoding
 #first attempt:
 #make holiday binary - because ther only a few days in the data set (reduce curse of dimensionality)
@@ -186,81 +120,53 @@ data=pd.get_dummies(data, columns=['weather_main'], prefix = ['weatherMain'])
 #data['weather_main']=data['weather_main'].astype('category')
 #data['weather_main']=data['weather_main'].cat.codes
 
-X=data.drop(['traffic_volume'],axis=1)
-y=data['traffic_volume']
+X=data.drop(['traffic_volume'],axis=1).to_numpy()
+y=data['traffic_volume'].to_numpy()
 
 #%%
-#pd.scatter_matrix(data)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=5)
 
-#%%split data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=5)
+#%%
+print('Ridge Linear Regression')
 
-#%Data scaling
-scaler1 = preprocessing.StandardScaler().fit(X_train)
-scaler2 = preprocessing.MinMaxScaler().fit(X_train)
+alpha_list = [0, 0.01,0.1, 1, ]
+#alpha_list = [ 1,  10]
+functions.ridge_regression(X_train, X_test, y_train, y_test, alpha_list, True,
+                           cfg.default.traffic_figures, 'ridge_reg')
 
-X_train_scaled1=scaler1.transform(X_train)
-X_test_scaled1=scaler1.transform(X_test)
+#%%
+print('KNN')
 
-X_train_scaled2=scaler2.transform(X_train)
-X_test_scaled2=scaler2.transform(X_test)
+#k_values = [1, 7]
+k_values = [1, 3, 5, 7, 10]
 
-#%%ridge regression
-X_train_RR=X_train_scaled2
-X_test_RR=X_test_scaled2
-#X_train_RR=X_train
-#X_test_RR=X_test
-#will be normalized by subtracting mean and dividing by l2-norm
-reg = linear_model.Ridge(alpha=100, normalize=False)
-reg.fit(X_train_RR,y_train)
-y_pred_reg=reg.predict(X_test_RR)
+functions.knn(X_train, X_test, y_train, y_test, k_values, True, ['uniform', 'distance'],
+              cfg.default.traffic_figures, 'knn')
+#%%
+print('Decission Tree Regression')
 
-checkPerformance(y_test, y_pred_reg)
+max_depths = [50, 100, 300, 400]
 
-#%%KNN
-#scaling - makes the reults worse!!??
+min_weight_fraction_leafs = [.0, .125, .25, .375, .5]
 
-X_train_knn=X_train_scaled2
-X_test_knn=X_test_scaled2
-#Without scaling:
-#X_train_knn=X_train
-#X_test_knn=X_test
-
-knn = KNeighborsRegressor(n_neighbors=5, weights='distance') #distance performs better
-knn.fit(X_train_knn,y_train)
-y_pred_knn=knn.predict(X_test_knn)
-
-checkPerformance(y_test, y_pred_knn)
-
-#%%Decission Tree Regression
-
-X_train_dt=X_train
-X_test_dt=X_test
-#X_train_dt=X_train_scaled2
-#X_test_dt=X_test_scaled2
-
-dt = tree.DecisionTreeRegressor() #MSE for measuring the quality of the split 
+min_samples_leaf=[1, 10, 50, 100]
 
 
+functions.decision_tree(X_train, X_test, y_train, y_test, max_depths, min_weight_fraction_leafs, min_samples_leaf,
+                        cfg.default.traffic_figures, 'dtree')
 
-dt.fit(X_train_dt,y_train)
+#%%
+print('MLP')
 
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
+max_iteration = 800
+solver = 'adam' # lbfgs, adam, sgd
+alpha = [0.01,0.001,0.0001]
 
-y_pred_dt=dt.predict(X_test_dt)
+list_hidden_layer_sizes = [[40],[10,10], [60, 20]]
 
-checkPerformance(y_test, y_pred_dt)
-
-#%% Random Forest
-X_train_rf=X_train
-X_test_rf=X_test
-
-rf = RandomForestRegressor(n_estimators=100)
-
-rf.fit(X_train_rf,y_train)
-y_pred_rf=rf.predict(X_test_rf)
-
-checkPerformance(y_test, y_pred_rf)
-
-
-
+functions.mlp(X_train_scaled, X_test_scaled, y_train, y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
+        cfg.default.traffic_figures, 'mlp')
