@@ -4,25 +4,15 @@ from arff import load
 import configuration as cfg
 import os
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
-from sklearn.impute import SimpleImputer
 from seaborn import heatmap
-import seaborn as sns
 
-import numpy as np
-
-from sklearn import linear_model
-from sklearn import metrics
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn import tree
-from sklearn import neural_network
-
 from sklearn import preprocessing
+from sklearn.impute import SimpleImputer
 
-import functions_communities
 import helper
 
 #%% data pre-processing
