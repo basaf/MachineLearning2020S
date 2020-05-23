@@ -17,6 +17,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 
+from sklearn.model_selection import cross_validate
+
 from sklearn.dummy import DummyClassifier
 
 import functions
@@ -159,6 +161,7 @@ def check_performance(X_train: np.array, y_train: np.array,
 
 def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
         list_k=[1, 3, 5], scaling: bool = True, weights=['uniform', 'distance'],
+        splits=['holdout', 'cross-validation'],
         path: str = None, filename: str = None):
     if scaling is True:
         scalings = ['scaling', 'noScaling']
@@ -183,22 +186,26 @@ def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
                     xtrain = X_train
                     xtest = X_test
 
-                knn = KNeighborsRegressor(n_neighbors=k, weights=weight)
-
                 for split in splits:
-                    STOPHERE
-                    from sklearn.model_selection import cross_validate
-
-                    knn.fit(xtrain, Y_train)
+                    knn = KNeighborsClassifier(n_neighbors=k,
+                                                weights=weight,
+                                                algorithm='auto',  # 'ball_tree', 'kd_tree', 'brute'
+                                                leaf_size=30,  # default=30
+                                                n_jobs=-1)
+                    if split == 'holdout':
+                        knn.fit(xtrain, Y_train)
+                    else:  # cross-validation
+                        knn = KNeighborsClassifier(n_neighbors=k, weights=weight)
+                        scoring = ['precision_macro', 'recall_macro']
+                        scores = cross_validate(knn, xtrain, Y_train, cv=5,
+                                                scoring=scoring, n_jobs=-1)  # n_jobs=-1 ... use all CPUs
+                        scores['test_recall_macro']
                     y_pred_knn = knn.predict(xtest)
-
-
-
-
+                    
                 errors = functions.check_performance(X_train, Y_train,
-                                                     Y_test, y_pred_knn,
-                                                     os.path.join(path,
-                                                                  filename + '_' + str(k) + '_' + weight + '_' + s))
+                            Y_test, y_pred_knn, os.path.join(
+                                path,
+                                filename + '_' + str(k) + '_' + weight + '_' + s))
                 knn_errors.loc[k, s, weight][:] = errors
                 del xtrain, xtest
 

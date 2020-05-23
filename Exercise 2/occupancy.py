@@ -16,7 +16,37 @@ from sklearn.impute import SimpleImputer
 import helper
 
 #%% data pre-processing
-# load dataset (.arff) into pandas DataFrame
+
+occupancy_TrainingData = pd.read_csv(
+    os.path.join(cfg.default.occupancy_data, 'datatraining.txt'))
+occupancy_TrainingData = occupancy_TrainingData.set_index('date')
+occupancy_TrainingData['HumidityRatio g/kg'] = (
+    occupancy_TrainingData['HumidityRatio']*1000 )
+
+occupancy_test_data = pd.read_csv(
+    cfg.default.occupancy_data + '\\datatest.txt')
+occupancy_test_data = occupancy_test_data.set_index('date')
+occupancy_test_data['HumidityRatio g/kg'] = (
+    occupancy_test_data['HumidityRatio']*1000 )
+
+occupancy_test2_data = pd.read_csv(
+    cfg.default.occupancy_data + '\\datatest2.txt')
+occupancy_test2_data = occupancy_test2_data.set_index('date')
+occupancy_test2_data['HumidityRatio g/kg'] = (
+    occupancy_test2_data['HumidityRatio']*1000 )
+
+# Concatenate data sets
+occupancy_data = pd.concat([occupancy_TrainingData,
+                            occupancy_test_data,
+                            occupancy_test2_data],
+                            sort=True, verify_integrity=True)
+
+helper.boxplot_raw_data(occupancy_data, occupancy_data.columns,
+                        save_fig_path=os.path.join(
+                            cfg.default.occupancy_figures,
+                            'occupancy_box_plot.png'))
+stophere
+
 rawData = load(open(os.path.join(cfg.default.communities_data,
                                  'communities.arff'), 'r'))
 all_attributes = list(i[0] for i in rawData['attributes'])

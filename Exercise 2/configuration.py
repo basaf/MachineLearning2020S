@@ -32,28 +32,28 @@ class Configuration:
                 self._config[name] = value if (value != '') else None
 
     @property
-    def communities_data(self):
-        return self['DATASET_COMMUNITIES_DATA_PATH']
+    def occupancy_data(self):
+        return self['DATASET_OCCUPANCY_DATA_PATH']
 
     @property
-    def communities_figures(self):
-        return self['DATASET_COMMUNITIES_FIGURES_PATH']
+    def occupancy_figures(self):
+        return self['DATASET_OCCUPANCY_FIGURES_PATH']
 
     @property
-    def traffic_data(self):
-        return self['DATASET_TRAFFIC_DATA_PATH']
+    def amazon_data(self):
+        return self['DATASET_AMAZON_DATA_PATH']
 
     @property
-    def traffic_figures(self):
-        return self['DATASET_TRAFFIC_FIGURES_PATH']
+    def amazon_figures(self):
+        return self['DATASET_AMAZON_FIGURES_PATH']
 
     @property
-    def real_estate_data(self):
-        return self['DATASET_REAL_ESTATE_DATA_PATH']
+    def congressional_voting_data(self):
+        return self['DATASET_CONGRESSIONAL_VOTING_DATA_PATH']
 
     @property
-    def real_estate_figures(self):
-        return self['DATASET_REAL_ESTATE_FIGURES_PATH']
+    def congressional_voting_figures(self):
+        return self['DATASET_CONGRESSIONAL_VOTING_FIGURES_PATH']
 
     @property
     def student_data(self):
