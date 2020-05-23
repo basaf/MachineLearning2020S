@@ -114,7 +114,8 @@ X_test_scaled = scaler.transform(X_test)
 if True:
     list_k = [1, 3, ]  # 5, 10, 20, 50, 100, 300]
     functions.knn(X_train, X_test, y_train, y_test, list_k, True,
-        ['uniform', 'distance'], ['holdout'],  # , 'cross-validation'],
+        ['uniform', 'distance'],
+        ['holdout', 'cross-validation'],
         cfg.default.occupancy_figures,
         'knn')
 

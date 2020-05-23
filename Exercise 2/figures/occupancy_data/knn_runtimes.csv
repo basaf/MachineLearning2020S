@@ -1,0 +1,5 @@
+k;1;1;1;1;1;1;1;1;3;3;3;3;3;3;3;3
+scaling;scaling;scaling;scaling;scaling;noScaling;noScaling;noScaling;noScaling;scaling;scaling;scaling;scaling;noScaling;noScaling;noScaling;noScaling
+weights;uniform;uniform;distance;distance;uniform;uniform;distance;distance;uniform;uniform;distance;distance;uniform;uniform;distance;distance
+splits;holdout;cross-validation;holdout;cross-validation;holdout;cross-validation;holdout;cross-validation;holdout;cross-validation;holdout;cross-validation;holdout;cross-validation;holdout;cross-validation
+runtime;;;;;;;;;;;;;;;;

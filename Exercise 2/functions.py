@@ -20,6 +20,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_validate
 
 from sklearn.metrics import confusion_matrix
+# from sklearn.metrics import plot_confusion_matrix   # not available in 0.21.3
+from helper import plot_confusion_matrix  # source copied from newest sklearn
 from sklearn.metrics import classification_report
 
 from sklearn.dummy import DummyClassifier
@@ -30,46 +32,73 @@ import seaborn as sns
 
 from time import process_time
 
-def mean_absolute_percentage_error(y_true, y_pred):
-    y_true, y_pred = np.array(y_true), np.array(y_pred)
-    return np.mean(np.abs((y_true - y_pred) / y_true) * 100)
+
+# def mean_absolute_percentage_error(y_true, y_pred):
+#     y_true, y_pred = np.array(y_true), np.array(y_pred)
+#     return np.mean(np.abs((y_true - y_pred) / y_true) * 100)
 
 
 def check_performance(X_train: np.array, y_train: np.array,
                       y_test: np.array, y_pred: np.array,
                       filename=None):
-    # Line plot
-    plt.figure()
-    plt.plot(y_test, label=r'$y$')
-    plt.plot(y_pred, label=r'$\hat y$')
-    plt.grid()
-    plt.legend()
-    if filename is None:
-        plt.show()
-    else:
-        plt.tight_layout()
-        plt.savefig(filename + ".png", format='png')
-        plt.close()
+    # # Line plot
+    # plt.figure()
+    # plt.plot(y_test, label=r'$y$')
+    # plt.plot(y_pred, label=r'$\hat y$')
+    # plt.grid()
+    # plt.legend()
+    # if filename is None:
+    #     plt.show()
+    # else:
+    #     plt.tight_layout()
+    #     plt.savefig(filename + ".png", format='png')
+    #     plt.close()
 
-    # Scatter plot
-    plt.figure()
-    plt.scatter(y_test, y_test, label=r'$y$', alpha=0.6)
-    plt.scatter(y_test, y_pred, label=r'$\hat y$', alpha=0.6)
-    plt.grid()
-    plt.legend()
-    if filename is None:
-        plt.show()
-    else:
-        plt.tight_layout()
-        plt.savefig(filename + "_scatter.png", format='png')
-        plt.close()
+    # # Scatter plot
+    # plt.figure()
+    # plt.scatter(y_test, y_test, label=r'$y$', alpha=0.6)
+    # plt.scatter(y_test, y_pred, label=r'$\hat y$', alpha=0.6)
+    # plt.grid()
+    # plt.legend()
+    # if filename is None:
+    #     plt.show()
+    # else:
+    #     plt.tight_layout()
+    #     plt.savefig(filename + "_scatter.png", format='png')
+    #     plt.close()
+
 
     # Error values
-    MAE = metrics.mean_absolute_error(y_test, y_pred)
-    MAPE = mean_absolute_percentage_error(y_test, y_pred)
-    MSE = metrics.mean_squared_error(y_test, y_pred)
-    RMSE = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
-    EV = metrics.explained_variance_score(y_test, y_pred)
+    print(classification_report(y_test, y_pred, digits=6))
+    dict_report = classification_report(y_test, y_pred, output_dict=True)
+
+    binary = ('micro avg' not in dict_report.keys())
+
+    if binary:  # Micro average (averaging the total true positives, false negatives and false positives) is only shown for multi-label or multi-class with a subset of classes, because it corresponds to accuracy otherwise.
+        index = pd.MultiIndex.from_arrays(
+            [['accuracy', 'precision', 'recall', 'f1-score'],
+                ['', 'macro avg', 'macro avg', 'macro avg']],
+            names=('score', 'average')) 
+    else:
+        scores = ['precision', 'recall', 'f1-score']
+        averages = ['micro avg', 'macro avg']
+        index = pd.MultiIndex.from_product([scores, averages],
+            names=['score', 'average'])
+
+    metrics = pd.Series(index=index)
+
+    # for score in index.levels[0]:
+    #     for average in index.levels[1]:
+
+    for score, average in index.values:
+            print(score, average)
+            if score == 'accuracy':
+                metrics.loc[score, average] = dict_report[score]
+            else: 
+                metrics.loc[score, average] = dict_report[average][score]
+    print(metrics)
+
+    stophere
 
     # Significance testing against baselines
     dummy_clf_stratified = DummyClassifier(strategy="stratified",
@@ -82,23 +111,23 @@ def check_performance(X_train: np.array, y_train: np.array,
     dummy_clf_uniform.fit(X_train, y_train)
     dummy_score_uniform = dummy_clf_uniform.score(y_test)
 
-    print('Mean Absolute Error (MAE): {:.2f}'.format(MAE))
-    print('Mean Absolute Percentage Error (MAPE): {:.2f}'.format(MAPE))
-    print('Mean Squared Error (MSE): {:.2f}'.format(MSE))
-    print('Root Mean Squared Error (RMSE): {:.2f}'.format(RMSE))
-    print('Explained Variance (EV): {:.2f}'.format(EV))
-    print()
+    # print('Mean Absolute Error (MAE): {:.2f}'.format(MAE))
+    # print('Mean Absolute Percentage Error (MAPE): {:.2f}'.format(MAPE))
+    # print('Mean Squared Error (MSE): {:.2f}'.format(MSE))
+    # print('Root Mean Squared Error (RMSE): {:.2f}'.format(RMSE))
+    # print('Explained Variance (EV): {:.2f}'.format(EV))
+    # print()
 
-    if filename is not None:
-        f = open(filename + '.txt', 'w')
-        f.write(f'Mean Absolute Error (MAE): {MAE:.2f}\n')
-        f.write(f'Mean Absolute Percentage Error (MAPE): {MAPE:.2f}\n')
-        f.write(f'Mean Squared Error (MSE): {MSE:.2f}\n')
-        f.write(f'Root Mean Squared Error (RMSE): {RMSE:.2f}\n')
-        f.write(f'Explained Variance (EV): {EV:.2f}\n')
-        f.close()
+    # if filename is not None:
+    #     f = open(filename + '.txt', 'w')
+    #     f.write(f'Mean Absolute Error (MAE): {MAE:.2f}\n')
+    #     f.write(f'Mean Absolute Percentage Error (MAPE): {MAPE:.2f}\n')
+    #     f.write(f'Mean Squared Error (MSE): {MSE:.2f}\n')
+    #     f.write(f'Root Mean Squared Error (RMSE): {RMSE:.2f}\n')
+    #     f.write(f'Explained Variance (EV): {EV:.2f}\n')
+    #     f.close()
 
-    return MAE, MAPE, MSE, RMSE, EV
+    return metrics
 
 
 # def ridge_regression(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
@@ -178,9 +207,9 @@ def knn(X_train: np.array, X_test: np.array, y_train: np.array,
 
     index = pd.MultiIndex.from_product([list_k, scalings, weights, splits],
         names=['k', 'scaling', 'weights', 'splits'])
-    knn_errors = pd.DataFrame(index=index,
-        columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-    knn_times = pd.DataFrame(index=index,
+    # knn_errors = pd.DataFrame(index=index,
+    #     columns=['accuracy', 'precision', ])
+    knn_runtimes = pd.DataFrame(index=index,
         columns=['runtime'])
     # Change parameters
     for k in list_k:
@@ -211,22 +240,28 @@ def knn(X_train: np.array, X_test: np.array, y_train: np.array,
                         scores = cross_validate(knn, xtrain, y_train, cv=5,
                                                 scoring=scoring, n_jobs=-1)  # n_jobs=-1 ... use all CPUs
                         # scores['test_recall_macro']
-                    runtime = tic-process_time()
+                    runtimes = process_time()-tic
 
                     y_pred_knn = knn.predict(xtest)
-                    conf_matr_knn = confusion_matrix(y_test, y_pred_knn)
-                    print(classification_report(y_test, y_pred_knn))
 
+                    # to be integrated in check_performance?
+                    # plot_confusion_matrix(knn, xtest, y_test, normalize='all')
+                    # plt.show()
 
-                    # errors = functions.check_performance(X_train, y_train,
-                    #     y_test, y_pred_knn, os.path.join(path,
-                    #         '_'.join([filename, str(k), weight, s, split)))
+                    knn_metrics = functions.check_performance(X_train,
+                        y_train, y_test, y_pred_knn,
+                        os.path.join(path,
+                            '_'.join([filename, str(k), weight, s, split])))
                     # knn_errors.loc[k, s, weight, split][:] = errors
-                    # knn_runtimes.loc[k, s, weight, split][:] = runtime
+                    knn_runtimes.loc[k, s, weight, split][:] = runtimes
                     # del xtrain, xtest
 
-    print(knn_errors)
-    knn_errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
+    # print(knn_errors)
+    # knn_errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
+    print(knn_runtimes)
+    knn_runtimes.transpose().to_csv(os.path.join(path, filename + '_runtimes.csv'), sep=';', decimal=',')
+    
+    stophere
 
     # Plot errors over parameters of algorithm
     with sns.color_palette(n_colors=len(knn_errors.keys())):
