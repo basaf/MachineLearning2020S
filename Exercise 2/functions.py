@@ -19,12 +19,16 @@ from sklearn.neural_network import MLPClassifier
 
 from sklearn.model_selection import cross_validate
 
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+
 from sklearn.dummy import DummyClassifier
 
 import functions
 import os
 import seaborn as sns
 
+from time import process_time
 
 def mean_absolute_percentage_error(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
@@ -159,10 +163,11 @@ def check_performance(X_train: np.array, y_train: np.array,
 #     plt.close(fig)
 
 
-def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
-        list_k=[1, 3, 5], scaling: bool = True, weights=['uniform', 'distance'],
-        splits=['holdout', 'cross-validation'],
-        path: str = None, filename: str = None):
+def knn(X_train: np.array, X_test: np.array, y_train: np.array,
+    y_test: np.array, list_k=[1, 3, 5], scaling: bool = True,
+    weights=['uniform', 'distance'], splits=['holdout', 'cross-validation'],
+    path: str = None, filename: str = None):
+
     if scaling is True:
         scalings = ['scaling', 'noScaling']
         scaler = preprocessing.StandardScaler().fit(X_train)
@@ -171,10 +176,12 @@ def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
     else:
         scalings = ['noScaling']
 
-    index = pd.MultiIndex.from_product([list_k, scalings, weights],
-                                       names=['k', 'scaling', 'weights'])
+    index = pd.MultiIndex.from_product([list_k, scalings, weights, splits],
+        names=['k', 'scaling', 'weights', 'splits'])
     knn_errors = pd.DataFrame(index=index,
-                              columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
+        columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
+    knn_times = pd.DataFrame(index=index,
+        columns=['runtime'])
     # Change parameters
     for k in list_k:
         for s in scalings:
@@ -192,22 +199,31 @@ def knn(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array
                                                 algorithm='auto',  # 'ball_tree', 'kd_tree', 'brute'
                                                 leaf_size=30,  # default=30
                                                 n_jobs=-1)
+                    tic = process_time()
                     if split == 'holdout':
-                        knn.fit(xtrain, Y_train)
-                    else:  # cross-validation
+                        knn.fit(xtrain, y_train)
+
+
+                    elif split == 'cross-validation':
                         knn = KNeighborsClassifier(n_neighbors=k, weights=weight)
-                        scoring = ['precision_macro', 'recall_macro']
-                        scores = cross_validate(knn, xtrain, Y_train, cv=5,
+                        scoring = ['accuracy', 'precision_macro',
+                                    'recall_macro']
+                        scores = cross_validate(knn, xtrain, y_train, cv=5,
                                                 scoring=scoring, n_jobs=-1)  # n_jobs=-1 ... use all CPUs
-                        scores['test_recall_macro']
+                        # scores['test_recall_macro']
+                    runtime = tic-process_time()
+
                     y_pred_knn = knn.predict(xtest)
-                    
-                errors = functions.check_performance(X_train, Y_train,
-                            Y_test, y_pred_knn, os.path.join(
-                                path,
-                                filename + '_' + str(k) + '_' + weight + '_' + s))
-                knn_errors.loc[k, s, weight][:] = errors
-                del xtrain, xtest
+                    conf_matr_knn = confusion_matrix(y_test, y_pred_knn)
+                    print(classification_report(y_test, y_pred_knn))
+
+
+                    # errors = functions.check_performance(X_train, y_train,
+                    #     y_test, y_pred_knn, os.path.join(path,
+                    #         '_'.join([filename, str(k), weight, s, split)))
+                    # knn_errors.loc[k, s, weight, split][:] = errors
+                    # knn_runtimes.loc[k, s, weight, split][:] = runtime
+                    # del xtrain, xtest
 
     print(knn_errors)
     knn_errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')

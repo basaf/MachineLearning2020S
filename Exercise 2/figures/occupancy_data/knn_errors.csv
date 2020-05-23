@@ -1,0 +1,9 @@
+k;1;1;1;1;3;3;3;3
+scaling;scaling;scaling;noScaling;noScaling;scaling;scaling;noScaling;noScaling
+weights;uniform;distance;uniform;distance;uniform;distance;uniform;distance
+splits;holdout;holdout;holdout;holdout;holdout;holdout;holdout;holdout
+MAE;;;;;;;;
+MAPE;;;;;;;;
+MSE;;;;;;;;
+RMSE;;;;;;;;
+EV;;;;;;;;
