@@ -6,6 +6,8 @@ common functions for all datasets
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from itertools import product
+
 from sklearn import metrics, linear_model
 from sklearn import preprocessing
 # from sklearn.neighbors import KNeighborsRegressor
@@ -38,8 +40,31 @@ from time import process_time
 #     return np.mean(np.abs((y_true - y_pred) / y_true) * 100)
 
 
-def check_performance(X_train: np.array, y_train: np.array,
-                      y_test: np.array, y_pred: np.array,
+
+def add_significance_tests(df:pd.DataFrame, X_train:np.array, y_train:np.array,
+    X_test:np.array, y_test:np.array, strategies:list=['stratified', 'uniform']):
+
+    # Significance test against baselines
+    for strategy in strategies:
+        dummy_clf = DummyClassifier(strategy=strategy,
+            random_state=1)
+        dummy_clf.fit(X_train, y_train)
+        y_pred = dummy_clf.predict(X_test)
+        dummy_metrics = functions.check_performance(y_test,
+            y_pred, filename=None)
+        # print(dummy_metrics)    
+
+        for score, average in dummy_metrics.index.values:
+            key = ' '.join([score, average, 'dummy', strategy]).replace('  ',
+                ' ')
+            if key not in df:
+                df[key] = np.nan
+            df[key] = dummy_metrics[score, average]
+
+    return df
+
+
+def check_performance(y_test: np.array, y_pred: np.array,
                       filename=None):
     # # Line plot
     # plt.figure()
@@ -68,48 +93,35 @@ def check_performance(X_train: np.array, y_train: np.array,
     #     plt.close()
 
 
-    # Error values
-    print(classification_report(y_test, y_pred, digits=6))
+    # Evaluation metrics
     dict_report = classification_report(y_test, y_pred, output_dict=True)
+    binary_classification = ('accuracy' in dict_report.keys())
+    
 
-    binary = ('micro avg' not in dict_report.keys())
 
-    if binary:  # Micro average (averaging the total true positives, false negatives and false positives) is only shown for multi-label or multi-class with a subset of classes, because it corresponds to accuracy otherwise.
+    # Generate columns for result
+    if binary_classification:  # Micro average (averaging the total true positives, false negatives and false positives) is only shown for multi-label or multi-class with a subset of classes, because it corresponds to accuracy otherwise.
         index = pd.MultiIndex.from_arrays(
             [['accuracy', 'precision', 'recall', 'f1-score'],
                 ['', 'macro avg', 'macro avg', 'macro avg']],
             names=('score', 'average')) 
+        scores = ['accuracy', 'precision', 'recall', 'f1-score']
+        averages = ['', 'macro avg', 'macro avg', 'macro avg']
+        index_elements = list(zip(scores, averages))
     else:
         scores = ['precision', 'recall', 'f1-score']
         averages = ['micro avg', 'macro avg']
-        index = pd.MultiIndex.from_product([scores, averages],
-            names=['score', 'average'])
+        index_elements = list(product(scores, averages))
+        
+    index = [' '.join([score, average]).strip() for score, average in index_elements]
+    result = pd.DataFrame(index=index, columns=['value'])
 
-    metrics = pd.Series(index=index)
-
-    # for score in index.levels[0]:
-    #     for average in index.levels[1]:
-
-    for score, average in index.values:
-            print(score, average)
-            if score == 'accuracy':
-                metrics.loc[score, average] = dict_report[score]
-            else: 
-                metrics.loc[score, average] = dict_report[average][score]
-    print(metrics)
-
-    stophere
-
-    # Significance testing against baselines
-    dummy_clf_stratified = DummyClassifier(strategy="stratified",
-                                           random_state=1)
-    dummy_clf_stratified.fit(X_train, y_train)
-    dummy_score_stratified = dummy_clf_stratified.score(y_test)
-
-    dummy_clf_uniform = DummyClassifier(strategy="uniform",
-                                        random_state=1)
-    dummy_clf_uniform.fit(X_train, y_train)
-    dummy_score_uniform = dummy_clf_uniform.score(y_test)
+    # Pick results from report
+    for idx, (score, average) in enumerate(index_elements):
+        if score == 'accuracy':
+            result.loc[index[idx]]['value'] = dict_report[score]
+        else: 
+            result.loc[index[idx]]['value'] = dict_report[average][score]
 
     # print('Mean Absolute Error (MAE): {:.2f}'.format(MAE))
     # print('Mean Absolute Percentage Error (MAPE): {:.2f}'.format(MAPE))
@@ -127,7 +139,7 @@ def check_performance(X_train: np.array, y_train: np.array,
     #     f.write(f'Explained Variance (EV): {EV:.2f}\n')
     #     f.close()
 
-    return metrics
+    return result
 
 
 # def ridge_regression(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
@@ -207,10 +219,8 @@ def knn(X_train: np.array, X_test: np.array, y_train: np.array,
 
     index = pd.MultiIndex.from_product([list_k, scalings, weights, splits],
         names=['k', 'scaling', 'weights', 'splits'])
-    # knn_errors = pd.DataFrame(index=index,
-    #     columns=['accuracy', 'precision', ])
-    knn_runtimes = pd.DataFrame(index=index,
-        columns=['runtime'])
+    evaluation = pd.DataFrame(index=index)
+
     # Change parameters
     for k in list_k:
         for s in scalings:
@@ -232,15 +242,22 @@ def knn(X_train: np.array, X_test: np.array, y_train: np.array,
                     if split == 'holdout':
                         knn.fit(xtrain, y_train)
 
-
+                    # TODO
                     elif split == 'cross-validation':
-                        knn = KNeighborsClassifier(n_neighbors=k, weights=weight)
+                        knn = KNeighborsClassifier(n_neighbors=k,
+                            weights=weight)
+
+                        stophere
                         scoring = ['accuracy', 'precision_macro',
                                     'recall_macro']
                         scores = cross_validate(knn, xtrain, y_train, cv=5,
                                                 scoring=scoring, n_jobs=-1)  # n_jobs=-1 ... use all CPUs
-                        # scores['test_recall_macro']
-                    runtimes = process_time()-tic
+
+                    runtime = process_time()-tic
+                    if 'runtime training' not in evaluation:
+                            evaluation['runtime training'] = np.nan
+                    evaluation.loc[k, s, weight, split][
+                        'runtime training'] = runtime
 
                     y_pred_knn = knn.predict(xtest)
 
@@ -248,47 +265,71 @@ def knn(X_train: np.array, X_test: np.array, y_train: np.array,
                     # plot_confusion_matrix(knn, xtest, y_test, normalize='all')
                     # plt.show()
 
-                    knn_metrics = functions.check_performance(X_train,
-                        y_train, y_test, y_pred_knn,
-                        os.path.join(path,
-                            '_'.join([filename, str(k), weight, s, split])))
-                    # knn_errors.loc[k, s, weight, split][:] = errors
-                    knn_runtimes.loc[k, s, weight, split][:] = runtimes
-                    # del xtrain, xtest
+                    performance = (
+                        check_performance(y_test, y_pred_knn,
+                            os.path.join(path,
+                                '_'.join([filename, str(k), weight, s, split])))
+                        )
+                    for key in performance.index:
+                        if key not in evaluation:
+                            evaluation[key] = np.nan
+                        evaluation.loc[k, s, weight, split][
+                            key] = performance.loc[key]['value']
 
-    # print(knn_errors)
-    # knn_errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
-    print(knn_runtimes)
-    knn_runtimes.transpose().to_csv(os.path.join(path, filename + '_runtimes.csv'), sep=';', decimal=',')
-    
-    stophere
+                    # Significance test against baselines
+                    strategies = ['stratified', 'uniform']
+                    for strategy in strategies:
+                        dummy_clf = DummyClassifier(strategy=strategy,
+                            random_state=1)
+                        dummy_clf.fit(X_train, y_train)
+                        y_pred = dummy_clf.predict(X_test)
+                        dummy_metrics = functions.check_performance(y_test,
+                            y_pred, filename=None)
+                        # print(dummy_metrics)    
+                        for key in dummy_metrics.index:
+                            label = ' '.join(['dummy', strategy, key])
+                            if label not in evaluation:
+                                evaluation[label] = np.nan
+                            evaluation.loc[k, s, weight, split][
+                                label] = dummy_metrics.loc[key]['value']
 
-    # Plot errors over parameters of algorithm
-    with sns.color_palette(n_colors=len(knn_errors.keys())):
+                    del xtrain, xtest
+
+    print(evaluation)
+    evaluation.transpose().to_csv(os.path.join(path,
+        filename + '_evaluation.csv'), sep=';', decimal=',')
+        
+    # Plot evaluation parameters over parameters of algorithm
+    with sns.color_palette(n_colors=len(evaluation.keys())):
         #fig = plt.figure()
-        fig, ax = plt.subplots(len(knn_errors.keys()), 1, sharex=True, tight_layout=True)
+        fig, ax = plt.subplots(len(evaluation.keys()), 1, sharex=True,
+            tight_layout=True)
 
-    for pos, key in enumerate(knn_errors.keys()):
+    for pos, key in enumerate(evaluation.keys()):
         #ax = fig.add_subplot(5, 1, pos + 1)
         ax[pos].set_title(key)
         ax[pos].grid(True)
 
-        ax[pos].plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'uniform'), key].to_numpy(),
+        ax[pos].plot(list_k, evaluation.loc[(slice(None),
+            'scaling', 'uniform'), key].to_numpy(),
                 marker='o', linestyle='-', label='scaled, unif')
 
-        ax[pos].plot(list_k, knn_errors.loc[(slice(None), 'scaling', 'distance'), key].to_numpy(),
+        ax[pos].plot(list_k, evaluation.loc[(slice(None), 'scaling',
+            'distance'), key].to_numpy(),
                 marker='o', linestyle='-.', label='scaled, dist')
 
-        ax[pos].plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'uniform'), key].to_numpy(),
+        ax[pos].plot(list_k, evaluation.loc[(slice(None), 'noScaling',
+            'uniform'), key].to_numpy(),
                 marker='o', linestyle='--', label='not scaled, unif')
 
-        ax[pos].plot(list_k, knn_errors.loc[(slice(None), 'noScaling', 'distance'), key].to_numpy(),
+        ax[pos].plot(list_k, evaluation.loc[(slice(None), 'noScaling',
+            'distance'), key].to_numpy(),
                 marker='o', linestyle=':', label='not scaled, dist')
 
-    plt.subplots_adjust(hspace=2.2)
+    plt.subplots_adjust(hspace=3)
     plt.xlabel(r'$k$')
     plt.legend(ncol=4, loc='upper center', bbox_to_anchor=(0.5, -0.7))
-    fig.savefig(os.path.join(path, filename + '_errors.png'), format='png',
+    fig.savefig(os.path.join(path, filename + '_evaluation.png'), format='png',
                 dpi=200, bbox_inches='tight')
     plt.close(fig)
 
