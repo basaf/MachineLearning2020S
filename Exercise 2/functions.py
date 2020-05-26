@@ -35,35 +35,6 @@ import seaborn as sns
 from time import process_time
 
 
-# def mean_absolute_percentage_error(y_true, y_pred):
-#     y_true, y_pred = np.array(y_true), np.array(y_pred)
-#     return np.mean(np.abs((y_true - y_pred) / y_true) * 100)
-
-
-
-def add_significance_tests(df:pd.DataFrame, X_train:np.array, y_train:np.array,
-    X_test:np.array, y_test:np.array, strategies:list=['stratified', 'uniform']):
-
-    # Significance test against baselines
-    for strategy in strategies:
-        dummy_clf = DummyClassifier(strategy=strategy,
-            random_state=1)
-        dummy_clf.fit(X_train, y_train)
-        y_pred = dummy_clf.predict(X_test)
-        dummy_metrics = functions.check_performance(y_test,
-            y_pred, filename=None)
-        # print(dummy_metrics)    
-
-        for score, average in dummy_metrics.index.values:
-            key = ' '.join([score, average, 'dummy', strategy]).replace('  ',
-                ' ')
-            if key not in df:
-                df[key] = np.nan
-            df[key] = dummy_metrics[score, average]
-
-    return df
-
-
 def check_performance(y_test: np.array, y_pred: np.array,
                       filename=None):
     # # Line plot
@@ -97,8 +68,6 @@ def check_performance(y_test: np.array, y_pred: np.array,
     dict_report = classification_report(y_test, y_pred, output_dict=True)
     binary_classification = ('accuracy' in dict_report.keys())
     
-
-
     # Generate columns for result
     if binary_classification:  # Micro average (averaging the total true positives, false negatives and false positives) is only shown for multi-label or multi-class with a subset of classes, because it corresponds to accuracy otherwise.
         index = pd.MultiIndex.from_arrays(
@@ -123,21 +92,89 @@ def check_performance(y_test: np.array, y_pred: np.array,
         else: 
             result.loc[index[idx]]['value'] = dict_report[average][score]
 
-    # print('Mean Absolute Error (MAE): {:.2f}'.format(MAE))
-    # print('Mean Absolute Percentage Error (MAPE): {:.2f}'.format(MAPE))
-    # print('Mean Squared Error (MSE): {:.2f}'.format(MSE))
-    # print('Root Mean Squared Error (RMSE): {:.2f}'.format(RMSE))
-    # print('Explained Variance (EV): {:.2f}'.format(EV))
-    # print()
+    print(result+'\n')
 
-    # if filename is not None:
-    #     f = open(filename + '.txt', 'w')
-    #     f.write(f'Mean Absolute Error (MAE): {MAE:.2f}\n')
-    #     f.write(f'Mean Absolute Percentage Error (MAPE): {MAPE:.2f}\n')
-    #     f.write(f'Mean Squared Error (MSE): {MSE:.2f}\n')
-    #     f.write(f'Root Mean Squared Error (RMSE): {RMSE:.2f}\n')
-    #     f.write(f'Explained Variance (EV): {EV:.2f}\n')
-    #     f.close()
+    if filename is not None:
+        f = open(filename + '.txt', 'w')
+        for idx, (score, average) in enumerate(index_elements):
+            if score == 'accuracy':
+                result.loc[index[idx]]['value'] = dict_report[score]
+            else: 
+                result.loc[index[idx]]['value'] = dict_report[average][score]
+            f.write(index[idx]+f": {result.loc[index[idx]]['value']:.2f}\n")
+        f.close()
+
+    return result
+
+
+def check_performance_CV(y_test: np.array, y_pred: np.array,
+                      filename=None):
+    # # Line plot
+    # plt.figure()
+    # plt.plot(y_test, label=r'$y$')
+    # plt.plot(y_pred, label=r'$\hat y$')
+    # plt.grid()
+    # plt.legend()
+    # if filename is None:
+    #     plt.show()
+    # else:
+    #     plt.tight_layout()
+    #     plt.savefig(filename + ".png", format='png')
+    #     plt.close()
+
+    # # Scatter plot
+    # plt.figure()
+    # plt.scatter(y_test, y_test, label=r'$y$', alpha=0.6)
+    # plt.scatter(y_test, y_pred, label=r'$\hat y$', alpha=0.6)
+    # plt.grid()
+    # plt.legend()
+    # if filename is None:
+    #     plt.show()
+    # else:
+    #     plt.tight_layout()
+    #     plt.savefig(filename + "_scatter.png", format='png')
+    #     plt.close()
+
+
+    # Evaluation metrics
+    dict_report = classification_report(y_test, y_pred, output_dict=True)
+    binary_classification = ('accuracy' in dict_report.keys())
+    
+    # Generate columns for result
+    if binary_classification:  # Micro average (averaging the total true positives, false negatives and false positives) is only shown for multi-label or multi-class with a subset of classes, because it corresponds to accuracy otherwise.
+        index = pd.MultiIndex.from_arrays(
+            [['accuracy', 'precision', 'recall', 'f1-score'],
+                ['', 'macro avg', 'macro avg', 'macro avg']],
+            names=('score', 'average')) 
+        scores = ['accuracy', 'precision', 'recall', 'f1-score']
+        averages = ['', 'macro avg', 'macro avg', 'macro avg']
+        index_elements = list(zip(scores, averages))
+    else:
+        scores = ['precision', 'recall', 'f1-score']
+        averages = ['micro avg', 'macro avg']
+        index_elements = list(product(scores, averages))
+        
+    index = [' '.join([score, average]).strip() for score, average in index_elements]
+    result = pd.DataFrame(index=index, columns=['value'])
+
+    # Pick results from report
+    for idx, (score, average) in enumerate(index_elements):
+        if score == 'accuracy':
+            result.loc[index[idx]]['value'] = dict_report[score]
+        else: 
+            result.loc[index[idx]]['value'] = dict_report[average][score]
+
+    print(result+'\n')
+
+    if filename is not None:
+        f = open(filename + '.txt', 'w')
+        for idx, (score, average) in enumerate(index_elements):
+            if score == 'accuracy':
+                result.loc[index[idx]]['value'] = dict_report[score]
+            else: 
+                result.loc[index[idx]]['value'] = dict_report[average][score]
+            f.write(index[idx]+f": {result.loc[index[idx]]['value']:.2f}\n")
+        f.close()
 
     return result
 
@@ -234,36 +271,40 @@ def knn(X_train: np.array, X_test: np.array, y_train: np.array,
 
                 for split in splits:
                     knn = KNeighborsClassifier(n_neighbors=k,
-                                                weights=weight,
-                                                algorithm='auto',  # 'ball_tree', 'kd_tree', 'brute'
-                                                leaf_size=30,  # default=30
-                                                n_jobs=-1)
+                        weights=weight,
+                        algorithm='auto',  # 'ball_tree', 'kd_tree', 'brute'
+                        leaf_size=30,  # default=30
+                        n_jobs=-1)
                     tic = process_time()
                     if split == 'holdout':
                         knn.fit(xtrain, y_train)
-
-                    # TODO
                     elif split == 'cross-validation':
-                        knn = KNeighborsClassifier(n_neighbors=k,
-                            weights=weight)
-
-                        stophere
-                        scoring = ['accuracy', 'precision_macro',
-                                    'recall_macro']
+                        # TODO: Trainieren auf beste accuracy mit k-fold
+                        # How to? --> So geht das nicht, da die Parameter ja
+                        # bereits feststehen
                         scores = cross_validate(knn, xtrain, y_train, cv=5,
                                                 scoring=scoring, n_jobs=-1)  # n_jobs=-1 ... use all CPUs
 
-                    runtime = process_time()-tic
+
+                    runtime_training = process_time()-tic
                     if 'runtime training' not in evaluation:
                             evaluation['runtime training'] = np.nan
                     evaluation.loc[k, s, weight, split][
-                        'runtime training'] = runtime
+                        'runtime training'] = runtime_training
 
+                    tic = process_time()
                     y_pred_knn = knn.predict(xtest)
+                    runtime_prediction = process_time()-tic
+
+                    if 'runtime prediction' not in evaluation:
+                            evaluation['runtime prediction'] = np.nan
+                    evaluation.loc[k, s, weight, split][
+                        'runtime prediction'] = runtime_prediction
 
                     # to be integrated in check_performance?
                     # plot_confusion_matrix(knn, xtest, y_test, normalize='all')
                     # plt.show()
+
 
                     performance = (
                         check_performance(y_test, y_pred_knn,

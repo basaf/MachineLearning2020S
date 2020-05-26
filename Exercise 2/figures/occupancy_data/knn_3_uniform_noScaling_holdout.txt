@@ -1,0 +1,4 @@
+accuracy 0.99
+precision macro avg 0.98
+recall macro avg 0.99
+f1-score macro avg 0.99
