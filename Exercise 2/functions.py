@@ -19,6 +19,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 
+from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_validate
 
 from sklearn.metrics import confusion_matrix
@@ -35,45 +36,14 @@ import seaborn as sns
 from time import process_time
 
 
-def check_performance(y_test: np.array, y_pred: np.array,
+def check_performance_holdout(y_test: np.array, y_pred: np.array,
                       filename=None):
-    # # Line plot
-    # plt.figure()
-    # plt.plot(y_test, label=r'$y$')
-    # plt.plot(y_pred, label=r'$\hat y$')
-    # plt.grid()
-    # plt.legend()
-    # if filename is None:
-    #     plt.show()
-    # else:
-    #     plt.tight_layout()
-    #     plt.savefig(filename + ".png", format='png')
-    #     plt.close()
-
-    # # Scatter plot
-    # plt.figure()
-    # plt.scatter(y_test, y_test, label=r'$y$', alpha=0.6)
-    # plt.scatter(y_test, y_pred, label=r'$\hat y$', alpha=0.6)
-    # plt.grid()
-    # plt.legend()
-    # if filename is None:
-    #     plt.show()
-    # else:
-    #     plt.tight_layout()
-    #     plt.savefig(filename + "_scatter.png", format='png')
-    #     plt.close()
-
-
     # Evaluation metrics
     dict_report = classification_report(y_test, y_pred, output_dict=True)
     binary_classification = ('accuracy' in dict_report.keys())
     
     # Generate columns for result
     if binary_classification:  # Micro average (averaging the total true positives, false negatives and false positives) is only shown for multi-label or multi-class with a subset of classes, because it corresponds to accuracy otherwise.
-        index = pd.MultiIndex.from_arrays(
-            [['accuracy', 'precision', 'recall', 'f1-score'],
-                ['', 'macro avg', 'macro avg', 'macro avg']],
-            names=('score', 'average')) 
         scores = ['accuracy', 'precision', 'recall', 'f1-score']
         averages = ['', 'macro avg', 'macro avg', 'macro avg']
         index_elements = list(zip(scores, averages))
@@ -92,60 +62,24 @@ def check_performance(y_test: np.array, y_pred: np.array,
         else: 
             result.loc[index[idx]]['value'] = dict_report[average][score]
 
-    print(result+'\n')
+    print(result)
+    print()
 
     if filename is not None:
-        f = open(filename + '.txt', 'w')
-        for idx, (score, average) in enumerate(index_elements):
-            if score == 'accuracy':
-                result.loc[index[idx]]['value'] = dict_report[score]
-            else: 
-                result.loc[index[idx]]['value'] = dict_report[average][score]
-            f.write(index[idx]+f": {result.loc[index[idx]]['value']:.2f}\n")
-        f.close()
+        result.to_csv(filename+'.txt', float_format=':.2f', sep='\t',
+            header=False)
 
     return result
 
 
-def check_performance_CV(y_test: np.array, y_pred: np.array,
-                      filename=None):
-    # # Line plot
-    # plt.figure()
-    # plt.plot(y_test, label=r'$y$')
-    # plt.plot(y_pred, label=r'$\hat y$')
-    # plt.grid()
-    # plt.legend()
-    # if filename is None:
-    #     plt.show()
-    # else:
-    #     plt.tight_layout()
-    #     plt.savefig(filename + ".png", format='png')
-    #     plt.close()
+def check_performance_CV(classifier, X:np.array, y:np.array,
+    cv=5, n_jobs=-1, filename=None):
 
-    # # Scatter plot
-    # plt.figure()
-    # plt.scatter(y_test, y_test, label=r'$y$', alpha=0.6)
-    # plt.scatter(y_test, y_pred, label=r'$\hat y$', alpha=0.6)
-    # plt.grid()
-    # plt.legend()
-    # if filename is None:
-    #     plt.show()
-    # else:
-    #     plt.tight_layout()
-    #     plt.savefig(filename + "_scatter.png", format='png')
-    #     plt.close()
-
-
-    # Evaluation metrics
-    dict_report = classification_report(y_test, y_pred, output_dict=True)
-    binary_classification = ('accuracy' in dict_report.keys())
-    
+    # TODO: Detect, wether it is a binary classification
+    binary_classification = (len(np.unique(y)) == 2)
+   
     # Generate columns for result
     if binary_classification:  # Micro average (averaging the total true positives, false negatives and false positives) is only shown for multi-label or multi-class with a subset of classes, because it corresponds to accuracy otherwise.
-        index = pd.MultiIndex.from_arrays(
-            [['accuracy', 'precision', 'recall', 'f1-score'],
-                ['', 'macro avg', 'macro avg', 'macro avg']],
-            names=('score', 'average')) 
         scores = ['accuracy', 'precision', 'recall', 'f1-score']
         averages = ['', 'macro avg', 'macro avg', 'macro avg']
         index_elements = list(zip(scores, averages))
@@ -154,27 +88,45 @@ def check_performance_CV(y_test: np.array, y_pred: np.array,
         averages = ['micro avg', 'macro avg']
         index_elements = list(product(scores, averages))
         
-    index = [' '.join([score, average]).strip() for score, average in index_elements]
+    scoring = [' '.join([score, average]).strip().
+        replace(' avg', '').replace(' ', '_').replace('-', '_').
+        replace('f1_score', 'f1')
+        for score, average in index_elements]
+    
+    # Name mean and add standard deviations to index elements
+    index = []
+    for score in scoring:
+        index.append(score+' MEAN')
+        index.append(score+' SD')
+    index.append('fit time MEAN')
+    index.append('fit time SD')
+    index.append('score time MEAN')
+    index.append('score time SD')
     result = pd.DataFrame(index=index, columns=['value'])
 
-    # Pick results from report
-    for idx, (score, average) in enumerate(index_elements):
-        if score == 'accuracy':
-            result.loc[index[idx]]['value'] = dict_report[score]
-        else: 
-            result.loc[index[idx]]['value'] = dict_report[average][score]
+    dict_CV_results = cross_validate(classifier, X, y, cv=cv, scoring=scoring,
+        n_jobs=n_jobs)
 
-    print(result+'\n')
+    # Pick results from cross_validate
+    for idx, (score, average) in enumerate(index_elements):
+        result.loc[index[idx*2]]['value'] = np.mean(
+            dict_CV_results['test_'+scoring[idx]])
+        result.loc[index[idx*2+1]]['value'] = np.std(
+            dict_CV_results['test_'+scoring[idx]])
+
+    # Pick fit_time and score_time from cross_validate
+    for time in ['fit', 'score']:
+        result.loc[time+' time MEAN']['value'] = np.mean(
+            dict_CV_results[time+'_time'])
+        result.loc[time+' time SD']['value'] = np.std(
+            dict_CV_results[time+'_time'])
+    
+    print(result)
+    print()
 
     if filename is not None:
-        f = open(filename + '.txt', 'w')
-        for idx, (score, average) in enumerate(index_elements):
-            if score == 'accuracy':
-                result.loc[index[idx]]['value'] = dict_report[score]
-            else: 
-                result.loc[index[idx]]['value'] = dict_report[average][score]
-            f.write(index[idx]+f": {result.loc[index[idx]]['value']:.2f}\n")
-        f.close()
+        result.to_csv(filename+'.txt', float_format=':.2f', sep='\t',
+            header=False)
 
     return result
 
@@ -208,7 +160,7 @@ def check_performance_CV(y_test: np.array, y_pred: np.array,
 #             reg.fit(xtrain, Y_train)
 #             y_pred_reg = reg.predict(xtest)
 
-#             test_errors = functions.check_performance(Y_test, y_pred_reg,
+#             test_errors = functions.check_performance_holdout(Y_test, y_pred_reg,
 #                                                       os.path.join(path, filename + '_' + str(alpha) + '_' + s))
 #             errors.loc[alpha, s][:] = test_errors
 
@@ -241,21 +193,32 @@ def check_performance_CV(y_test: np.array, y_pred: np.array,
 #     plt.close(fig)
 
 
-def knn(X_train: np.array, X_test: np.array, y_train: np.array,
-    y_test: np.array, list_k=[1, 3, 5], scaling: bool = True,
-    weights=['uniform', 'distance'], splits=['holdout', 'cross-validation'],
+def knn(X: np.array, y: np.array, test_size, random_state,
+    list_k=[1, 3, 5], scaling: bool = True,
+    weights=['uniform', 'distance'],
+    validation_methods=['holdout', 'cross-validation'],
     path: str = None, filename: str = None):
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+        test_size=test_size, random_state=random_state)
 
     if scaling is True:
         scalings = ['scaling', 'noScaling']
+        # Data scaling (remove mean and scale to unit variance)        
+
+        # For holdout
         scaler = preprocessing.StandardScaler().fit(X_train)
         X_train_scaled = scaler.transform(X_train)
         X_test_scaled = scaler.transform(X_test)
+
+        # For k-fold CV
+        X_scaled = preprocessing.StandardScaler().fit_transform(X)
     else:
         scalings = ['noScaling']
 
-    index = pd.MultiIndex.from_product([list_k, scalings, weights, splits],
-        names=['k', 'scaling', 'weights', 'splits'])
+    index = pd.MultiIndex.from_product([list_k, scalings, weights,
+        validation_methods],
+        names=['k', 'scaling', 'weights', 'validation method'])
     evaluation = pd.DataFrame(index=index)
 
     # Change parameters
@@ -263,76 +226,91 @@ def knn(X_train: np.array, X_test: np.array, y_train: np.array,
         for s in scalings:
             for weight in weights:
                 if s == 'scaling':
+                    # For holdout
                     xtrain = X_train_scaled
                     xtest = X_test_scaled
+                    # For k-fold CV
+                    x = X_scaled
                 else:
+                    # For holdout
                     xtrain = X_train
                     xtest = X_test
+                    # For k-fold CV
+                    x = X
 
-                for split in splits:
+                for method in validation_methods:
                     knn = KNeighborsClassifier(n_neighbors=k,
                         weights=weight,
                         algorithm='auto',  # 'ball_tree', 'kd_tree', 'brute'
                         leaf_size=30,  # default=30
                         n_jobs=-1)
-                    tic = process_time()
-                    if split == 'holdout':
+                    if method == 'holdout':
+                        tic = process_time()
                         knn.fit(xtrain, y_train)
-                    elif split == 'cross-validation':
-                        # TODO: Trainieren auf beste accuracy mit k-fold
-                        # How to? --> So geht das nicht, da die Parameter ja
-                        # bereits feststehen
-                        scores = cross_validate(knn, xtrain, y_train, cv=5,
-                                                scoring=scoring, n_jobs=-1)  # n_jobs=-1 ... use all CPUs
+                        fit_time = process_time()-tic
+                        if 'fit time' not in evaluation:
+                                evaluation['fit time'] = np.nan
+                        evaluation.loc[k, s, weight, method][
+                            'fit time'] = fit_time
+                        tic = process_time()
+                        y_pred_knn = knn.predict(xtest)
+                        score_time = process_time()-tic
+
+                        if 'score time' not in evaluation:
+                                evaluation['score time'] = np.nan
+                        evaluation.loc[k, s, weight, method][
+                            'score time'] = score_time
+
+                        performance = (
+                            check_performance_holdout(y_test, y_pred_knn,
+                                os.path.join(path,
+                                    '_'.join([filename, str(k), weight, s,
+                                        method])))
+                            )
 
 
-                    runtime_training = process_time()-tic
-                    if 'runtime training' not in evaluation:
-                            evaluation['runtime training'] = np.nan
-                    evaluation.loc[k, s, weight, split][
-                        'runtime training'] = runtime_training
+                        # For both methods identical??
 
-                    tic = process_time()
-                    y_pred_knn = knn.predict(xtest)
-                    runtime_prediction = process_time()-tic
+                        # Significance test against baselines
+                        strategies = ['stratified', 'uniform']
+                        for strategy in strategies:
+                            dummy_clf = DummyClassifier(strategy=strategy,
+                                random_state=1)
+                            dummy_clf.fit(X_train, y_train)
+                            y_pred = dummy_clf.predict(X_test)
+                            dummy_metrics = (
+                                functions.check_performance_holdout(y_test,
+                                    y_pred, filename=None))
+                            # print(dummy_metrics)    
+                            for key in dummy_metrics.index:
+                                label = ' '.join(['dummy', strategy, key])
+                                if label not in evaluation:
+                                    evaluation[label] = np.nan
+                                evaluation.loc[k, s, weight, method][
+                                    label] = dummy_metrics.loc[key]['value']
 
-                    if 'runtime prediction' not in evaluation:
-                            evaluation['runtime prediction'] = np.nan
-                    evaluation.loc[k, s, weight, split][
-                        'runtime prediction'] = runtime_prediction
-
-                    # to be integrated in check_performance?
-                    # plot_confusion_matrix(knn, xtest, y_test, normalize='all')
-                    # plt.show()
 
 
-                    performance = (
-                        check_performance(y_test, y_pred_knn,
-                            os.path.join(path,
-                                '_'.join([filename, str(k), weight, s, split])))
-                        )
+
+                    elif method == 'cross-validation':
+                        performance = check_performance_CV(knn, x, y, 5,
+                            -1, os.path.join(path,
+                                    '_'.join([filename, str(k), weight, s,
+                                        method])))  # n_jobs=-1 ... use all CPUs
+
+                        stophere
+
+
+
+                    # For both methods identical
                     for key in performance.index:
                         if key not in evaluation:
                             evaluation[key] = np.nan
-                        evaluation.loc[k, s, weight, split][
+                        evaluation.loc[k, s, weight, method][
                             key] = performance.loc[key]['value']
 
-                    # Significance test against baselines
-                    strategies = ['stratified', 'uniform']
-                    for strategy in strategies:
-                        dummy_clf = DummyClassifier(strategy=strategy,
-                            random_state=1)
-                        dummy_clf.fit(X_train, y_train)
-                        y_pred = dummy_clf.predict(X_test)
-                        dummy_metrics = functions.check_performance(y_test,
-                            y_pred, filename=None)
-                        # print(dummy_metrics)    
-                        for key in dummy_metrics.index:
-                            label = ' '.join(['dummy', strategy, key])
-                            if label not in evaluation:
-                                evaluation[label] = np.nan
-                            evaluation.loc[k, s, weight, split][
-                                label] = dummy_metrics.loc[key]['value']
+
+
 
                     del xtrain, xtest
 
@@ -397,7 +375,7 @@ def knn(X_train: np.array, X_test: np.array, y_train: np.array,
 #                 dt.fit(xtrain, Y_train)
 #                 y_pred_dt = dt.predict(xtest)
 
-#                 errors = functions.check_performance(Y_test, y_pred_dt,
+#                 errors = functions.check_performance_holdout(Y_test, y_pred_dt,
 #                                                      os.path.join(path,
 #                                                                   filename + '_' + str(max_depth) + '_' + str(
 #                                                                       min_samples_leaf) + '_' + str(
@@ -458,7 +436,7 @@ def knn(X_train: np.array, X_test: np.array, y_train: np.array,
 #             mlp.fit(X_train, Y_train)
 #             y_pred_mlp = mlp.predict(X_test)
 
-#             errors = functions.check_performance(Y_test, y_pred_mlp,
+#             errors = functions.check_performance_holdout(Y_test, y_pred_mlp,
 #                                                  os.path.join(path, filename + '_' + str(alpha) + '_' + str(
 #                                                      hidden_layer_sizes)))
 #             mlp_errors.loc[alpha, str(hidden_layer_sizes)][:] = errors

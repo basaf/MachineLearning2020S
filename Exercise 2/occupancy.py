@@ -9,7 +9,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from seaborn import heatmap
 
-from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from sklearn.impute import SimpleImputer
 
@@ -96,8 +95,11 @@ if False:
 #%% Split data
 X = data[predictive_attributes].to_numpy()
 y = data[goal_attribute].to_numpy() 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
-    random_state=1)
+test_size = 0.2
+random_state = 1
+# Splitting is done in sub routines, since whole data set is used for k-fold CV
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+#     random_state=1)
 
 #%% Impute mean value of attributes
 if False:
@@ -106,16 +108,17 @@ if False:
     X_test = imp.transform(X_test)
 
 #%% Data scaling (remove mean and scale to unit variance)
-scaler = preprocessing.StandardScaler().fit(X_train)
-X_train_scaled = scaler.transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+# scaler = preprocessing.StandardScaler().fit(X_train)
+# X_train_scaled = scaler.transform(X_train)
+# X_test_scaled = scaler.transform(X_test)
 
 #%% k-Nearest Neighbor Classification
 if True:
     list_k = [1, 3, ]  # 5, 10, 20, 50, 100, 300]
-    functions.knn(X_train, X_test, y_train, y_test, list_k, True,
+    functions.knn(X, y, test_size, random_state, list_k, True,
         ['uniform', 'distance'],
-        ['holdout'],  # , 'cross-validation'],
+        [  # 'holdout',
+        'cross-validation'],
         cfg.default.occupancy_figures,
         'knn')
 
