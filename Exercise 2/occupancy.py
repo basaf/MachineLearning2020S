@@ -113,16 +113,29 @@ if False:
 # X_test_scaled = scaler.transform(X_test)
 
 #%% k-Nearest Neighbor Classification
-if True:
-    list_k = [1, 3, ]  # 5, 10, 20, 50, 100, 300]
+if False:
+    list_k = [1, 10, 50, 100, 500]
     functions.knn(X, y, test_size, random_state, list_k, True,
         ['uniform', 'distance'],
-        ['holdout',
-        'cross-validation'],
+        ['holdout', 'cross-validation'],
+        ['stratified', 'uniform'],
         cfg.default.occupancy_figures,
         'knn')
 
-# #%% Decision Tree Regression
+if True:
+    functions.plot_evaluation_knn(cfg.default.occupancy_figures, 'knn')
+
+#%% Naïve Bayes Classification
+if False:
+    # Scaling not needed for algorithms that don’t use distances like Naive
+    # Bayes
+
+    functions.gnb(X, y, test_size, random_state,
+        ['holdout', 'cross-validation'],
+        cfg.default.occupancy_figures,
+        'gnb')
+
+#%% Decision Tree Regression
 # if False:
 #     max_depths = [1, 10, 50, 100, 200, 500]
 #     min_samples_leaf = [1, 10, 100, 200]

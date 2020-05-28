@@ -221,9 +221,11 @@ def knn(X: np.array, y: np.array, test_size, random_state,
         list_k=[1, 3, 5], scaling: bool = True,
         weights=['uniform', 'distance'],
         validation_methods=['holdout', 'cross-validation'],
+        baselines=['stratified', 'uniform'],
         path: str = None, filename: str = None):
+
     X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=test_size, random_state=random_state)
+        test_size=test_size, random_state=random_state)
 
     if scaling is True:
         scalings = ['scaling', 'noScaling']
@@ -240,10 +242,18 @@ def knn(X: np.array, y: np.array, test_size, random_state,
         scalings = ['noScaling']
 
     index = pd.MultiIndex.from_product([list_k, scalings, weights,
-                                        validation_methods],
-                                       names=['k', 'scaling', 'weights', 'validation method'])
-    evaluation = pd.DataFrame(index=index)
+        validation_methods,
+        ['Classifier']+['Baseline '+i for i in baselines]],
+        names=['k', 'scaling', 'weights', 'validation method', 'classifier'])
 
+    evaluation = pd.DataFrame(index=index)
+    # Add empty entries for fit and score times (mean, SD)
+    for entry1 in ['fit', 'score']:
+        for entry2 in ['MEAN', 'SD']:
+            entry = ' '.join([entry1, 'time', entry2])
+            if entry not in evaluation:
+                evaluation[entry] = np.nan
+                
     # Change parameters
     for k in list_k:
         for s in scalings:
@@ -283,26 +293,19 @@ def knn(X: np.array, y: np.array, test_size, random_state,
                             )
                         score_time = process_time()-tic
 
-                        # Add empty entries for fit and score times (mean, SD)
-                        for entry1 in ['fit', 'score']:
-                            for entry2 in ['MEAN', 'SD']:
-                                entry = ' '.join([entry1, 'time', entry2])
-                                if entry not in evaluation:
-                                    evaluation[entry] = np.nan
                         # Write fit and score times
-                        evaluation.loc[k, s, weight, method][
+                        evaluation.loc[k, s, weight, method, 'Classifier'][
                             'fit time MEAN'] = fit_time
-                        evaluation.loc[k, s, weight, method][
+                        evaluation.loc[k, s, weight, method, 'Classifier'][
                             'fit time SD'] = 0
-                        evaluation.loc[k, s, weight, method][
+                        evaluation.loc[k, s, weight, method, 'Classifier'][
                             'score time MEAN'] = score_time
-                        evaluation.loc[k, s, weight, method][
+                        evaluation.loc[k, s, weight, method, 'Classifier'][
                             'score time SD'] = 0
 
                         # Significance test against baselines
-                        strategies = ['stratified', 'uniform']
-                        for strategy in strategies:
-                            dummy_clf = DummyClassifier(strategy=strategy,
+                        for baseline in baselines:
+                            dummy_clf = DummyClassifier(strategy=baseline,
                                 random_state=1)
 
                             tic = process_time()
@@ -315,31 +318,25 @@ def knn(X: np.array, y: np.array, test_size, random_state,
                                 functions.check_performance_holdout(y_test,
                                     y_pred, filename=None))
                             score_time = process_time()-tic
-                            # Add empty entries for fit and score times (mean, SD)
-                            for entry1 in ['fit', 'score']:
-                                for entry2 in ['MEAN', 'SD']:
-                                    entry = ' '.join(['dummy', strategy,
-                                        entry1, 'time', entry2])
-                                    if entry not in evaluation:
-                                        evaluation[entry] = np.nan
-                            # Write fit and score times
-                            prefix = 'dummy '+strategy+' '
-                            evaluation.loc[k, s, weight, method][
-                                prefix+'fit time MEAN'] = fit_time
-                            evaluation.loc[k, s, weight, method][
-                                prefix+'fit time SD'] = 0
-                            evaluation.loc[k, s, weight, method][
-                                prefix+'score time MEAN'] = score_time
-                            evaluation.loc[k, s, weight, method][
-                                prefix+'score time SD'] = 0
 
-                            # print(dummy_performance)    
+                            # Write fit and score times
+                            classifier = 'Baseline '+baseline
+                            evaluation.loc[k, s, weight, method, classifier][
+                                'fit time MEAN'] = fit_time
+                            evaluation.loc[k, s, weight, method, classifier][
+                                'fit time SD'] = 0
+                            evaluation.loc[k, s, weight, method, classifier][
+                                'score time MEAN'] = score_time
+                            evaluation.loc[k, s, weight, method, classifier][
+                                'score time SD'] = 0
+
+                            # Write performance of dummy 
                             for key in dummy_performance.index:
-                                label = ' '.join(['dummy', strategy, key])
-                                if label not in evaluation:
-                                    evaluation[label] = np.nan
-                                evaluation.loc[k, s, weight, method][
-                                    label] = dummy_performance.loc[key]['value']
+                                if key not in evaluation:
+                                    evaluation[key] = np.nan                                
+                                evaluation.loc[k, s, weight, method,
+                                    classifier][key] = (
+                                        dummy_performance.loc[key]['value'])
 
                     elif method == 'cross-validation':
                         performance = check_performance_CV(knn, x, y, 5,
@@ -348,59 +345,250 @@ def knn(X: np.array, y: np.array, test_size, random_state,
                                         method])))  # n_jobs=-1 ... use all CPUs
 
                         # Significance test against baselines
-                        strategies = ['stratified', 'uniform']
-                        for strategy in strategies:
-                            dummy_clf = DummyClassifier(strategy=strategy,
+                        for baseline in baselines:
+                            dummy_clf = DummyClassifier(strategy=baseline,
                                 random_state=1)
                             dummy_performance = check_performance_CV(dummy_clf,
                                 x, y, 5, -1, filename=None)  # n_jobs=-1 ... use all CPUs
   
                             for key in dummy_performance.index:
-                                label = ' '.join(['dummy', strategy, key])
-                                if label not in evaluation:
-                                    evaluation[label] = np.nan
-                                evaluation.loc[k, s, weight, method][
-                                    label] = dummy_performance.loc[key]['value']
-
-                        # stophere
+                                if key not in evaluation:
+                                    evaluation[key] = np.nan   
+                                classifier = 'Baseline '+baseline
+                                evaluation.loc[k, s, weight, method,
+                                    classifier][key] = (
+                                        dummy_performance.loc[key]['value'])
 
                     # For both methods identical
                     for key in performance.index:
                         if key not in evaluation:
                             evaluation[key] = np.nan
-                        evaluation.loc[k, s, weight, method][
+                        evaluation.loc[k, s, weight, method, 'Classifier'][
                             key] = performance.loc[key]['value']
 
-                    del xtrain, xtest
-
     print(evaluation)
-    evaluation.transpose().to_csv(os.path.join(path, filename + '_evaluation.csv'), sep=';', decimal=',')
+    evaluation.transpose().to_csv(os.path.join(path,
+        filename + '_evaluation.csv'), sep=';', decimal=',')
+    evaluation.to_hdf(os.path.join(path,
+        filename + '_evaluation.h5'), key='evaluation', mode='w')
+    
+    return
+
+def plot_evaluation_knn(path: str = None, filename: str = None):
+
+    evaluation = pd.read_hdf(os.path.join(path,
+        filename + '_evaluation.h5'), key='evaluation')
+
+    list_k = evaluation.index.levels[0].to_list()
+    scalings = evaluation.index.levels[1].to_list()
+    weights = evaluation.index.levels[2].to_list()
+    validation_methods = evaluation.index.levels[3].to_list()
+    classifiers = evaluation.index.levels[4].to_list()
 
     # Plot evaluation parameters over parameters of algorithm
-    with sns.color_palette(n_colors=len(evaluation.keys())):
-        fig, ax = plt.subplots(len(evaluation.keys()), 1, sharex='all', tight_layout=True, figsize=(8,19))
 
-    for pos, key in enumerate(evaluation.keys()):
-        # ax = fig.add_subplot(5, 1, pos + 1)
-        ax[pos].set_title(key)
-        ax[pos].grid(True)
+    for classifier in classifiers:
+        for s in scalings:
+            with sns.color_palette(n_colors=len(weights)*len(validation_methods)):
+                fig, ax = plt.subplots(int(len(evaluation.keys())/2), 1,
+                    sharex='all', tight_layout=True, figsize=(8,12))
 
-        ax[pos].plot(list_k, evaluation.loc[(slice(None), 'scaling', 'uniform'), key].to_numpy(),
-                     marker='o', linestyle='-', label='scaled, unif')
+            linestyle_cycle = ['-', '--', '-.', ':'] * 3  # to have enough elements (quick&dirty)
+            marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*'] * 3  # to have enough elements (quick&dirty)
 
-        ax[pos].plot(list_k, evaluation.loc[(slice(None), 'scaling', 'distance'), key].to_numpy(),
-                     marker='o', linestyle='-.', label='scaled, dist')
+            lines = []
+            for pos in range(int(len(evaluation.keys())/2)):
+                ax[pos].set_title(evaluation.keys()[2*pos].replace(' MEAN', '').
+                    replace('_', ' '))
+                ax[pos].grid(True)
 
-        ax[pos].plot(list_k, evaluation.loc[(slice(None), 'noScaling', 'uniform'), key].to_numpy(),
-                     marker='o', linestyle='--', label='not scaled, unif')
+                lines = []
+                for i, weight in enumerate(weights):
+                    for j, method in enumerate(validation_methods):
+                        MEAN = evaluation.loc[(slice(None), s,
+                                        weight, method, classifier),
+                                        evaluation.keys()[2*pos]].to_numpy()
+                        SD = evaluation.loc[(slice(None), s,
+                                        weight, method, classifier),
+                                        evaluation.keys()[2*pos+1]].to_numpy()
 
-        ax[pos].plot(list_k, evaluation.loc[(slice(None), 'noScaling', 'distance'), key].to_numpy(),
-                     marker='o', linestyle=':', label='not scaled, dist')
+                        lines.append(ax[pos].plot(list_k,
+                            MEAN,
+                            marker=marker_cycle[i+j],
+                            linestyle=linestyle_cycle[i+j],
+                            label=', '.join([method, weight]))[0])
+                        ax[pos].fill_between(list_k, MEAN-SD, MEAN+SD,
+                            alpha=0.3)
+                if pos > 1:
+                    ax[pos].set_ylim(0, 1)
 
-    plt.xlabel(r'$k$')
-    plt.legend(ncol=4, loc='upper center', bbox_to_anchor=(0.5, -0.4))
-    fig.savefig(os.path.join(path, filename + '_evaluation.png'), format='png', dpi=300)
-    plt.close(fig)
+            plt.xlabel(r'$k$')
+
+            plt.subplots_adjust(hspace=2.4)
+            fig.legend(  # title='hidden layer sizes',
+                handles=lines, ncol=2, bbox_to_anchor=(0.5, -0.005),
+                bbox_transform=fig.transFigure, loc='upper center',
+                borderaxespad=0.1)
+        
+            fig.savefig(os.path.join(path, filename + '_' +
+                '_'.join(['evaluation', s, classifier]) + '.png'),
+                format='png', dpi=200, bbox_inches='tight')
+            plt.close(fig)
+
+    return
+
+
+def gnb(X: np.array, y: np.array, test_size, random_state,
+        validation_methods=['holdout', 'cross-validation'],
+        path: str = None, filename: str = None):
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+        test_size=test_size, random_state=random_state)
+
+    index = pd.MultiIndex.from_product([validation_methods],
+                                       names=['validation method'])
+    evaluation = pd.DataFrame(index=index)
+
+    # Change parameters
+    # For holdout
+    xtrain = X_train
+    xtest = X_test
+    # For k-fold CV
+    x = X
+
+    for method in validation_methods:
+        gnb = GaussianNB()
+        if method == 'holdout':
+
+            tic = process_time()
+            gnb.fit(xtrain, y_train)
+            fit_time = process_time()-tic
+
+            tic = process_time()
+            y_pred_knn = gnb.predict(xtest)
+            performance = (
+                check_performance_holdout(y_test, y_pred_knn,
+                    os.path.join(path,
+                        '_'.join([filename, method])))
+                )
+            score_time = process_time()-tic
+
+            # Add empty entries for fit and score times (mean, SD)
+            for entry1 in ['fit', 'score']:
+                for entry2 in ['MEAN', 'SD']:
+                    entry = ' '.join([entry1, 'time', entry2])
+                    if entry not in evaluation:
+                        evaluation[entry] = np.nan
+            # Write fit and score times
+            evaluation.loc[method][
+                'fit time MEAN'] = fit_time
+            evaluation.loc[method][
+                'fit time SD'] = 0
+            evaluation.loc[method][
+                'score time MEAN'] = score_time
+            evaluation.loc[method][
+                'score time SD'] = 0
+
+            # Significance test against baselines
+            strategies = ['stratified', 'uniform']
+            for strategy in strategies:
+                dummy_clf = DummyClassifier(strategy=strategy,
+                    random_state=1)
+
+                tic = process_time()
+                dummy_clf.fit(X_train, y_train)
+                fit_time = process_time()-tic
+
+                tic = process_time()
+                y_pred = dummy_clf.predict(X_test)
+                dummy_performance = (
+                    functions.check_performance_holdout(y_test,
+                        y_pred, filename=None))
+                score_time = process_time()-tic
+                # Add empty entries for fit and score times (mean, SD)
+                for entry1 in ['fit', 'score']:
+                    for entry2 in ['MEAN', 'SD']:
+                        entry = ' '.join(['dummy', strategy,
+                            entry1, 'time', entry2])
+                        if entry not in evaluation:
+                            evaluation[entry] = np.nan
+                # Write fit and score times
+                prefix = 'dummy '+strategy+' '
+                evaluation.loc[method][
+                    prefix+'fit time MEAN'] = fit_time
+                evaluation.loc[method][
+                    prefix+'fit time SD'] = 0
+                evaluation.loc[method][
+                    prefix+'score time MEAN'] = score_time
+                evaluation.loc[method][
+                    prefix+'score time SD'] = 0
+
+                # print(dummy_performance)    
+                for key in dummy_performance.index:
+                    label = ' '.join(['dummy', strategy, key])
+                    if label not in evaluation:
+                        evaluation[label] = np.nan
+                    evaluation.loc[method][
+                        label] = dummy_performance.loc[key]['value']
+
+        elif method == 'cross-validation':
+            performance = check_performance_CV(gnb, x, y, 5,
+                -1, os.path.join(path,
+                        '_'.join([filename, method])))  # n_jobs=-1 ... use all CPUs
+
+            # Significance test against baselines
+            strategies = ['stratified', 'uniform']
+            for strategy in strategies:
+                dummy_clf = DummyClassifier(strategy=strategy,
+                    random_state=1)
+                dummy_performance = check_performance_CV(dummy_clf,
+                    x, y, 5, -1, filename=None)  # n_jobs=-1 ... use all CPUs
+
+                for key in dummy_performance.index:
+                    label = ' '.join(['dummy', strategy, key])
+                    if label not in evaluation:
+                        evaluation[label] = np.nan
+                    evaluation.loc[method][
+                        label] = dummy_performance.loc[key]['value']
+
+        print(evaluation)
+        # For both methods identical
+        for key in performance.index:
+            if key not in evaluation:
+                evaluation[key] = np.nan
+
+            print(evaluation.loc[method][key])
+            print(performance.loc[key]['value'])
+
+            evaluation.loc[method][
+                key] = performance.loc[key]['value']
+
+            print(evaluation.loc[method][key])
+        stophere
+        
+    print(evaluation)
+    evaluation.transpose().to_csv(os.path.join(path,
+        filename + '_evaluation.csv'), sep=';', decimal=',')
+
+    # # Plot evaluation parameters over parameters of algorithm
+    # with sns.color_palette(n_colors=len(evaluation.keys())):
+    #     fig, ax = plt.subplots(len(evaluation.keys()), 1, sharex='all', tight_layout=True, figsize=(8,19))
+
+    # for pos, key in enumerate(evaluation.keys()):
+    #     # ax = fig.add_subplot(5, 1, pos + 1)
+    #     ax[pos].set_title(key)
+    #     ax[pos].grid(True)
+
+    #     ax[pos].plot(evaluation.loc[key].to_numpy(),
+    #                  marker='o', linestyle='-', label='scaled, unif')
+
+    # plt.xlabel(r'$k$')
+    # plt.legend(ncol=4, loc='upper center', bbox_to_anchor=(0.5, -0.4))
+    # fig.savefig(os.path.join(path, filename + '_evaluation.png'), format='png', dpi=300)
+    # plt.close(fig)
+
+    return
+
 
 # def decision_tree(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
 #                   list_max_depth=[1, 10, 30, 50, 100, 300], list_min_weight_fraction_leaf=[.0, .125, .25, .375, .5],
