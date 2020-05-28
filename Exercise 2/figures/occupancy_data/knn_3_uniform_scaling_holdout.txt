@@ -1,4 +1,8 @@
-accuracy 0.99
-precision macro avg 0.99
-recall macro avg 0.99
-f1-score macro avg 0.99
+accuracy MEAN	0.9924610894941635
+accuracy SD	0
+precision_macro MEAN	0.9885363018183131
+precision_macro SD	0
+recall_macro MEAN	0.9908913190791955
+recall_macro SD	0
+f1_macro MEAN	0.9897070632726697
+f1_macro SD	0

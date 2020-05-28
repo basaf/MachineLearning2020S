@@ -117,7 +117,7 @@ if True:
     list_k = [1, 3, ]  # 5, 10, 20, 50, 100, 300]
     functions.knn(X, y, test_size, random_state, list_k, True,
         ['uniform', 'distance'],
-        [  # 'holdout',
+        ['holdout',
         'cross-validation'],
         cfg.default.occupancy_figures,
         'knn')
