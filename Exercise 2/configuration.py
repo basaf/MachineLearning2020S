@@ -56,12 +56,12 @@ class Configuration:
         return self['DATASET_CONGRESSIONAL_VOTING_FIGURES_PATH']
 
     @property
-    def student_data(self):
-        return self['DATASET_STUDENT_DATA_PATH']
+    def mushroom_data(self):
+        return self['DATASET_MUSHROOM_DATA_PATH']
 
     @property
-    def student_figures(self):
-        return self['DATASET_STUDENT_FIGURES_PATH']
+    def mushroom_figures(self):
+        return self['DATASET_MUSHROOM_FIGURES_PATH']
 
     def __getitem__(self, item):
         # check if the item exists and if not return None
