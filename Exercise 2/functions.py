@@ -20,6 +20,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import cross_validate
 
 from sklearn.metrics import confusion_matrix
@@ -36,8 +37,18 @@ import seaborn as sns
 from time import process_time
 
 
-def check_performance_holdout(y_test: np.array, y_pred: np.array,
-                              filename=None):
+def check_performance_holdout(classifier, X_test: np.array, y_test: np.array,
+    y_pred: np.array, filename=None):
+
+    # Plot confusion matrix
+    plot_confusion_matrix(classifier, X_test, y_test, normalize=None)
+    if filename is None:
+        plt.show()
+    else:
+        plt.tight_layout()
+        plt.savefig(filename + "_confusion_matrix.png", format='png')
+        plt.close()  
+
     # Evaluation metrics
     dict_report = classification_report(y_test, y_pred, output_dict=True)
     binary_classification = ('accuracy' in dict_report.keys())
@@ -92,7 +103,7 @@ def check_performance_holdout(y_test: np.array, y_pred: np.array,
 
 
 def check_performance_CV(classifier, X:np.array, y:np.array,
-    cv=5, n_jobs=-1, filename=None):
+    n_splits=5, n_jobs=-1, filename=None):
 
     # Detect, wether it is a binary classification
     binary_classification = (len(np.unique(y)) == 2)
@@ -124,8 +135,28 @@ def check_performance_CV(classifier, X:np.array, y:np.array,
             index.append(time+' time '+stat)
     result = pd.DataFrame(index=index, columns=['value'])
 
-    dict_CV_results = cross_validate(classifier, X, y, cv=cv, scoring=scoring,
-                                     n_jobs=n_jobs)
+    # Provide train/test indices to split data in train/test sets
+    skf = StratifiedKFold(n_splits=n_splits)
+    # skf.get_n_splits(X, y)
+
+    dict_CV_results = cross_validate(classifier, X, y, cv=skf, scoring=scoring,
+                                     n_jobs=n_jobs, return_estimator=True)
+
+    # Plot confusion matrix for estimator with highest accuracy
+    idx_accuracy_max = np.argmax(dict_CV_results['test_accuracy'])
+    best_estimator = dict_CV_results['estimator'][idx_accuracy_max]
+    # Get corresponding test_set
+    test_sets = [set for set in skf.split(X, y)]
+    best_set = test_sets[idx_accuracy_max][1]
+    # Plot
+    plot_confusion_matrix(best_estimator, X[best_set], y[best_set],
+        normalize=None)
+    if filename is None:
+        plt.show()
+    else:
+        plt.tight_layout()
+        plt.savefig(filename + "_confusion_matrix.png", format='png')
+        plt.close()  
 
     # Pick results from cross_validate
     for idx in range(len(index_elements)):
@@ -153,68 +184,6 @@ def check_performance_CV(classifier, X:np.array, y:np.array,
             header=False)
 
     return result
-
-
-# def ridge_regression(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
-#                      alphas=[0, 0.5, 1, 5, 10, 50, 100], scaling: bool = True, path: str = None, filename: str = None):
-#     if scaling is True:
-#         scalings = ['scaling', 'noScaling']
-#         scaler = preprocessing.StandardScaler().fit(X_train)
-#         X_train_scaled = scaler.transform(X_train)
-#         X_test_scaled = scaler.transform(X_test)
-#     else:
-#         scalings = ['noScaling']
-
-#     index = pd.MultiIndex.from_product([alphas, scalings], names=['alpha', 'scaling'])
-#     errors = pd.DataFrame(index=index,
-#                           columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-#     # Change parameters
-#     for alpha in alphas:
-#         for s in scalings:
-#             if s == 'scaling':
-#                 xtrain = X_train_scaled
-#                 xtest = X_test_scaled
-#                 normalize = False
-#             else:
-#                 xtrain = X_train
-#                 xtest = X_test
-#                 normalize = True
-
-#             reg = linear_model.Ridge(alpha=alpha, normalize=normalize)
-#             reg.fit(xtrain, Y_train)
-#             y_pred_reg = reg.predict(xtest)
-
-#             test_errors = functions.check_performance_holdout(Y_test, y_pred_reg,
-#                                                       os.path.join(path, filename + '_' + str(alpha) + '_' + s))
-#             errors.loc[alpha, s][:] = test_errors
-
-#             del xtrain, xtest
-
-#     print(errors)
-#     errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
-
-#     # Plot errors over parameters of algorithm
-#     with sns.color_palette(n_colors=len(errors.keys())):
-#         #fig = plt.figure()
-#         fig, ax = plt.subplots(len(errors.keys()), 1, sharex=True, tight_layout=True)
-
-#     for pos, key in enumerate(errors.keys()):
-#         #ax = fig.add_subplot(5, 1, pos + 1)
-#         ax[pos].set_title(key)
-#         ax[pos].grid(True)
-
-#         if scaling is True:
-#             ax[pos].plot(alphas, errors.loc[(slice(None), 'scaling'), key].to_numpy(),
-#                          marker='o', linestyle='-', label='scaled', alpha=0.8)
-#         ax[pos].plot(alphas, errors.loc[(slice(None), 'noScaling'), key].to_numpy(),
-#                      marker='o', linestyle='--', label='not scaled', alpha=0.8)
-
-#     plt.subplots_adjust(hspace=2.2)
-#     plt.xlabel(r'$\alpha$')
-#     plt.legend(ncol=2, loc='upper center', bbox_to_anchor=(0.5, -0.7))
-#     fig.savefig(os.path.join(path, filename + '_errors.png'), format='png',
-#                 dpi=200, bbox_inches='tight')
-#     plt.close(fig)
 
 
 def knn(X: np.array, y: np.array, test_size, random_state,
@@ -286,8 +255,8 @@ def knn(X: np.array, y: np.array, test_size, random_state,
                         tic = process_time()
                         y_pred_knn = knn.predict(xtest)
                         performance = (
-                            check_performance_holdout(y_test, y_pred_knn,
-                                os.path.join(path,
+                            check_performance_holdout(knn, xtest, y_test,
+                                y_pred_knn, os.path.join(path,
                                     '_'.join([filename, str(k), weight, s,
                                         method])))
                             )
@@ -315,8 +284,11 @@ def knn(X: np.array, y: np.array, test_size, random_state,
                             tic = process_time()
                             y_pred = dummy_clf.predict(X_test)
                             dummy_performance = (
-                                functions.check_performance_holdout(y_test,
-                                    y_pred, filename=None))
+                                check_performance_holdout(dummy_clf, xtest,
+                                    y_test, y_pred, os.path.join(path,
+                                    '_'.join([filename, str(k), weight, s,
+                                        method, baseline])))
+                                )
                             score_time = process_time()-tic
 
                             # Write fit and score times
@@ -349,7 +321,9 @@ def knn(X: np.array, y: np.array, test_size, random_state,
                             dummy_clf = DummyClassifier(strategy=baseline,
                                 random_state=1)
                             dummy_performance = check_performance_CV(dummy_clf,
-                                x, y, 5, -1, filename=None)  # n_jobs=-1 ... use all CPUs
+                                x, y, 5, -1, os.path.join(path,
+                                    '_'.join([filename, str(k), weight, s,
+                                        method, baseline])))  # n_jobs=-1 ... use all CPUs
   
                             for key in dummy_performance.index:
                                 if key not in evaluation:
@@ -375,6 +349,7 @@ def knn(X: np.array, y: np.array, test_size, random_state,
     return
 
 def plot_evaluation_knn(path: str = None, filename: str = None):
+    # TODO: Eigenes Bild für die Times
 
     evaluation = pd.read_hdf(os.path.join(path,
         filename + '_evaluation.h5'), key='evaluation')
@@ -386,7 +361,7 @@ def plot_evaluation_knn(path: str = None, filename: str = None):
     classifiers = evaluation.index.levels[4].to_list()
 
     # Plot evaluation parameters over parameters of algorithm
-
+    # TODO: beide Baseline nur mit einem scaling und einer Gewichtung
     for classifier in classifiers:
         for s in scalings:
             with sns.color_palette(n_colors=len(weights)*len(validation_methods)):
@@ -467,7 +442,7 @@ def gnb(X: np.array, y: np.array, test_size, random_state,
             tic = process_time()
             y_pred_knn = gnb.predict(xtest)
             performance = (
-                check_performance_holdout(y_test, y_pred_knn,
+                check_performance_holdout(gnb, xtest, y_test, y_pred_knn,
                     os.path.join(path,
                         '_'.join([filename, method])))
                 )
@@ -502,8 +477,11 @@ def gnb(X: np.array, y: np.array, test_size, random_state,
                 tic = process_time()
                 y_pred = dummy_clf.predict(X_test)
                 dummy_performance = (
-                    functions.check_performance_holdout(y_test,
-                        y_pred, filename=None))
+                    check_performance_holdout(dummy_clf, xtest, y_test,
+                        y_pred, os.path.join(path,
+                            '_'.join([filename, str(k), weight, s,
+                                method, baseline])))
+                    )
                 score_time = process_time()-tic
                 # Add empty entries for fit and score times (mean, SD)
                 for entry1 in ['fit', 'score']:
@@ -649,58 +627,3 @@ def gnb(X: np.array, y: np.array, test_size, random_state,
 #         fig.savefig(os.path.join(path, filename + '_errors_' + str(key3) + '.png'),
 #                     format='png', dpi=200, bbox_inches='tight')
 #         plt.close(fig)
-
-
-# def mlp(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
-#         max_iter: int = 800, solver: str = 'lbfgs', list_alpha=[1e-7, 1e-4, 1e-1], list_hidden_layer_sizes=[[10]],
-#         path: str = None, filename: str = None):  # list_neurons_per_hidden_layer, list_no_of_hidden_layers,
-
-#     index = pd.MultiIndex.from_product(
-#         [list_alpha, [str(x) for x in list_hidden_layer_sizes]],
-#         names=['alpha', 'hidden_layer_sizes'])
-#     mlp_errors = pd.DataFrame(index=index,
-#                               columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
-#     # Change parameters
-#     for alpha in list_alpha:
-#         for hidden_layer_sizes in list_hidden_layer_sizes:
-#             mlp = neural_network.MLPRegressor(solver=solver,
-#                                               max_iter=max_iter,
-#                                               alpha=alpha,
-#                                               hidden_layer_sizes=hidden_layer_sizes,
-#                                               verbose=True,
-#                                               random_state=5)
-
-#             mlp.fit(X_train, Y_train)
-#             y_pred_mlp = mlp.predict(X_test)
-
-#             errors = functions.check_performance_holdout(Y_test, y_pred_mlp,
-#                                                  os.path.join(path, filename + '_' + str(alpha) + '_' + str(
-#                                                      hidden_layer_sizes)))
-#             mlp_errors.loc[alpha, str(hidden_layer_sizes)][:] = errors
-
-#     print(mlp_errors)
-#     mlp_errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
-
-#     # Plot errors over parameters of algorithm
-#     with sns.color_palette(n_colors=len(mlp_errors.keys())):
-#         fig, ax = plt.subplots(len(mlp_errors.keys()), 1, sharex=True, tight_layout=True)
-
-#     linestyle_cycle = ['-', '--', '-.', ':'] * 3  # to have enough elements (quick&dirty)
-#     marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*'] * 3  # to have enough elements (quick&dirty)
-
-#     lines = []
-#     for pos, key in enumerate(mlp_errors.keys()):
-#         ax[pos].set_title(key)
-#         ax[pos].grid(True)
-#         lines = []
-#         for idx, key2 in enumerate(list_hidden_layer_sizes):
-#             lines.append(ax[pos].semilogx(list_alpha, mlp_errors.loc[(slice(None), str(key2)), key].to_numpy(),
-#                                           marker=marker_cycle[idx], linestyle=linestyle_cycle[idx],
-#                                           label=str(key2))[0])
-
-#     # plt.ylim([0, 1])
-#     plt.xlabel(r'$\alpha$')
-#     fig.legend(title='hidden layer sizes', handles=lines, ncol=len(list_hidden_layer_sizes),
-#                bbox_to_anchor=(0.5, -0.06), bbox_transform=fig.transFigure, loc='lower center', borderaxespad=0.1)
-#     fig.savefig(os.path.join(path, filename + '_errors.png'), format='png', dpi=200, bbox_inches='tight')
-#     plt.close(fig)
