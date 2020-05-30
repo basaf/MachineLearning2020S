@@ -348,7 +348,7 @@ def plot_evaluation_knn(path: str = None, filename: str = None):
           for s in scalings:
             with sns.color_palette(n_colors=len(weights) * len(validation_methods)):
                 fig, ax = plt.subplots(int(len(evaluation.keys()) / 2), 1,
-                                    sharex='all', tight_layout=True, figsize=(8, 8))
+                                    sharex='all', tight_layout=True, figsize=(7, 8))
 
             linestyle_cycle = ['-', '--'] * 3
             marker_cycle = ['o', '+', 'x']
@@ -384,7 +384,13 @@ def plot_evaluation_knn(path: str = None, filename: str = None):
                     ax[pos].set_ylim(0, (evaluation[evaluation.keys()[2 * pos]]+
                             evaluation[evaluation.keys()[2 * pos + 1]]).max())
                 elif key == 'effectiveness':
-                    ax[pos].set_ylim(0, 1)
+                    # Limits shall be range of scores (mean +- sd) to
+                    # be the same in all figures
+                    ymin = max(0, (evaluation[evaluation.keys()[2 * pos]] - 
+                            evaluation[evaluation.keys()[2 * pos + 1]]).min())
+                    ymax = min(1, (evaluation[evaluation.keys()[2 * pos]] + 
+                            evaluation[evaluation.keys()[2 * pos + 1]]).max())
+                    ax[pos].set_ylim(ymin, ymax)
 
             plt.xlabel(r'$k$')
 

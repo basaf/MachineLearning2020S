@@ -122,17 +122,16 @@ if False:
         cfg.default.occupancy_figures,
         'knn')
 
-if False:
+if True:
+    # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_knn(cfg.default.occupancy_figures, 'knn')
 
 if False:
-    # Out of cross-validation find classifier with best accuracy
+    # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_knn(cfg.default.occupancy_figures, 'knn')
 if False:
+    # Look at the plot from before and find classifier with best accuracy
     # MANUALLY TO BE CONFIGURED!!
-
-    # Looking at the plot from before, we choose the best accuracy and find
-    # corresponding classifier
     path = cfg.default.occupancy_figures
     filename = 'knn'
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
