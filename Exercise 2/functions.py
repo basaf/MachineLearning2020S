@@ -136,25 +136,27 @@ def check_performance_CV(classifier, X: np.array, y: np.array, n_splits=5, n_job
 
     dict_CV_results = cross_validate(classifier, X, y, cv=skf, scoring=scoring, n_jobs=n_jobs, return_estimator=True)
 
-    # TODO: think what to use for non binary classifier
     if binary_classification is True:
         # Plot confusion matrix for estimator with highest accuracy
-        idx_accuracy_max = np.argmax(dict_CV_results['test_accuracy'])
-        best_estimator = dict_CV_results['estimator'][idx_accuracy_max]
-        # Get corresponding test_set
-        test_sets = [set for set in skf.split(X, y)]
-        best_set = test_sets[idx_accuracy_max][1]
-        # Plot
-        plot_confusion_matrix(best_estimator, X[best_set], y[best_set], normalize=None)
+        idx_max = np.argmax(dict_CV_results['test_accuracy'])
+    else:
+        idx_max = np.argmax(dict_CV_results['test_f1_macro'])
 
-        if filename is None:
-            plt.show()
-        else:
-            plt.tight_layout()
-            plt.savefig(filename + "_confusion_matrix.png", format='png')
-            plt.close()
+    best_estimator = dict_CV_results['estimator'][idx_max]
+    # Get corresponding test_set
+    test_sets = [set for set in skf.split(X, y)]
+    best_set = test_sets[idx_max][1]
+    # Plot
+    plot_confusion_matrix(best_estimator, X[best_set], y[best_set], normalize=None)
 
-        # Pick results from cross_validate
+    if filename is None:
+        plt.show()
+    else:
+        plt.tight_layout()
+        plt.savefig(filename + "_confusion_matrix.png", format='png')
+        plt.close()
+
+    # Pick results from cross_validate
     for idx in range(len(index_elements)):
         # Mean value 
         result.loc[index[idx * 2]]['value'] = np.mean(dict_CV_results['test_' + scoring[idx]])
