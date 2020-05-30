@@ -114,7 +114,7 @@ if False:
 
 #%% k-Nearest Neighbor Classification
 if False:
-    list_k = [1, 10, 50, 100, 500]
+    list_k = [1, 10, 50, 100, 300, 500]
     functions.knn(X, y, test_size, random_state, list_k, True,
         ['uniform', 'distance'],
         ['holdout', 'cross-validation'],
