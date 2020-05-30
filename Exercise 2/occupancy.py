@@ -125,6 +125,25 @@ if False:
 if False:
     functions.plot_evaluation_knn(cfg.default.occupancy_figures, 'knn')
 
+if False:
+    # Out of cross-validation find classifier with best accuracy
+    functions.plot_accuracy_knn(cfg.default.occupancy_figures, 'knn')
+if False:
+    # MANUALLY TO BE CONFIGURED!!
+
+    # Looking at the plot from before, we choose the best accuracy and find
+    # corresponding classifier
+    path = cfg.default.occupancy_figures
+    filename = 'knn'
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+
+    print(evaluation.loc[(slice(None), 'noScaling', slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')][
+            evaluation['accuracy MEAN'] > 0.98].
+            sort_values('accuracy MEAN', ascending=False))
+
+
 #%% Naïve Bayes Classification
 if False:
     # Scaling not needed for algorithms that don’t use distances like Naive

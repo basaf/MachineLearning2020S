@@ -403,6 +403,35 @@ def plot_evaluation_knn(path: str = None, filename: str = None):
     return
 
 
+def plot_accuracy_knn(path: str = None, filename: str = None):
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+
+    rows_scaling = (slice(None), 'scaling', slice(None),
+        'cross-validation', 'Classifier')
+    rows_noScaling = (slice(None), 'noScaling', slice(None),
+        'cross-validation', 'Classifier')
+    data = {'scaling': rows_scaling,
+        'no scaling': rows_noScaling}
+
+    fig = plt.figure()
+    for label, rows in data.items():
+        plt.scatter(evaluation.loc[rows, ('accuracy MEAN')],
+            evaluation.loc[rows, ('accuracy SD')],
+            label=label)
+    plt.ylim(bottom=0)
+    plt.title('Accuracy from cross-validation')
+    plt.xlabel('mean value')
+    plt.ylabel('standard deviation')
+    plt.legend()
+    plt.grid()
+    plt.show()
+    fig.savefig(os.path.join(path, filename + '_' +
+        '_'.join(['accuracy']) + '.png'), format='png', dpi=200,
+        bbox_inches='tight')
+    return
+
+
 def gnb(X: np.array, y: np.array, test_size, random_state,
         validation_methods=['holdout', 'cross-validation'],
         path: str = None, filename: str = None):
