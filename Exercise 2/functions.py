@@ -322,64 +322,81 @@ def knn(X: np.array, y: np.array, test_size=0.2, random_state=1,
 
 
 def plot_evaluation_knn(path: str = None, filename: str = None):
-    # TODO: Eigenes Bild für die Times
 
     evaluation = pd.read_hdf(os.path.join(path,
                                           filename + '_evaluation.h5'), key='evaluation')
-
+    # Read MultiIndex for the loops
     list_k = evaluation.index.levels[0].to_list()
     scalings = evaluation.index.levels[1].to_list()
     weights = evaluation.index.levels[2].to_list()
     validation_methods = evaluation.index.levels[3].to_list()
     classifiers = evaluation.index.levels[4].to_list()
+    classifiers.sort(reverse=True)
 
-    # Plot evaluation parameters over parameters of algorithm
-    # TODO: beide Baseline nur mit einem scaling und einer Gewichtung
-    for classifier in classifiers:
-        for s in scalings:
+    # Divide DataFrame into efficiency (times) and effectiveness (scores)
+    # for separate figures
+    time_keys = ['fit time MEAN', 'fit time SD', 'score time MEAN', 'score time SD']
+    score_keys = evaluation.columns.to_list()
+    for x in time_keys:
+        score_keys.remove(x)
+    performances = {'efficiency': evaluation[time_keys].copy(),
+        'effectiveness': evaluation[score_keys].copy()}
+    del evaluation
+
+    for key, evaluation in performances.items():
+        # Plot evaluation parameters over parameters of algorithm
+          for s in scalings:
             with sns.color_palette(n_colors=len(weights) * len(validation_methods)):
                 fig, ax = plt.subplots(int(len(evaluation.keys()) / 2), 1,
-                                       sharex='all', tight_layout=True, figsize=(8, 12))
+                                    sharex='all', tight_layout=True, figsize=(8, 8))
 
-            linestyle_cycle = ['-', '--', '-.', ':'] * 3  # to have enough elements (quick&dirty)
-            marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*'] * 3  # to have enough elements (quick&dirty)
+            linestyle_cycle = ['-', '--'] * 3
+            marker_cycle = ['o', '+', 'x']
 
             lines = []
             for pos in range(int(len(evaluation.keys()) / 2)):
                 ax[pos].set_title(evaluation.keys()[2 * pos].replace(' MEAN', '').
-                                  replace('_', ' '))
+                                replace('_', ' '))
                 ax[pos].grid(True)
 
                 lines = []
-                for i, weight in enumerate(weights):
-                    for j, method in enumerate(validation_methods):
-                        MEAN = evaluation.loc[(slice(None), s,
-                                               weight, method, classifier),
-                                              evaluation.keys()[2 * pos]].to_numpy()
-                        SD = evaluation.loc[(slice(None), s,
-                                             weight, method, classifier),
-                                            evaluation.keys()[2 * pos + 1]].to_numpy()
+                # Plot classifier and baselines on the same axes
+                for idx, classifier in enumerate(classifiers):
+                    for i, weight in enumerate(weights):
+                        for j, method in enumerate(validation_methods):
+                            MEAN = evaluation.loc[(slice(None), s,
+                                                weight, method, classifier),
+                                                evaluation.keys()[2 * pos]].to_numpy()
+                            SD = evaluation.loc[(slice(None), s,
+                                                weight, method, classifier),
+                                                evaluation.keys()[2 * pos + 1]].to_numpy()
 
-                        lines.append(ax[pos].plot(list_k,
-                                                  MEAN,
-                                                  marker=marker_cycle[i + j],
-                                                  linestyle=linestyle_cycle[i + j],
-                                                  label=', '.join([method, weight]))[0])
-                        ax[pos].fill_between(list_k, MEAN - SD, MEAN + SD,
-                                             alpha=0.3)
-                if pos > 1:
+                            lines.append(ax[pos].plot(list_k,
+                                                    MEAN,
+                                                    marker=marker_cycle[idx],
+                                                    linestyle=linestyle_cycle[j],
+                                                    label=', '.join([classifier, weight, method]))[0])
+                            ax[pos].fill_between(list_k, MEAN - SD, MEAN + SD,
+                                                alpha=0.3)
+                if key == 'efficiency':
+                    # Upper limit shall be maximum of times (mean + sd) to
+                    # be the same in all figures
+                    ax[pos].set_ylim(0, (evaluation[evaluation.keys()[2 * pos]]+
+                            evaluation[evaluation.keys()[2 * pos + 1]]).max())
+                elif key == 'effectiveness':
                     ax[pos].set_ylim(0, 1)
 
             plt.xlabel(r'$k$')
 
             plt.subplots_adjust(hspace=2.4)
             fig.legend(  # title='hidden layer sizes',
-                handles=lines, ncol=2, bbox_to_anchor=(0.5, -0.005),
+                handles=lines, ncol=3, bbox_to_anchor=(0.5, -0.005),
                 bbox_transform=fig.transFigure, loc='upper center',
                 borderaxespad=0.1)
 
             fig.savefig(os.path.join(path, filename + '_' +
-                                     '_'.join(['evaluation', s, classifier]) + '.png'),
+                                    '_'.join(['evaluation', s, key]) + '.png'),
+                                    # '_'.join(['evaluation', s, classifier, key]) + '.png'),
                         format='png', dpi=200, bbox_inches='tight')
             plt.close(fig)
 

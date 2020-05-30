@@ -122,7 +122,7 @@ if False:
         cfg.default.occupancy_figures,
         'knn')
 
-if True:
+if False:
     functions.plot_evaluation_knn(cfg.default.occupancy_figures, 'knn')
 
 #%% Naïve Bayes Classification
