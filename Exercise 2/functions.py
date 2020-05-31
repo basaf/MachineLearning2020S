@@ -413,18 +413,29 @@ def plot_accuracy_knn(path: str = None, filename: str = None):
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
         key='evaluation')
 
+    scalings = evaluation.index.levels[1].to_list()
+    weights = evaluation.index.levels[2].to_list()
+
     rows_scaling = (slice(None), 'scaling', slice(None),
         'cross-validation', 'Classifier')
     rows_noScaling = (slice(None), 'noScaling', slice(None),
         'cross-validation', 'Classifier')
-    data = {'scaling': rows_scaling,
+    rows_of_interest = {'scaling': rows_scaling,
         'no scaling': rows_noScaling}
 
     fig = plt.figure()
-    for label, rows in data.items():
-        plt.scatter(evaluation.loc[rows, ('accuracy MEAN')],
-            evaluation.loc[rows, ('accuracy SD')],
-            label=label)
+    marker_cycle = ['o', '+', 'x', '1']
+    idx = 0
+    for scaling in scalings:
+            for weight in weights:
+                label=', '.join([scaling, weight])
+                rows = (slice(None), scaling, weight, 'cross-validation', 'Classifier')
+                plt.scatter(
+                    evaluation.loc[rows, ('accuracy MEAN')],
+                    evaluation.loc[rows, ('accuracy SD')],
+                    label=label,
+                    marker=marker_cycle[idx])
+                idx = idx + 1
     plt.ylim(bottom=0)
     plt.title('Accuracy from cross-validation')
     plt.xlabel('mean value')

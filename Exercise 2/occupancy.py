@@ -122,11 +122,11 @@ if False:
         cfg.default.occupancy_figures,
         'knn')
 
-if True:
+if False:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_knn(cfg.default.occupancy_figures, 'knn')
 
-if False:
+if True:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_knn(cfg.default.occupancy_figures, 'knn')
 if False:
