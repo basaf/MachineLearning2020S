@@ -10,18 +10,14 @@ from itertools import product
 
 from sklearn import metrics, linear_model
 from sklearn import preprocessing
-# from sklearn.neighbors import KNeighborsRegressor
-# from sklearn import neural_network
-# from sklearn import tree
-
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import cross_validate
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
 
 from sklearn.metrics import confusion_matrix
 # from sklearn.metrics import plot_confusion_matrix   # not available in 0.21.3
@@ -416,7 +412,7 @@ def plot_accuracy_knn(path: str = None, filename: str = None):
     idx = 0
     for scaling in scalings:
         for weight in weights:
-            label=', '.join([scaling, weight])
+            label = ', '.join([scaling, weight])
             rows = (slice(None), scaling, weight, 'cross-validation', 'Classifier')
             plt.scatter(
                 evaluation.loc[rows, ('accuracy MEAN')],
@@ -670,62 +666,257 @@ def plot_accuracy_gnb(path: str = None, filename: str = None):
     return
 
 
-# def decision_tree(X_train: np.array, X_test: np.array, Y_train: np.array, Y_test: np.array,
-#                   list_max_depth=[1, 10, 30, 50, 100, 300], list_min_weight_fraction_leaf=[.0, .125, .25, .375, .5],
-#                   list_min_samples_leaf=[1, 10, 100, 200], path: str = None, filename: str = None):
-#     index = pd.MultiIndex.from_product([list_max_depth,
-#                                         list_min_samples_leaf,
-#                                         list_min_weight_fraction_leaf],
-#                                        names=['max_depth', 'min_samples_leaf', 'min_weight_fraction_leaf'])
-#     dt_errors = pd.DataFrame(index=index, columns=['MAE', 'MAPE', 'MSE', 'RMSE', 'EV'])
+def dt(X: np.array, y: np.array, test_size=0.2, random_state=1,
+        list_max_depth=[1, 10], list_min_samples_split=[2, 20],
+        list_min_samples_leaf=[1, 10],
+        validation_methods=['holdout', 'cross-validation'],
+        baselines=['stratified', 'uniform'],
+        path: str = None, filename: str = None):
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+        test_size=test_size, random_state=random_state)
 
-#     for max_depth in list_max_depth:
-#         for min_samples_leaf in list_min_samples_leaf:
-#             for min_weight_fraction_leaf in list_min_weight_fraction_leaf:
-#                 xtrain = X_train
-#                 xtest = X_test
+    index = pd.MultiIndex.from_product([list_max_depth, list_min_samples_split,
+        list_min_samples_leaf, validation_methods,
+        ['Classifier'] + ['Baseline ' + i for i in baselines]],
+        names=['max_depth', 'list_min_samples_split', 'list_min_samples_leaf',
+            'validation method', 'classifier'])
+    evaluation = pd.DataFrame(index=index)
+    # Add empty entries for fit and score times (mean, SD)
+    for entry1 in ['fit', 'score']:
+        for entry2 in ['MEAN', 'SD']:
+            entry = ' '.join([entry1, 'time', entry2])
+            if entry not in evaluation:
+                evaluation[entry] = np.nan
 
-#                 dt = tree.DecisionTreeRegressor(
-#                     max_depth=max_depth,
-#                     min_samples_leaf=min_samples_leaf,
-#                     min_weight_fraction_leaf=min_weight_fraction_leaf)
-#                 dt.fit(xtrain, Y_train)
-#                 y_pred_dt = dt.predict(xtest)
+    # Change parameters
+    for max_depth in list_max_depth:
+        for min_samples_split in list_min_samples_split:
+            for min_samples_leaf in list_min_samples_leaf:
+                # For holdout
+                xtrain = X_train
+                xtest = X_test
+                # For k-fold CV
+                x = X
 
-#                 errors = functions.check_performance_holdout(Y_test, y_pred_dt,
-#                                                      os.path.join(path,
-#                                                                   filename + '_' + str(max_depth) + '_' + str(
-#                                                                       min_samples_leaf) + '_' + str(
-#                                                                       min_weight_fraction_leaf)))
-#                 dt_errors.loc[max_depth,
-#                               min_samples_leaf,
-#                               min_weight_fraction_leaf][:] = errors
-#                 del xtrain, xtest
+                for method in validation_methods:
+                    dt = DecisionTreeClassifier(max_depth=max_depth,
+                        min_samples_split=min_samples_split,
+                        min_samples_leaf=min_samples_leaf,
+                        random_state=random_state)
+                    if method == 'holdout':
+                        tic = process_time()
+                        dt.fit(xtrain, y_train)
+                        fit_time = process_time() - tic
 
-#     print(dt_errors)
-#     dt_errors.transpose().to_csv(os.path.join(path, filename + '_errors.csv'), sep=';', decimal=',')
+                        tic = process_time()
+                        y_pred_knn = dt.predict(xtest)
+                        performance = (check_performance_holdout(dt, xtest,
+                            y_test, y_pred_knn,
+                            os.path.join(path, '_'.join(
+                                [filename, str(max_depth), str(min_samples_split),
+                                    str(min_samples_leaf), method]))))
+                        score_time = process_time() - tic
 
-#     # Plot errors over parameters of algorithm
-#     for key3 in list_min_weight_fraction_leaf:
-#         with sns.color_palette(n_colors=len(dt_errors.keys())):
-#             fig, ax = plt.subplots(len(dt_errors.keys()), 1, sharex=True, tight_layout=True)
-#             # ax = fig.add_subplot()
-#         linestyle_cycle = ['-', '--', '-.', ':'] * 3  # to have enough elements (quick&dirty)
-#         marker_cycle = ['o', 'o', 'o', 'o', '*', '*', '*', '*'] * 3  # to have enough elements (quick&dirty)
-#         for idx, key2 in enumerate(list_min_samples_leaf):
-#             linestyle = linestyle_cycle[idx]
-#             marker = marker_cycle[idx]
-#             for pos, key in enumerate(dt_errors.keys()):
-#                 # ax = fig.add_subplot(5, 1, pos + 1)
-#                 ax[pos].set_title(key)
-#                 ax[pos].grid(True)
-#                 ax[pos].plot(list_max_depth, dt_errors.loc[(slice(None), key2, key3), key].to_numpy(),
-#                              marker=marker, linestyle=linestyle, label=str(key2))
+                        # Write fit and score times
+                        evaluation.loc[max_depth, min_samples_split, min_samples_leaf, method, 'Classifier']['fit time MEAN'] = fit_time
+                        evaluation.loc[max_depth, min_samples_split, min_samples_leaf, method, 'Classifier']['fit time SD'] = 0
+                        evaluation.loc[max_depth, min_samples_split, min_samples_leaf, method, 'Classifier']['score time MEAN'] = score_time
+                        evaluation.loc[max_depth, min_samples_split, min_samples_leaf, method, 'Classifier']['score time SD'] = 0
 
-#         plt.subplots_adjust(hspace=2.4)
-#         plt.xlabel('max_depth')
-#         plt.legend(title='min_weight_fraction_leaf: ' + str(key3) + '\nmin_samples_leaf:',
-#                    ncol=len(list_min_samples_leaf), loc='upper center', bbox_to_anchor=(0.5, -0.7))
-#         fig.savefig(os.path.join(path, filename + '_errors_' + str(key3) + '.png'),
-#                     format='png', dpi=200, bbox_inches='tight')
-#         plt.close(fig)
+                        # Significance test against baselines
+                        for baseline in baselines:
+                            dummy_clf = DummyClassifier(strategy=baseline, random_state=random_state)
+
+                            tic = process_time()
+                            dummy_clf.fit(X_train, y_train)
+                            fit_time = process_time() - tic
+
+                            tic = process_time()
+                            y_pred = dummy_clf.predict(X_test)
+                            dummy_performance = (check_performance_holdout(
+                                dummy_clf, xtest, y_test, y_pred,
+                                    os.path.join(path, '_'.join(
+                                        [filename, str(max_depth),
+                                            str(min_samples_split),
+                                            str(min_samples_leaf), method,
+                                            baseline]))))
+                            score_time = process_time() - tic
+
+                            # Write fit and score times
+                            classifier = 'Baseline ' + baseline
+                            evaluation.loc[max_depth, min_samples_split, min_samples_leaf, method, classifier]['fit time MEAN'] = fit_time
+                            evaluation.loc[max_depth, min_samples_split, min_samples_leaf, method, classifier]['fit time SD'] = 0
+                            evaluation.loc[max_depth, min_samples_split, min_samples_leaf, method, classifier]['score time MEAN'] = score_time
+                            evaluation.loc[max_depth, min_samples_split, min_samples_leaf, method, classifier]['score time SD'] = 0
+
+                            # Write performance of dummy 
+                            for key in dummy_performance.index:
+                                if key not in evaluation:
+                                    evaluation[key] = np.nan
+                                evaluation.loc[max_depth, min_samples_split,
+                                    min_samples_leaf, method,
+                                    classifier][key] = (
+                                        dummy_performance.loc[key]['value'])
+
+                    elif method == 'cross-validation':
+                        performance = check_performance_CV(dt, x, y, 5, -1,
+                            os.path.join(path, '_'.join([filename,
+                                str(max_depth), str(min_samples_split),
+                                str(min_samples_leaf), method])))  # n_jobs=-1 ... use all CPUs
+
+                        # Significance test against baselines
+                        for baseline in baselines:
+                            dummy_clf = DummyClassifier(strategy=baseline, random_state=random_state)
+                            dummy_performance = check_performance_CV(dummy_clf,
+                                x, y, 5, -1, os.path.join(path,
+                                '_'.join( [filename, str(max_depth),
+                                    str(min_samples_split),
+                                    str(min_samples_leaf), method, baseline])))  # n_jobs=-1 ... use all CPUs
+
+                            for key in dummy_performance.index:
+                                if key not in evaluation:
+                                    evaluation[key] = np.nan
+                                classifier = 'Baseline ' + baseline
+                                evaluation.loc[max_depth, min_samples_split, min_samples_leaf, method,
+                                    classifier][key] = (
+                                        dummy_performance.loc[key]['value'])
+
+                    # Write performance of classifier 
+                    for key in performance.index:
+                        if key not in evaluation:
+                            evaluation[key] = np.nan
+                        evaluation.loc[max_depth, min_samples_split,
+                            min_samples_leaf, method, 'Classifier'][key] = (
+                                performance.loc[key]['value'])
+
+    print(evaluation)
+    evaluation.transpose().to_csv(os.path.join(path, filename + '_evaluation.csv'), sep=';', decimal=',')
+    evaluation.to_hdf(os.path.join(path, filename + '_evaluation.h5'), key='evaluation', mode='w')
+
+    return
+
+
+def plot_evaluation_dt(path: str = None, filename: str = None):
+
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+    # Read MultiIndex for the loops
+    list_max_depth = evaluation.index.levels[0].to_list()
+    list_min_samples_split = evaluation.index.levels[1].to_list()
+    list_min_samples_leaf = evaluation.index.levels[2].to_list()
+    validation_methods = evaluation.index.levels[3].to_list()
+    classifiers = evaluation.index.levels[4].to_list()
+    classifiers.sort(reverse=True)
+
+    # Divide DataFrame into efficiency (times) and effectiveness (scores)
+    # for separate figures
+    time_keys = ['fit time MEAN', 'fit time SD', 'score time MEAN', 'score time SD']
+    score_keys = evaluation.columns.to_list()
+    for x in time_keys:
+        score_keys.remove(x)
+    performances = {'efficiency': evaluation[time_keys].copy(),
+        'effectiveness': evaluation[score_keys].copy()}
+    del evaluation
+
+    for key, evaluation in performances.items():
+        # Plot evaluation parameters over parameters of algorithm
+        for min_samples_split in list_min_samples_split:
+            for min_samples_leaf in list_min_samples_leaf:
+                with sns.color_palette(n_colors=len(validation_methods)):
+                        fig, ax = plt.subplots(int(len(evaluation.keys()) / 2),
+                            1, sharex='all', tight_layout=True, figsize=(7, 8))
+
+                linestyle_cycle = ['-', '--'] * 3
+                marker_cycle = ['o', '+', 'x']
+
+                lines = []
+                for pos in range(int(len(evaluation.keys()) / 2)):
+                    ax[pos].set_title(evaluation.keys()[2 * pos].
+                        replace(' MEAN', '').replace('_', ' '))
+                    ax[pos].grid(True)
+
+                    lines = []
+                    # Plot classifier and baselines on the same axes
+                    for idx, classifier in enumerate(classifiers):
+                        for j, method in enumerate(validation_methods):
+                            MEAN = evaluation.loc[(slice(None),
+                                min_samples_split, min_samples_leaf,
+                                method, classifier),
+                                evaluation.keys()[2 * pos]].to_numpy()
+                            SD = evaluation.loc[(slice(None),
+                                min_samples_split, min_samples_leaf,
+                                method, classifier),
+                                evaluation.keys()[2 * pos + 1]].to_numpy()
+
+                            lines.append(ax[pos].plot(list_max_depth, MEAN,
+                                marker=marker_cycle[idx],
+                                linestyle=linestyle_cycle[j],
+                                label=', '.join([classifier, method]))[0])
+                            ax[pos].fill_between(list_max_depth, MEAN - SD,
+                                MEAN + SD, alpha=0.3)
+                    if key == 'efficiency':
+                        # Upper limit shall be maximum of times (mean + sd) to
+                        # be the same in all figures
+                        ax[pos].set_ylim(0, (evaluation[evaluation.keys()[2 * pos]]+
+                                evaluation[evaluation.keys()[2 * pos + 1]]).max())
+                    elif key == 'effectiveness':
+                        # Limits shall be range of scores (mean +- sd) to
+                        # be the same in all figures
+                        ymin = max(0, (evaluation[evaluation.keys()[2 * pos]] - 
+                                evaluation[evaluation.keys()[2 * pos + 1]]).min())
+                        ymax = min(1, (evaluation[evaluation.keys()[2 * pos]] + 
+                                evaluation[evaluation.keys()[2 * pos + 1]]).max())
+                        ax[pos].set_ylim(ymin, ymax)
+
+                plt.xlabel('max_depth')
+
+                plt.subplots_adjust(hspace=2.4)
+                fig.legend(title='min_samples_split: ' + str(min_samples_split) +
+                    '\nmin_samples_leaf: ' + str(min_samples_leaf),
+                    handles=lines, ncol=3, bbox_to_anchor=(0.5, -0.005),
+                    bbox_transform=fig.transFigure, loc='upper center',
+                    borderaxespad=0.1)
+
+                fig.savefig(os.path.join(path, filename + '_' +
+                    '_'.join(['evaluation', str(min_samples_split),
+                    str(min_samples_leaf), key]) + '.png'), format='png',
+                    dpi=200, bbox_inches='tight')
+                plt.close(fig)
+
+    return
+
+
+def plot_accuracy_dt(path: str = None, filename: str = None):
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+
+    list_min_samples_split = evaluation.index.levels[1].to_list()
+    list_min_samples_leaf = evaluation.index.levels[2].to_list()
+
+    fig = plt.figure()
+    marker_cycle = ['o', '+', 'x', '1']
+    idx = 0
+    for min_samples_split in list_min_samples_split:
+        for min_samples_leaf in list_min_samples_leaf:
+            label = ', '.join([str(min_samples_split), str(min_samples_leaf)])
+            rows = (slice(None), min_samples_split, min_samples_leaf,
+                'cross-validation', 'Classifier')
+            plt.scatter(
+                evaluation.loc[rows, ('accuracy MEAN')],
+                evaluation.loc[rows, ('accuracy SD')],
+                label=label,
+                marker=marker_cycle[idx])
+            idx = idx + 1
+    plt.ylim(bottom=0)
+    plt.title('Accuracy from cross-validation')
+    plt.xlabel('mean value')
+    plt.ylabel('standard deviation')
+    plt.legend(title='min_samples_split\nmin_samples_leaf:')
+    plt.grid()
+    plt.show()
+    fig.savefig(os.path.join(path, filename + '_' +
+        '_'.join(['accuracy']) + '.png'), format='png', dpi=200,
+        bbox_inches='tight')
+    return
+
+

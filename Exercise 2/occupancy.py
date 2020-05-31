@@ -112,13 +112,17 @@ if False:
 # X_train_scaled = scaler.transform(X_train)
 # X_test_scaled = scaler.transform(X_test)
 
+
+validation_methods = ['holdout', 'cross-validation']
+baselines=['stratified', 'uniform']
+
 #%% k-Nearest Neighbor Classification
 if False:
     list_k = [1, 10, 50, 100, 300, 500]
+    weights = ['uniform', 'distance']
+
     functions.knn(X, y, test_size, random_state, list_k, True,
-        ['uniform', 'distance'],
-        ['holdout', 'cross-validation'],
-        ['stratified', 'uniform'],
+        weights, validation_methods, baselines,
         cfg.default.occupancy_figures,
         'knn')
 
@@ -148,8 +152,7 @@ if False:
     # Scaling not needed for algorithms that don’t use distances like Naive
     # Bayes
     functions.gnb(X, y, test_size, random_state,
-        ['holdout', 'cross-validation'],
-        ['stratified', 'uniform'],
+        validation_methods, baselines,
         cfg.default.occupancy_figures,
         'gnb')
 
@@ -161,38 +164,31 @@ if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_gnb(cfg.default.occupancy_figures, 'gnb')
 
-#%% Decision Tree Regression
+#%% Decision Tree Classification
 if False:
-    max_depths = [1, 10, 50, 100, 200, 500]
-    min_samples_leaf = [1, 10, 100, 200]
-    min_weight_fraction_leafs = [.0, .1, .2, .35, .5]
+    list_max_depth = [1, 10]
+    list_min_samples_split = [2, 20]
+    list_min_samples_leaf = [1, 10]
 
-    stophere
-    
-    functions.decision_tree(X_train, X_test, y_train, y_test, max_depths,
-                            min_weight_fraction_leafs, min_samples_leaf,
-                            cfg.default.occupancy_figures, 'dtree')
-
-
-    functions.dtree(X, y, test_size, random_state, list_k, True,
-        ['uniform', 'distance'],
-        ['holdout', 'cross-validation'],
-        ['stratified', 'uniform'],
+    functions.dt(X, y, test_size, random_state, list_max_depth,
+        list_min_samples_split, list_min_samples_leaf,
+        validation_methods, baselines,
         cfg.default.occupancy_figures,
-        'dtree')
+        'dt')
 
 if False:
     # Plot performance (efficiency and effectiveness)
-    functions.plot_evaluation_knn(cfg.default.occupancy_figures, 'knn')
+    functions.plot_evaluation_dt(cfg.default.occupancy_figures, 'dt')
 
 if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
-    functions.plot_accuracy_knn(cfg.default.occupancy_figures, 'knn')
+    functions.plot_accuracy_dt(cfg.default.occupancy_figures, 'dt')
 if False:
+    stophere
     # Look at the plot from before and find classifier with best accuracy
     # MANUALLY TO BE CONFIGURED!!
     path = cfg.default.occupancy_figures
-    filename = 'knn'
+    filename = 'dt'
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
         key='evaluation')
 
