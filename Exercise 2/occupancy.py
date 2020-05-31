@@ -126,7 +126,7 @@ if False:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_knn(cfg.default.occupancy_figures, 'knn')
 
-if True:
+if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_knn(cfg.default.occupancy_figures, 'knn')
 if False:
@@ -147,33 +147,59 @@ if False:
 if False:
     # Scaling not needed for algorithms that don’t use distances like Naive
     # Bayes
-
     functions.gnb(X, y, test_size, random_state,
         ['holdout', 'cross-validation'],
+        ['stratified', 'uniform'],
         cfg.default.occupancy_figures,
         'gnb')
 
+if False:
+    # Plot performance (efficiency and effectiveness)
+    functions.plot_evaluation_gnb(cfg.default.occupancy_figures, 'gnb')
+
+if False:
+    # For cross-validation scatter-plot accuracy mean and standard deviation
+    functions.plot_accuracy_gnb(cfg.default.occupancy_figures, 'gnb')
+
 #%% Decision Tree Regression
-# if False:
-#     max_depths = [1, 10, 50, 100, 200, 500]
-#     min_samples_leaf = [1, 10, 100, 200]
-#     min_weight_fraction_leafs = [.0, .1, .2, .35, .5]
+if False:
+    max_depths = [1, 10, 50, 100, 200, 500]
+    min_samples_leaf = [1, 10, 100, 200]
+    min_weight_fraction_leafs = [.0, .1, .2, .35, .5]
 
-#     functions.decision_tree(X_train, X_test, y_train, y_test, max_depths,
-#                             min_weight_fraction_leafs, min_samples_leaf,
-#                             cfg.default.occupancy_figures, 'dtree')
+    stophere
+    
+    functions.decision_tree(X_train, X_test, y_train, y_test, max_depths,
+                            min_weight_fraction_leafs, min_samples_leaf,
+                            cfg.default.occupancy_figures, 'dtree')
 
-# # %% Multi-layer Perceptron Regressor
-# if False:
-#     solver = 'lbfgs'  # default=’adam’
-#     # ‘adam’ works for large datasets (with thousands of training samples or more) in terms of both training time and validation score​
-#     # ‘lbfgs’ for small datasets can converge faster and perform better
-#     max_iteration = 800  # default=200
-#     alpha = [1e-7, 1e-4, 1e-1]  # usually in the range 10.0 ** -np.arange(1, 7)
-#     list_hidden_layer_sizes = [[90, 90], [180, 90, 180], [180, 180, 180]]
 
-#     functions.mlp(X_train_scaled, X_test_scaled, y_train, y_test, max_iteration, solver, alpha, list_hidden_layer_sizes,
-#             cfg.default.occupancy_figures, 'mlp')
+    functions.dtree(X, y, test_size, random_state, list_k, True,
+        ['uniform', 'distance'],
+        ['holdout', 'cross-validation'],
+        ['stratified', 'uniform'],
+        cfg.default.occupancy_figures,
+        'dtree')
+
+if False:
+    # Plot performance (efficiency and effectiveness)
+    functions.plot_evaluation_knn(cfg.default.occupancy_figures, 'knn')
+
+if False:
+    # For cross-validation scatter-plot accuracy mean and standard deviation
+    functions.plot_accuracy_knn(cfg.default.occupancy_figures, 'knn')
+if False:
+    # Look at the plot from before and find classifier with best accuracy
+    # MANUALLY TO BE CONFIGURED!!
+    path = cfg.default.occupancy_figures
+    filename = 'knn'
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+
+    print(evaluation.loc[(slice(None), 'noScaling', slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')][
+            evaluation['accuracy MEAN'] > 0.98].
+            sort_values('accuracy MEAN', ascending=False))
 
 
 #%% Finish
