@@ -894,7 +894,7 @@ def plot_accuracy_dt(path: str = None, filename: str = None):
     list_min_samples_leaf = evaluation.index.levels[2].to_list()
 
     fig = plt.figure()
-    marker_cycle = ['o', '+', 'x', '1']
+    marker_cycle = ['o', '+', 'x', '1', '2', '3', '4']*10  # to have enough
     idx = 0
     for min_samples_split in list_min_samples_split:
         for min_samples_leaf in list_min_samples_leaf:
