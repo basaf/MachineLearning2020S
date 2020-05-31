@@ -416,13 +416,6 @@ def plot_accuracy_knn(path: str = None, filename: str = None):
     scalings = evaluation.index.levels[1].to_list()
     weights = evaluation.index.levels[2].to_list()
 
-    rows_scaling = (slice(None), 'scaling', slice(None),
-        'cross-validation', 'Classifier')
-    rows_noScaling = (slice(None), 'noScaling', slice(None),
-        'cross-validation', 'Classifier')
-    rows_of_interest = {'scaling': rows_scaling,
-        'no scaling': rows_noScaling}
-
     fig = plt.figure()
     marker_cycle = ['o', '+', 'x', '1']
     idx = 0
