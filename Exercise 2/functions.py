@@ -434,9 +434,44 @@ def plot_accuracy_knn(path: str = None, filename: str = None):
     plt.legend()
     plt.grid()
     plt.show()
-    fig.savefig(os.path.join(path, filename + '_' +
-        '_'.join(['accuracy']) + '.png'), format='png', dpi=200,
+    fig.savefig(os.path.join(path, filename + '_accuracy.png'), format='png', dpi=200,
         bbox_inches='tight')
+    return
+
+
+def plot_efficiency_knn(path: str = None, filename: str = None):
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+
+    scalings = evaluation.index.levels[1].to_list()
+    weights = evaluation.index.levels[2].to_list()
+
+    fig = plt.figure()
+    marker_cycle = ['o', '+', 'x', '1']
+    idx = 0
+    for scaling in scalings:
+        for weight in weights:
+            label = ', '.join([scaling, weight])
+            rows = (slice(None), scaling, weight, 'cross-validation', 'Classifier')
+            plt.errorbar(
+                x=evaluation.loc[rows, ('fit time MEAN')],
+                y=evaluation.loc[rows, ('score time MEAN')],
+                xerr=evaluation.loc[rows, ('fit time SD')],
+                yerr=evaluation.loc[rows, ('score time SD')],
+                label=label,
+                marker=marker_cycle[idx],
+                linestyle='') 
+            idx = idx + 1
+    plt.ylim(bottom=0)
+    plt.xlim(left=0)
+    plt.title('Efficiency from cross-validation')
+    plt.xlabel('fit time')
+    plt.ylabel('score time')
+    plt.legend()
+    plt.grid()
+    plt.show()
+    fig.savefig(os.path.join(path, filename + '_efficiency.png'),
+        format='png', dpi=200, bbox_inches='tight')
     return
 
 
@@ -654,9 +689,33 @@ def plot_accuracy_gnb(path: str = None, filename: str = None):
     plt.ylabel('standard deviation')
     plt.grid()
     plt.show()
-    fig.savefig(os.path.join(path, filename + '_' +
-        '_'.join(['accuracy']) + '.png'), format='png', dpi=200,
-        bbox_inches='tight')
+    fig.savefig(os.path.join(path, filename + '_accuracy.png'),
+        format='png', dpi=200, bbox_inches='tight')
+    return
+
+
+def plot_efficiency_gnb(path: str = None, filename: str = None):
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+
+    fig = plt.figure()
+    rows = ('cross-validation', 'Classifier')
+    plt.errorbar(
+        x=evaluation.loc[rows, ('fit time MEAN')],
+        y=evaluation.loc[rows, ('score time MEAN')],
+        xerr=evaluation.loc[rows, ('fit time SD')],
+        yerr=evaluation.loc[rows, ('score time SD')],
+        marker='o',
+        linestyle='') 
+    plt.ylim(bottom=0)
+    plt.xlim(left=0)
+    plt.title('Efficiency from cross-validation')
+    plt.xlabel('fit time')
+    plt.ylabel('score time')
+    plt.grid()
+    plt.show()
+    fig.savefig(os.path.join(path, filename + '_efficiency.png'),
+        format='png', dpi=200, bbox_inches='tight')
     return
 
 
@@ -917,9 +976,167 @@ def plot_accuracy_dt(path: str = None, filename: str = None):
         loc='upper center', borderaxespad=0.1)
     plt.grid()
     plt.show()
-    fig.savefig(os.path.join(path, filename + '_' +
-        '_'.join(['accuracy']) + '.png'), format='png', dpi=200,
-        bbox_inches='tight')
+    fig.savefig(os.path.join(path, filename + '_accuracy.png'),
+        format='png', dpi=200, bbox_inches='tight')
     return
 
 
+def plot_efficiency_dt(path: str = None, filename: str = None):
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+
+    list_min_samples_split = evaluation.index.levels[1].to_list()
+    list_min_samples_leaf = evaluation.index.levels[2].to_list()
+
+    with sns.color_palette(n_colors=len(list_min_samples_leaf)):
+        fig = plt.figure()
+        marker_cycle = ['+', 'x', '1', '2']*4
+        idx = 0
+        for min_samples_split in list_min_samples_split:
+            for min_samples_leaf in list_min_samples_leaf:
+                label = ', '.join([str(min_samples_split), str(min_samples_leaf)])
+                rows = (slice(None), min_samples_split, min_samples_leaf,
+                    'cross-validation', 'Classifier')
+                plt.errorbar(
+                    x=evaluation.loc[rows, ('fit time MEAN')],
+                    y=evaluation.loc[rows, ('score time MEAN')],
+                    xerr=evaluation.loc[rows, ('fit time SD')],
+                    yerr=evaluation.loc[rows, ('score time SD')],
+                    label=label,
+                    marker=marker_cycle[idx],
+                    linestyle='')            
+                idx = idx + 1
+    plt.ylim(bottom=0)
+    plt.xlim(left=0)
+    plt.title('Efficiency from cross-validation')
+    plt.xlabel('fit time')
+    plt.ylabel('score time')
+    plt.legend(title='min_samples_split, min_samples_leaf:', ncol=4,
+        bbox_to_anchor=(0.5, -0.005), bbox_transform=fig.transFigure,
+        loc='upper center', borderaxespad=0.1)
+    plt.grid()
+    plt.show()
+    fig.savefig(os.path.join(path, filename + '_efficiency.png'),
+        format='png', dpi=200, bbox_inches='tight')
+    return
+
+
+def plot_accuracy(path: str=None, filenames: list=['knn', 'gnb', 'dt']):
+    with sns.color_palette(n_colors=len(filenames)+2):
+        fig = plt.figure()
+        marker_cycle = ['+', 'x', '1', '2', '3']*3
+        idx = 0
+        # Plot Classifier
+        for filename in filenames:
+            evaluation = pd.read_hdf(os.path.join(path,  filename +
+                '_evaluation.h5'), key='evaluation')
+
+            rows = ()
+            for name in evaluation.index.names:
+                if name == 'validation method':
+                    rows = rows + ('cross-validation', )
+                elif name == 'classifier':
+                    rows = rows + ('Classifier', )
+                else:
+                    rows = rows + (slice(None), )
+            plt.scatter(
+                evaluation.loc[rows, ('accuracy MEAN')],
+                evaluation.loc[rows, ('accuracy SD')],
+                label=filename,
+                marker=marker_cycle[idx])
+
+            idx = idx + 1
+
+        # Plot baselines
+        baselines = ['Baseline stratified', 'Baseline uniform']
+        for baseline in baselines:
+            rows = ()
+            for name in evaluation.index.names:
+                if name == 'validation method':
+                    rows = rows + ('cross-validation', )
+                elif name == 'classifier':
+                    rows = rows + (baseline, )
+                else:
+                    rows = rows + (slice(None), )
+            plt.scatter(
+                evaluation.loc[rows, ('accuracy MEAN')],
+                evaluation.loc[rows, ('accuracy SD')],
+                label=baseline,
+                marker=marker_cycle[idx])
+            idx = idx + 1
+
+    plt.ylim(bottom=0)
+    plt.xlim(right=1)
+    plt.title('Accuracy from cross-validation')
+    plt.xlabel('mean value')
+    plt.ylabel('standard deviation')
+    plt.legend()
+    plt.grid()
+    plt.show()
+    fig.savefig(os.path.join(path, 'accuracy.png'), format='png', dpi=200,
+        bbox_inches='tight')
+
+    return
+
+def plot_efficiency(path: str=None, filenames: list=['knn', 'gnb', 'dt']):
+    with sns.color_palette(n_colors=len(filenames)+2):
+        fig = plt.figure()
+        marker_cycle = ['+', 'x', '1', '2', '3']*3
+        idx = 0
+        # Plot Classifier
+        for filename in filenames:
+            evaluation = pd.read_hdf(os.path.join(path,  filename +
+                '_evaluation.h5'), key='evaluation')
+
+            rows = ()
+            for name in evaluation.index.names:
+                if name == 'validation method':
+                    rows = rows + ('cross-validation', )
+                elif name == 'classifier':
+                    rows = rows + ('Classifier', )
+                else:
+                    rows = rows + (slice(None), )
+            plt.errorbar(
+                x=evaluation.loc[rows, ('fit time MEAN')],
+                y=evaluation.loc[rows, ('score time MEAN')],
+                xerr=evaluation.loc[rows, ('fit time SD')],
+                yerr=evaluation.loc[rows, ('score time SD')],
+                label=filename,
+                marker='x',
+                linestyle='')
+
+            idx = idx + 1
+
+        # Plot baselines
+        baselines = ['Baseline stratified', 'Baseline uniform']
+        for baseline in baselines:
+            rows = ()
+            for name in evaluation.index.names:
+                if name == 'validation method':
+                    rows = rows + ('cross-validation', )
+                elif name == 'classifier':
+                    rows = rows + (baseline, )
+                else:
+                    rows = rows + (slice(None), )
+            plt.errorbar(
+                x=evaluation.loc[rows, ('fit time MEAN')],
+                y=evaluation.loc[rows, ('score time MEAN')],
+                xerr=evaluation.loc[rows, ('fit time SD')],
+                yerr=evaluation.loc[rows, ('score time SD')],
+                label=baseline,
+                marker='x',
+                linestyle='')
+            idx = idx + 1
+
+    plt.ylim(bottom=0)
+    plt.xlim(left=0)
+    plt.title('Efficiency from cross-validation')
+    plt.xlabel('fit time')
+    plt.ylabel('score time')
+    plt.legend()
+    plt.grid()
+    plt.show()
+    fig.savefig(os.path.join(path, 'efficiency.png'), format='png', dpi=200,
+        bbox_inches='tight')
+
+    return

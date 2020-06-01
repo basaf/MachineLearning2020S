@@ -129,6 +129,9 @@ if False:
 if False:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_knn(cfg.default.occupancy_figures, 'knn')
+if False:
+    # For cross-validation scatter-plot fit time mean and score time
+    functions.plot_efficiency_knn(cfg.default.occupancy_figures, 'knn')
 
 if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
@@ -163,6 +166,9 @@ if False:
 if False:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_gnb(cfg.default.occupancy_figures, 'gnb')
+if False:
+    # For cross-validation scatter-plot fit time mean and score time
+    functions.plot_efficiency_gnb(cfg.default.occupancy_figures, 'gnb')
 
 if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
@@ -180,13 +186,17 @@ if False:
         cfg.default.occupancy_figures,
         'dt')
 
-if True:
+if False:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_dt(cfg.default.occupancy_figures, 'dt')
 
 if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_dt(cfg.default.occupancy_figures, 'dt')
+if False:
+    # For cross-validation scatter-plot fit time mean and score time
+    functions.plot_efficiency_dt(cfg.default.occupancy_figures, 'dt')
+
 if False:
     # List variants with highest and lowest accuracy values
     path = cfg.default.occupancy_figures
@@ -204,8 +214,17 @@ if False:
         'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
         sort_values('accuracy MEAN', ascending=True)).head())
 
-#%% Finish
+#%% Compare the different classifiers 
+
+if False:
+    # For cross-validation scatter-plot accuracy mean and standard deviation
+    functions.plot_accuracy(cfg.default.occupancy_figures, ['knn', 'gnb', 'dt'])
+if False:
+    # For cross-validation scatter-plot fit time mean and score time
+    functions.plot_efficiency(cfg.default.occupancy_figures,
+        ['knn', 'gnb', 'dt'])
+
+
 print()
 print('Done')
-
 
