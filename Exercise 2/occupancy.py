@@ -134,17 +134,21 @@ if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_knn(cfg.default.occupancy_figures, 'knn')
 if False:
-    # Look at the plot from before and find classifier with best accuracy
-    # MANUALLY TO BE CONFIGURED!!
+    # List variants with highest and lowest accuracy values
     path = cfg.default.occupancy_figures
     filename = 'knn'
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
         key='evaluation')
 
-    print(evaluation.loc[(slice(None), 'noScaling', slice(None),
-        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')][
-            evaluation['accuracy MEAN'] > 0.98].
-            sort_values('accuracy MEAN', ascending=False))
+    print('Highest accuracy:')
+    print((evaluation.loc[(slice(None), slice(None), slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+        sort_values('accuracy MEAN', ascending=False)).head())
+    print()
+    print('Lowest accuracy:')
+    print((evaluation.loc[(slice(None), slice(None), slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+        sort_values('accuracy MEAN', ascending=True)).head())
 
 
 #%% Naïve Bayes Classification
@@ -166,9 +170,9 @@ if False:
 
 #%% Decision Tree Classification
 if False:
-    list_max_depth = [1, 10]
-    list_min_samples_split = [2, 20]
-    list_min_samples_leaf = [1, 10]
+    list_max_depth = [1, 10, 100, 1000]
+    list_min_samples_split = [2, 20, 200, 2000]
+    list_min_samples_leaf = [1, 10, 200, 2000]
 
     functions.dt(X, y, test_size, random_state, list_max_depth,
         list_min_samples_split, list_min_samples_leaf,
@@ -176,7 +180,7 @@ if False:
         cfg.default.occupancy_figures,
         'dt')
 
-if False:
+if True:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_dt(cfg.default.occupancy_figures, 'dt')
 
@@ -184,19 +188,21 @@ if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_dt(cfg.default.occupancy_figures, 'dt')
 if False:
-    stophere
-    # Look at the plot from before and find classifier with best accuracy
-    # MANUALLY TO BE CONFIGURED!!
+    # List variants with highest and lowest accuracy values
     path = cfg.default.occupancy_figures
     filename = 'dt'
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
         key='evaluation')
 
-    print(evaluation.loc[(slice(None), 'noScaling', slice(None),
-        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')][
-            evaluation['accuracy MEAN'] > 0.98].
-            sort_values('accuracy MEAN', ascending=False))
-
+    print('Highest accuracy:')
+    print((evaluation.loc[(slice(None), slice(None), slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+        sort_values('accuracy MEAN', ascending=False)).head())
+    print()
+    print('Lowest accuracy:')
+    print((evaluation.loc[(slice(None), slice(None), slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+        sort_values('accuracy MEAN', ascending=True)).head())
 
 #%% Finish
 print()

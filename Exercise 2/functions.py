@@ -367,7 +367,14 @@ def plot_evaluation_knn(path: str = None, filename: str = None):
                             lines.append(ax[pos].plot(list_k, MEAN,
                                 marker=marker_cycle[idx],
                                 linestyle=linestyle_cycle[j],
-                                label=', '.join([classifier, weight, method]))[0])
+                                label=', '.join([classifier, weight, method]).
+                                    replace('Classifier', 'Classif.').
+                                    replace('Baseline', 'Basel.').
+                                    replace('distance', 'dist').
+                                    replace('uniform', 'unif').
+                                    replace('stratified', 'strat.').
+                                    replace('cross-validation', 'CV'))[
+                                    0])
                             ax[pos].fill_between(list_k, MEAN - SD, MEAN + SD,
                                 alpha=0.3)
                 if key == 'efficiency':
@@ -543,25 +550,6 @@ def gnb(X: np.array, y: np.array, test_size=0.2, random_state=1,
 
     return
 
-    # # Plot evaluation parameters over parameters of algorithm
-    # with sns.color_palette(n_colors=len(evaluation.keys())):
-    #     fig, ax = plt.subplots(len(evaluation.keys()), 1, sharex='all', tight_layout=True, figsize=(8,19))
-
-    # for pos, key in enumerate(evaluation.keys()):
-    #     # ax = fig.add_subplot(5, 1, pos + 1)
-    #     ax[pos].set_title(key)
-    #     ax[pos].grid(True)
-
-    #     ax[pos].plot(evaluation.loc[key].to_numpy(),
-    #                  marker='o', linestyle='-', label='scaled, unif')
-
-    # plt.xlabel(r'$k$')
-    # plt.legend(ncol=4, loc='upper center', bbox_to_anchor=(0.5, -0.4))
-    # fig.savefig(os.path.join(path, filename + '_evaluation.png'), format='png', dpi=300)
-    # plt.close(fig)
-
-    return
-
 
 def plot_evaluation_gnb(path: str = None, filename: str = None):
 
@@ -610,7 +598,13 @@ def plot_evaluation_gnb(path: str = None, filename: str = None):
                         np.array([MEAN, MEAN, MEAN]),
                         marker=marker_cycle[idx],
                         linestyle=linestyle_cycle[j],
-                        label=', '.join([classifier, method]))[0])
+                        label=', '.join([classifier, method]).
+                            replace('Classifier', 'Classif.').
+                            replace('Baseline', 'Basel.').
+                            replace('uniform', 'unif').
+                            replace('stratified', 'strat.').
+                            replace('cross-validation', 'CV'))[
+                            0])
                     ax[pos].fill_between(np.array([0, 1, 2]),
                         np.array([MEAN - SD, MEAN - SD, MEAN - SD]),
                         np.array([MEAN + SD, MEAN + SD, MEAN + SD]),
@@ -851,7 +845,13 @@ def plot_evaluation_dt(path: str = None, filename: str = None):
                             lines.append(ax[pos].plot(list_max_depth, MEAN,
                                 marker=marker_cycle[idx],
                                 linestyle=linestyle_cycle[j],
-                                label=', '.join([classifier, method]))[0])
+                                label=', '.join([classifier, method]).
+                                    replace('Classifier', 'Classif.').
+                                    replace('Baseline', 'Basel.').
+                                    replace('uniform', 'unif').
+                                    replace('stratified', 'strat.').
+                                    replace('cross-validation', 'CV'))[
+                                    0])
                             ax[pos].fill_between(list_max_depth, MEAN - SD,
                                 MEAN + SD, alpha=0.3)
                     if key == 'efficiency':
@@ -893,25 +893,28 @@ def plot_accuracy_dt(path: str = None, filename: str = None):
     list_min_samples_split = evaluation.index.levels[1].to_list()
     list_min_samples_leaf = evaluation.index.levels[2].to_list()
 
-    fig = plt.figure()
-    marker_cycle = ['o', '+', 'x', '1', '2', '3', '4']*10  # to have enough
-    idx = 0
-    for min_samples_split in list_min_samples_split:
-        for min_samples_leaf in list_min_samples_leaf:
-            label = ', '.join([str(min_samples_split), str(min_samples_leaf)])
-            rows = (slice(None), min_samples_split, min_samples_leaf,
-                'cross-validation', 'Classifier')
-            plt.scatter(
-                evaluation.loc[rows, ('accuracy MEAN')],
-                evaluation.loc[rows, ('accuracy SD')],
-                label=label,
-                marker=marker_cycle[idx])
-            idx = idx + 1
+    with sns.color_palette(n_colors=len(list_min_samples_leaf)):
+        fig = plt.figure()
+        marker_cycle = ['+', 'x', '1', '2']*4
+        idx = 0
+        for min_samples_split in list_min_samples_split:
+            for min_samples_leaf in list_min_samples_leaf:
+                label = ', '.join([str(min_samples_split), str(min_samples_leaf)])
+                rows = (slice(None), min_samples_split, min_samples_leaf,
+                    'cross-validation', 'Classifier')
+                plt.scatter(
+                    evaluation.loc[rows, ('accuracy MEAN')],
+                    evaluation.loc[rows, ('accuracy SD')],
+                    label=label,
+                    marker=marker_cycle[idx])
+                idx = idx + 1
     plt.ylim(bottom=0)
     plt.title('Accuracy from cross-validation')
     plt.xlabel('mean value')
     plt.ylabel('standard deviation')
-    plt.legend(title='min_samples_split\nmin_samples_leaf:')
+    plt.legend(title='min_samples_split, min_samples_leaf:', ncol=4,
+        bbox_to_anchor=(0.5, -0.005), bbox_transform=fig.transFigure,
+        loc='upper center', borderaxespad=0.1)
     plt.grid()
     plt.show()
     fig.savefig(os.path.join(path, filename + '_' +
