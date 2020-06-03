@@ -49,7 +49,8 @@ random_seed = 1
 percentage_test = 0.2
 
 # k-nn
-functions.knn(X=training_data_x, y=training_data_y, test_size=percentage_test, random_state=random_seed,
+if False:
+    functions.knn(X=training_data_x, y=training_data_y, test_size=percentage_test, random_state=random_seed,
               list_k = [1, 5],
               scaling=True,
               weights=['uniform', 'distance'],
@@ -58,6 +59,8 @@ functions.knn(X=training_data_x, y=training_data_y, test_size=percentage_test, r
               path=cfg.default.amazon_figures,
               filename='knn')
 
-functions.plot_evaluation_knn(cfg.default.amazon_figures, 'knn')
+if False:
+    # Plot performance (efficiency and effectiveness)
+    functions.plot_evaluation_knn(cfg.default.amazon_figures, 'knn')
 
 print('End')

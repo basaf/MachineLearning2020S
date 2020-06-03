@@ -46,20 +46,11 @@ def check_performance_holdout(classifier, X_test: np.array, y_test: np.array, y_
 
         # Evaluation metrics
     dict_report = classification_report(y_test, y_pred, output_dict=True)
-    binary_classification = ('accuracy' in dict_report.keys())
 
     # Generate columns for result
-    if binary_classification:  # Micro average (averaging the total true positives, false negatives and false positives) is only shown for multi-label or multi-class with a subset of classes, because it corresponds to accuracy otherwise.
-        scores = ['accuracy', 'precision', 'recall', 'f1-score']
-        averages = ['', 'macro avg', 'macro avg', 'macro avg']
-        index_elements = list(zip(scores, averages))
-    else:
-        scores = ['precision', 'recall', 'f1-score']
-        averages = ['micro avg', 'macro avg']
-        index_elements = list(product(scores, averages))
-
-    # index = [' '.join([score, average]).strip()
-    #     for score, average in index_elements]
+    scores = ['accuracy', 'precision', 'recall', 'f1-score']
+    averages = ['', 'macro avg', 'macro avg', 'macro avg']
+    index_elements = list(zip(scores, averages))
 
     scoring = [' '.join([score, average]).strip().
                    replace(' avg', '').replace(' ', '_').replace('-', '_').
@@ -97,18 +88,10 @@ def check_performance_holdout(classifier, X_test: np.array, y_test: np.array, y_
 
 
 def check_performance_CV(classifier, X: np.array, y: np.array, n_splits=5, n_jobs=-1, filename=None):
-    # Detect, whether it is a binary classification
-    binary_classification = (len(np.unique(y)) == 2)
-
-    # Generate columns for result
-    if binary_classification:  # Micro average (averaging the total true positives, false negatives and false positives) is only shown for multi-label or multi-class with a subset of classes, because it corresponds to accuracy otherwise.
-        scores = ['accuracy', 'precision', 'recall', 'f1-score']
-        averages = ['', 'macro avg', 'macro avg', 'macro avg']
-        index_elements = list(zip(scores, averages))
-    else:
-        scores = ['precision', 'recall', 'f1-score']
-        averages = ['micro avg', 'macro avg']
-        index_elements = list(product(scores, averages))
+   
+    scores = ['accuracy', 'precision', 'recall', 'f1-score']
+    averages = ['', 'macro avg', 'macro avg', 'macro avg']
+    index_elements = list(zip(scores, averages))
 
     scoring = [' '.join([score, average]).strip().
                    replace(' avg', '').replace(' ', '_').replace('-', '_').
@@ -132,11 +115,8 @@ def check_performance_CV(classifier, X: np.array, y: np.array, n_splits=5, n_job
 
     dict_CV_results = cross_validate(classifier, X, y, cv=skf, scoring=scoring, n_jobs=n_jobs, return_estimator=True)
 
-    if binary_classification is True:
-        # Plot confusion matrix for estimator with highest accuracy
-        idx_max = np.argmax(dict_CV_results['test_accuracy'])
-    else:
-        idx_max = np.argmax(dict_CV_results['test_f1_macro'])
+    # Plot confusion matrix for estimator with highest accuracy
+    idx_max = np.argmax(dict_CV_results['test_accuracy'])
 
     best_estimator = dict_CV_results['estimator'][idx_max]
     # Get corresponding test_set
