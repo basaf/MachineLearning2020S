@@ -214,6 +214,48 @@ if False:
         'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
         sort_values('accuracy MEAN', ascending=True)).head())
 
+#%% Ridge Classification
+if False:
+    list_alpha = [0, 1e-4, 1e-2, 1, 5, 10, 50, 100]
+    # functions.ridge_regression(X_train, X_test, y_train, y_test, alpha_list,
+    #                            True, cfg.default.communities_figures,
+    #                            'ridge_reg')
+
+    functions.ridge(X, y, test_size, random_state, list_alpha, True,
+        validation_methods, baselines,
+        cfg.default.occupancy_figures,
+        'ridge')
+
+if False:
+    # Plot performance (efficiency and effectiveness)
+    functions.plot_evaluation_ridge(cfg.default.occupancy_figures, 'ridge')
+if False:
+    # For cross-validation scatter-plot fit time mean and score time
+    functions.plot_efficiency_ridge(cfg.default.occupancy_figures, 'ridge')
+
+if False:
+    # For cross-validation scatter-plot accuracy mean and standard deviation
+    functions.plot_accuracy_ridge(cfg.default.occupancy_figures, 'ridge')
+if True:
+    # List variants with highest and lowest accuracy values
+    path = cfg.default.occupancy_figures
+    filename = 'ridge'
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+
+    print('Highest accuracy:')
+    print((evaluation.loc[(slice(None), slice(None), slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+        sort_values('accuracy MEAN', ascending=False)).head())
+    print()
+    print('Lowest accuracy:')
+    print((evaluation.loc[(slice(None), slice(None), slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+        sort_values('accuracy MEAN', ascending=True)).head())
+
+
+
+
 #%% Compare the different classifiers 
 
 if False:

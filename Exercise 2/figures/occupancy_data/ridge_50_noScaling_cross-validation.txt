@@ -1,0 +1,12 @@
+accuracy MEAN	0.7689688715953308
+accuracy SD	0.0
+precision_macro MEAN	0.3844844357976654
+precision_macro SD	0.0
+recall_macro MEAN	0.5
+recall_macro SD	0.0
+f1_macro MEAN	0.4346989276876547
+f1_macro SD	0.0
+fit time MEAN	0.00857558250427246
+fit time SD	0.0008012771606445312
+score time MEAN	0.006183910369873047
+score time SD	0.001595878601074219
