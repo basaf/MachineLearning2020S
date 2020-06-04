@@ -1,0 +1,105 @@
+;accuracy MEAN;accuracy SD
+ridge (0.01, 'noScaling', 'cross-validation', 'Classifier');0,9887645914396888;0,00662871901803609
+ridge (100.0, 'scaling', 'cross-validation', 'Classifier');0,9887645914396888;0,00662871901803609
+dt (10, 2000, 10, 'cross-validation', 'Classifier');0,9887645914396888;0,006978173709907013
+dt (100, 2000, 10, 'cross-validation', 'Classifier');0,9887645914396888;0,006978173709907013
+dt (1000, 2000, 10, 'cross-validation', 'Classifier');0,9887645914396888;0,006978173709907013
+dt (1, 2, 1, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 2, 10, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 2, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 2, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 20, 1, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 20, 10, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 20, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 20, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 200, 1, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 200, 10, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 200, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 200, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 2000, 1, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 2000, 10, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 2000, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1, 2000, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (10, 2, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (10, 2, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (10, 20, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (10, 20, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (10, 200, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (10, 200, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (10, 2000, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (10, 2000, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (100, 2, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (100, 2, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (100, 20, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (100, 20, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (100, 200, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (100, 200, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (100, 2000, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (100, 2000, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1000, 2, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1000, 2, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1000, 20, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1000, 20, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1000, 200, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1000, 200, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1000, 2000, 200, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+dt (1000, 2000, 2000, 'cross-validation', 'Classifier');0,988715953307393;0,00699036740203181
+ridge (50.0, 'scaling', 'cross-validation', 'Classifier');0,9886186770428015;0,00654431447142188
+ridge (10.0, 'scaling', 'cross-validation', 'Classifier');0,9884727626459144;0,00641138406742574
+ridge (5.0, 'scaling', 'cross-validation', 'Classifier');0,9884241245136186;0,006383650638393226
+ridge (0.0001, 'noScaling', 'cross-validation', 'Classifier');0,9883268482490273;0,00633230377737918
+ridge (1.0, 'scaling', 'cross-validation', 'Classifier');0,9882295719844357;0,006286560916605035
+ridge (0.0, 'scaling', 'cross-validation', 'Classifier');0,9880836575875488;0,006315469975925876
+ridge (0.0, 'noScaling', 'cross-validation', 'Classifier');0,9880836575875488;0,006315469975925876
+ridge (0.0001, 'scaling', 'cross-validation', 'Classifier');0,9880836575875488;0,006315469975925876
+ridge (0.01, 'scaling', 'cross-validation', 'Classifier');0,9880836575875488;0,006315469975925876
+dt (10, 200, 10, 'cross-validation', 'Classifier');0,9855058365758754;0,009656353683835326
+dt (100, 200, 10, 'cross-validation', 'Classifier');0,9855058365758754;0,009656353683835326
+dt (1000, 200, 10, 'cross-validation', 'Classifier');0,9855058365758754;0,009656353683835326
+knn (50, 'noScaling', 'distance', 'cross-validation', 'Classifier');0,982976653696498;0,013290764578452017
+knn (50, 'noScaling', 'uniform', 'cross-validation', 'Classifier');0,9825875486381322;0,013156232687907206
+dt (10, 2000, 1, 'cross-validation', 'Classifier');0,9824902723735409;0,009256591803503163
+dt (100, 2000, 1, 'cross-validation', 'Classifier');0,9824902723735409;0,009256591803503163
+dt (1000, 2000, 1, 'cross-validation', 'Classifier');0,9824902723735409;0,009256591803503163
+knn (100, 'noScaling', 'distance', 'cross-validation', 'Classifier');0,9820038910505836;0,013388303021084201
+knn (100, 'noScaling', 'uniform', 'cross-validation', 'Classifier');0,981420233463035;0,013607033655273998
+knn (10, 'noScaling', 'uniform', 'cross-validation', 'Classifier');0,9803501945525293;0,011937070037687198
+knn (300, 'noScaling', 'distance', 'cross-validation', 'Classifier');0,9793774319066149;0,015261371783944015
+knn (10, 'noScaling', 'distance', 'cross-validation', 'Classifier');0,9793287937743191;0,013136798478666832
+dt (10, 2, 10, 'cross-validation', 'Classifier');0,9789883268482489;0,015331893485953272
+dt (10, 20, 10, 'cross-validation', 'Classifier');0,9789883268482489;0,015331893485953272
+dt (100, 2, 10, 'cross-validation', 'Classifier');0,9787451361867705;0,014701755492419566
+dt (100, 20, 10, 'cross-validation', 'Classifier');0,9787451361867705;0,014701755492419566
+dt (1000, 2, 10, 'cross-validation', 'Classifier');0,9787451361867705;0,014701755492419566
+dt (1000, 20, 10, 'cross-validation', 'Classifier');0,9787451361867705;0,014701755492419566
+knn (500, 'noScaling', 'distance', 'cross-validation', 'Classifier');0,9783560311284047;0,01565739971536041
+dt (10, 200, 1, 'cross-validation', 'Classifier');0,9777237354085603;0,012117241629251298
+dt (100, 200, 1, 'cross-validation', 'Classifier');0,9777237354085603;0,012117241629251298
+dt (1000, 200, 1, 'cross-validation', 'Classifier');0,9777237354085603;0,012117241629251298
+knn (300, 'noScaling', 'uniform', 'cross-validation', 'Classifier');0,9756809338521402;0,016402664776494377
+knn (10, 'scaling', 'uniform', 'cross-validation', 'Classifier');0,9690661478599223;0,027990135860538064
+knn (50, 'scaling', 'distance', 'cross-validation', 'Classifier');0,9690661478599221;0,029249437717793283
+knn (50, 'scaling', 'uniform', 'cross-validation', 'Classifier');0,9688715953307392;0,029228644400650455
+knn (100, 'scaling', 'distance', 'cross-validation', 'Classifier');0,9688229571984437;0,028542503778502492
+knn (100, 'scaling', 'uniform', 'cross-validation', 'Classifier');0,9681420233463035;0,028226464470280346
+knn (300, 'scaling', 'distance', 'cross-validation', 'Classifier');0,9655155642023348;0,03050871192178503
+knn (500, 'scaling', 'distance', 'cross-validation', 'Classifier');0,965272373540856;0,024336277955867982
+knn (300, 'scaling', 'uniform', 'cross-validation', 'Classifier');0,9638618677042802;0,031115330425549176
+knn (10, 'scaling', 'distance', 'cross-validation', 'Classifier');0,9619649805447471;0,028220848622811275
+knn (500, 'scaling', 'uniform', 'cross-validation', 'Classifier');0,9600680933852139;0,026607058944977818
+dt (100, 20, 1, 'cross-validation', 'Classifier');0,9561770428015564;0,029011901859663642
+dt (1000, 20, 1, 'cross-validation', 'Classifier');0,9561770428015564;0,029011901859663642
+dt (10, 20, 1, 'cross-validation', 'Classifier');0,9557879377431906;0,02860128966292596
+dt (100, 2, 1, 'cross-validation', 'Classifier');0,9556420233463034;0,03460445026754689
+dt (1000, 2, 1, 'cross-validation', 'Classifier');0,9556420233463034;0,03460445026754689
+knn (1, 'noScaling', 'uniform', 'cross-validation', 'Classifier');0,9523346303501945;0,026398903586215154
+knn (1, 'noScaling', 'distance', 'cross-validation', 'Classifier');0,9523346303501945;0,026398903586215154
+dt (10, 2, 1, 'cross-validation', 'Classifier');0,9507782101167315;0,03439599856679225
+ridge (1.0, 'noScaling', 'cross-validation', 'Classifier');0,9498054474708171;0,03403717209856882
+knn (500, 'noScaling', 'uniform', 'cross-validation', 'Classifier');0,946692607003891;0,06389214359932754
+knn (1, 'scaling', 'uniform', 'cross-validation', 'Classifier');0,9329766536964982;0,04479637996615391
+knn (1, 'scaling', 'distance', 'cross-validation', 'Classifier');0,9329766536964982;0,04479637996615391
+ridge (5.0, 'noScaling', 'cross-validation', 'Classifier');0,7799610894941634;0,009709857311686287
+ridge (10.0, 'noScaling', 'cross-validation', 'Classifier');0,7690661478599222;0,00011913860616649658
+ridge (50.0, 'noScaling', 'cross-validation', 'Classifier');0,7689688715953308;0,0
+ridge (100.0, 'noScaling', 'cross-validation', 'Classifier');0,7689688715953308;0,0

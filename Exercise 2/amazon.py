@@ -48,6 +48,7 @@ random_seed = 1
 # set the number of test elements to 20%
 percentage_test = 0.2
 
+#%% Decision Tree Classification
 # k-nn
 if False:
     functions.knn(X=training_data_x, y=training_data_y, test_size=percentage_test, random_state=random_seed,
@@ -62,5 +63,49 @@ if False:
 if False:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_knn(cfg.default.amazon_figures, 'knn')
+
+
+#%% Ridge Classification
+if False:
+    list_alpha = [0, 1e-4, 1e-2, 1, 5, 10, 50, 100]
+    functions.ridge(training_data_x, training_data_y, percentage_test, random_seed,
+        list_alpha=list_alpha,
+        scaling=True,
+        validation_methods=['holdout', 'cross-validation'],
+        baselines=['stratified', 'uniform'],
+        path=cfg.default.amazon_figures,
+        filename='ridge')
+
+if False:
+    # Plot performance (efficiency and effectiveness)
+    functions.plot_evaluation_ridge(cfg.default.amazon_figures, 'ridge')
+if False:
+    # For cross-validation scatter-plot fit time mean and score time
+    functions.plot_efficiency_ridge(cfg.default.amazon_figures, 'ridge')
+
+if False:
+    # For cross-validation scatter-plot accuracy mean and standard deviation
+    functions.plot_accuracy_ridge(cfg.default.amazon_figures, 'ridge')
+if False:
+    # List variants with highest and lowest accuracy values
+    path = cfg.default.amazon_figures
+    filename = 'ridge'
+    evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+        key='evaluation')
+
+    print('Highest accuracy:')
+    print((evaluation.loc[(slice(None), slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+        sort_values('accuracy MEAN', ascending=False)).head())
+    print()
+    print('Lowest accuracy:')
+    print((evaluation.loc[(slice(None), slice(None),
+        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+        sort_values('accuracy MEAN', ascending=True)).head())
+
+
+
+
+
 
 print('End')

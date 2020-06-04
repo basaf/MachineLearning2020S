@@ -217,10 +217,6 @@ if False:
 #%% Ridge Classification
 if False:
     list_alpha = [0, 1e-4, 1e-2, 1, 5, 10, 50, 100]
-    # functions.ridge_regression(X_train, X_test, y_train, y_test, alpha_list,
-    #                            True, cfg.default.communities_figures,
-    #                            'ridge_reg')
-
     functions.ridge(X, y, test_size, random_state, list_alpha, True,
         validation_methods, baselines,
         cfg.default.occupancy_figures,
@@ -236,7 +232,7 @@ if False:
 if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_ridge(cfg.default.occupancy_figures, 'ridge')
-if True:
+if False:
     # List variants with highest and lowest accuracy values
     path = cfg.default.occupancy_figures
     filename = 'ridge'
@@ -244,27 +240,69 @@ if True:
         key='evaluation')
 
     print('Highest accuracy:')
-    print((evaluation.loc[(slice(None), slice(None), slice(None),
+    print((evaluation.loc[(slice(None), slice(None),
         'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
         sort_values('accuracy MEAN', ascending=False)).head())
     print()
     print('Lowest accuracy:')
-    print((evaluation.loc[(slice(None), slice(None), slice(None),
+    print((evaluation.loc[(slice(None), slice(None),
         'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
         sort_values('accuracy MEAN', ascending=True)).head())
 
-
-
-
 #%% Compare the different classifiers 
-
+filenames = ['knn', 'ridge', 'dt']
 if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
-    functions.plot_accuracy(cfg.default.occupancy_figures, ['knn', 'gnb', 'dt'])
+    functions.plot_accuracy(cfg.default.occupancy_figures, filenames)
 if False:
     # For cross-validation scatter-plot fit time mean and score time
-    functions.plot_efficiency(cfg.default.occupancy_figures,
-        ['knn', 'gnb', 'dt'])
+    functions.plot_efficiency(cfg.default.occupancy_figures, filenames)
+
+if False:
+    # List variants of each classifier with highest accuracy values
+    all_evaluations = pd.DataFrame()
+    for filename in filenames:
+        path = cfg.default.occupancy_figures
+        evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
+            key='evaluation')
+
+        # Select only rows with cross-validation and only Classifier (no baselines)
+        rows = ()
+        for name in evaluation.index.names:
+            if name == 'validation method':
+                rows = rows + ('cross-validation', )
+            elif name == 'classifier':
+                rows = rows + ('Classifier', )
+            else:
+                rows = rows + (slice(None), )
+        evaluation = evaluation.loc[rows, ('accuracy MEAN', 'accuracy SD')]
+
+        # Flatten multiIndex to tuple and add filename
+        index = evaluation.index.to_flat_index()
+        index_new = [' '.join([filename, str(entry)]) for entry in index]
+        evaluation.index = index_new
+
+        # Add current evaluation to overall comparison
+        all_evaluations = pd.concat([all_evaluations, evaluation])
+
+    print('Highest accuracy:')
+    print((all_evaluations[['accuracy MEAN', 'accuracy SD']].
+        sort_values(['accuracy MEAN', 'accuracy SD'],
+            ascending=[False, True])).head(10))
+    print()
+    print('Lowest accuracy:')
+    print((all_evaluations[['accuracy MEAN', 'accuracy SD']].
+        sort_values(['accuracy MEAN', 'accuracy SD'],
+            ascending=[True, False])).head(10))
+
+    # Save sorted DataFrame (descending mean value, ascending SD)
+    # as csv and h5 files
+    filename = '_'.join(['all_evaluation', '_'.join(filenames)])
+    ((all_evaluations.sort_values(['accuracy MEAN', 'accuracy SD'],
+            ascending=[False, True])).to_csv(os.path.join(path, filename + '.csv'), sep=';', decimal=','))
+    ((evaluation.sort_values(['accuracy MEAN', 'accuracy SD'],
+            ascending=[False, True])).to_hdf(os.path.join(path, filename + '.h5'), key='evaluation', mode='w'))
+
 
 
 print()
