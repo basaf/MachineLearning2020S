@@ -1,0 +1,8 @@
+accuracy MEAN	0.02666666666666667
+accuracy SD	0
+precision_macro MEAN	0.0006313131313131314
+precision_macro SD	0
+recall_macro MEAN	0.020833333333333332
+recall_macro SD	0
+f1_macro MEAN	0.0012254901960784316
+f1_macro SD	0
