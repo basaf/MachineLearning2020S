@@ -51,31 +51,32 @@ percentage_test = 0.2
 validation_methods = ['holdout', 'cross-validation']
 baselines=['stratified', 'uniform']
 
+path = cfg.default.amazon_figures
+
 #%% #%% k-Nearest Neighbor Classification
 # k-nn
-if False:
+if True:
     functions.knn(X=training_data_x, y=training_data_y, test_size=percentage_test, random_state=random_seed,
               list_k = [1, 2, 5, 8, 9, 10, 11, 12, 15, 20],
               scaling=True,
               weights=['uniform', 'distance'],
               validation_methods=validation_methods,
               baselines=baselines,
-              path=cfg.default.amazon_figures,
+              path=path,
               filename='knn')
 
-if False:
+if True:
     # Plot performance (efficiency and effectiveness)
-    functions.plot_evaluation_knn(cfg.default.amazon_figures, 'knn')
-if False:
+    functions.plot_evaluation_knn(path, 'knn')
+if True:
     # For cross-validation scatter-plot fit time mean and score time
-    functions.plot_efficiency_knn(cfg.default.amazon_figures, 'knn')
+    functions.plot_efficiency_knn(path, 'knn')
 
-if False:
+if True:
     # For cross-validation scatter-plot accuracy mean and standard deviation
-    functions.plot_accuracy_knn(cfg.default.amazon_figures, 'knn')
-if False:
+    functions.plot_accuracy_knn(path, 'knn')
+if True:
     # List variants with highest and lowest accuracy values
-    path = cfg.default.amazon_figures
     filename = 'knn'
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'), key='evaluation')
 
@@ -90,7 +91,7 @@ if False:
         sort_values('accuracy MEAN', ascending=True)).head())
 
 #%% Decision Tree Classification
-if False:
+if True:
     list_max_depth = [1, 10, 100, 1000]
     list_min_samples_split = [2, 20, 200, 2000]
     list_min_samples_leaf = [1, 10, 200, 2000]
@@ -98,23 +99,22 @@ if False:
     functions.dt(training_data_x, training_data_y, percentage_test, random_seed, list_max_depth,
                  list_min_samples_split, list_min_samples_leaf,
                  validation_methods, baselines,
-                 cfg.default.amazon_figures,
+                 path,
                  'dt')
 
-if False:
+if True:
     # Plot performance (efficiency and effectiveness)
-    functions.plot_evaluation_dt(cfg.default.amazon_figures, 'dt')
+    functions.plot_evaluation_dt(path, 'dt')
 
-if False:
+if True:
     # For cross-validation scatter-plot accuracy mean and standard deviation
-    functions.plot_accuracy_dt(cfg.default.amazon_figures, 'dt')
-if False:
+    functions.plot_accuracy_dt(path, 'dt')
+if True:
     # For cross-validation scatter-plot fit time mean and score time
-    functions.plot_efficiency_dt(cfg.default.amazon_figures, 'dt')
+    functions.plot_efficiency_dt(path, 'dt')
 
-if False:
+if True:
     # List variants with highest and lowest accuracy values
-    path = cfg.default.amazon_figures
     filename = 'dt'
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
         key='evaluation')
@@ -130,29 +130,29 @@ if False:
         sort_values('accuracy MEAN', ascending=True)).head())
 
 #%% Ridge Classification
-if False:
+if True:
     list_alpha = [0, 1e-4, 1e-2, 1, 5, 10, 50, 100]
     functions.ridge(training_data_x, training_data_y, percentage_test, random_seed,
         list_alpha=list_alpha,
         scaling=True,
         validation_methods=['holdout', 'cross-validation'],
         baselines=['stratified', 'uniform'],
-        path=cfg.default.amazon_figures,
+        path=path,
         filename='ridge')
 
-if False:
+if True:
     # Plot performance (efficiency and effectiveness)
-    functions.plot_evaluation_ridge(cfg.default.amazon_figures, 'ridge')
-if False:
+    functions.plot_evaluation_ridge(path, 'ridge')
+if True:
     # For cross-validation scatter-plot fit time mean and score time
-    functions.plot_efficiency_ridge(cfg.default.amazon_figures, 'ridge')
+    functions.plot_efficiency_ridge(path, 'ridge')
 
-if False:
+if True:
     # For cross-validation scatter-plot accuracy mean and standard deviation
-    functions.plot_accuracy_ridge(cfg.default.amazon_figures, 'ridge')
-if False:
+    functions.plot_accuracy_ridge(path, 'ridge')
+if True:
     # List variants with highest and lowest accuracy values
-    path = cfg.default.amazon_figures
+
     filename = 'ridge'
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
         key='evaluation')
@@ -169,18 +169,18 @@ if False:
 
 #%% Compare the different classifiers
 filenames = ['knn', 'ridge', 'dt']
-if False:
-    # For cross-validation scatter-plot accuracy mean and standard deviation
-    functions.plot_accuracy(cfg.default.amazon_figures, filenames)
-if False:
-    # For cross-validation scatter-plot fit time mean and score time
-    functions.plot_efficiency(cfg.default.amazon_figures, filenames)
 
-if False:
+if True:
+    # For cross-validation scatter-plot accuracy mean and standard deviation
+    functions.plot_accuracy(path, filenames)
+if True:
+    # For cross-validation scatter-plot fit time mean and score time
+    functions.plot_efficiency(path, filenames)
+
+if True:
     # List variants of each classifier with highest accuracy values
     all_evaluations = pd.DataFrame()
     for filename in filenames:
-        path = cfg.default.amazon_figures
         evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
             key='evaluation')
 
