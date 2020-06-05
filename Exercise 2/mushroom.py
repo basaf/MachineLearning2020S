@@ -50,20 +50,20 @@ for num, column in enumerate(rawData.columns):
 
 
 #%% remove veil-type -> only one value
- data=rawData.drop(labels="veil-type",axis=1)   
+data=rawData.drop(labels="veil-type",axis=1)
 
 # 30% have no value for stalk-root -> only ?
 
 #%% encode data edible=e /1 , poisonous=p /0
  
- y=data['class'].replace({'p':0,'e':1})
+y=data['class'].replace({'p':0,'e':1})
  
- X=data.drop(labels="class",axis=1)
- X=X.astype('category')
+X=data.drop(labels="class",axis=1)
+X=X.astype('category')
  
- X_encoded=X
- for colName in X.columns:
-     X_encoded[colName]= X[colName].cat.codes
+X_encoded=X
+for colName in X.columns:
+    X_encoded[colName]= X[colName].cat.codes
      
 #%%
 test_size = 0.2
@@ -72,7 +72,7 @@ random_state = 1
 list_k = [1, 3]  # 5, 10, 20, 50, 100, 300]
 functions.knn(X_encoded, y, test_size, random_state, list_k, True,
     ['uniform', 'distance'],
-    ['holdout',
-    'cross-validation'],
+    ['holdout','cross-validation'],
+    ['stratified', 'uniform'],
     cfg.default.mushroom_figures,
     'knn')
