@@ -92,6 +92,14 @@ if False:
         format='png', dpi=200,
         metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
 
+# Plot and save histogram
+if True:
+    data[predictive_attributes+[goal_attribute]].hist()
+    plt.tight_layout()
+    plt.savefig(os.path.join(cfg.default.occupancy_figures, 'occupancy_all_data_histogram.png'), format='png',
+                metadata={'Creator': '', 'Author': '', 'Title': '', 'Producer': ''})
+    plt.close()
+
 #%% Split data
 X = data[predictive_attributes].to_numpy()
 y = data[goal_attribute].to_numpy() 
