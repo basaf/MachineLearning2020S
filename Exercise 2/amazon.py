@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import configuration as cfg
 import os
-
-import functions
 import pandas as pd
-import matplotlib.pyplot as plt
+import configuration as cfg
+import functions
+from sklearn import preprocessing
 
 print('Start evaulation of Amazon dataset')
 
@@ -43,27 +42,32 @@ for num, column in enumerate(test_data.columns):
 training_data_x = training_data.loc[:, training_data.columns != 'Class'].to_numpy()  # input for classification
 training_data_y = training_data.loc[:, 'Class'].to_numpy()  # output class
 
+le = preprocessing.LabelEncoder()
+le.fit(unique_classes)
+
+training_data_y_encoded = le.transform(training_data_y)
+
 # fix the random seed
 random_seed = 1
 # set the number of test elements to 20%
 percentage_test = 0.2
 
 validation_methods = ['holdout', 'cross-validation']
-baselines=['stratified', 'uniform']
+baselines = ['stratified', 'uniform']
 
 path = cfg.default.amazon_figures
 
-#%% #%% k-Nearest Neighbor Classification
+# %% #%% k-Nearest Neighbor Classification
 # k-nn
 if True:
-    functions.knn(X=training_data_x, y=training_data_y, test_size=percentage_test, random_state=random_seed,
-              list_k = [1, 2, 5, 8, 9, 10, 11, 12, 15, 20],
-              scaling=True,
-              weights=['uniform', 'distance'],
-              validation_methods=validation_methods,
-              baselines=baselines,
-              path=path,
-              filename='knn')
+    functions.knn(X=training_data_x, y=training_data_y_encoded, test_size=percentage_test, random_state=random_seed,
+                  list_k=[1, 2, 5, 8, 9, 10, 11, 12, 15, 20],
+                  scaling=True,
+                  weights=['uniform', 'distance'],
+                  validation_methods=validation_methods,
+                  baselines=baselines,
+                  path=path,
+                  filename='knn')
 
 if True:
     # Plot performance (efficiency and effectiveness)
@@ -82,15 +86,15 @@ if True:
 
     print('Highest accuracy:')
     print((evaluation.loc[(slice(None), slice(None), slice(None),
-        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+                           'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
            sort_values('accuracy MEAN', ascending=False)).head())
     print()
     print('Lowest accuracy:')
     print((evaluation.loc[(slice(None), slice(None), slice(None),
-        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
-        sort_values('accuracy MEAN', ascending=True)).head())
+                           'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+           sort_values('accuracy MEAN', ascending=True)).head())
 
-#%% Decision Tree Classification
+# %% Decision Tree Classification
 if True:
     list_max_depth = [1, 10, 100, 1000]
     list_min_samples_split = [2, 20, 200, 2000]
@@ -117,28 +121,28 @@ if True:
     # List variants with highest and lowest accuracy values
     filename = 'dt'
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
-        key='evaluation')
+                             key='evaluation')
 
     print('Highest accuracy:')
     print((evaluation.loc[(slice(None), slice(None), slice(None),
-        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
-        sort_values('accuracy MEAN', ascending=False)).head())
+                           'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+           sort_values('accuracy MEAN', ascending=False)).head())
     print()
     print('Lowest accuracy:')
     print((evaluation.loc[(slice(None), slice(None), slice(None),
-        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
-        sort_values('accuracy MEAN', ascending=True)).head())
+                           'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+           sort_values('accuracy MEAN', ascending=True)).head())
 
-#%% Ridge Classification
+# %% Ridge Classification
 if True:
     list_alpha = [0, 1e-4, 1e-2, 1, 5, 10, 50, 100]
-    functions.ridge(training_data_x, training_data_y, percentage_test, random_seed,
-        list_alpha=list_alpha,
-        scaling=True,
-        validation_methods=['holdout', 'cross-validation'],
-        baselines=['stratified', 'uniform'],
-        path=path,
-        filename='ridge')
+    functions.ridge(training_data_x, training_data_y_encoded, percentage_test, random_seed,
+                    list_alpha=list_alpha,
+                    scaling=True,
+                    validation_methods=['holdout', 'cross-validation'],
+                    baselines=['stratified', 'uniform'],
+                    path=path,
+                    filename='ridge')
 
 if True:
     # Plot performance (efficiency and effectiveness)
@@ -155,19 +159,19 @@ if True:
 
     filename = 'ridge'
     evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
-        key='evaluation')
+                             key='evaluation')
 
     print('Highest accuracy:')
     print((evaluation.loc[(slice(None), slice(None),
-        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
-        sort_values('accuracy MEAN', ascending=False)).head())
+                           'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+           sort_values('accuracy MEAN', ascending=False)).head())
     print()
     print('Lowest accuracy:')
     print((evaluation.loc[(slice(None), slice(None),
-        'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
-        sort_values('accuracy MEAN', ascending=True)).head())
+                           'cross-validation', 'Classifier'), ('accuracy MEAN', 'accuracy SD')].
+           sort_values('accuracy MEAN', ascending=True)).head())
 
-#%% Compare the different classifiers
+# %% Compare the different classifiers
 filenames = ['knn', 'ridge', 'dt']
 
 if True:
@@ -182,17 +186,17 @@ if True:
     all_evaluations = pd.DataFrame()
     for filename in filenames:
         evaluation = pd.read_hdf(os.path.join(path, filename + '_evaluation.h5'),
-            key='evaluation')
+                                 key='evaluation')
 
         # Select only rows with cross-validation and only Classifier (no baselines)
         rows = ()
         for name in evaluation.index.names:
             if name == 'validation method':
-                rows = rows + ('cross-validation', )
+                rows = rows + ('cross-validation',)
             elif name == 'classifier':
-                rows = rows + ('Classifier', )
+                rows = rows + ('Classifier',)
             else:
-                rows = rows + (slice(None), )
+                rows = rows + (slice(None),)
         evaluation = evaluation.loc[rows, ('accuracy MEAN', 'accuracy SD')]
 
         # Flatten multiIndex to tuple and add filename
@@ -205,22 +209,23 @@ if True:
 
     print('Highest accuracy:')
     print((all_evaluations[['accuracy MEAN', 'accuracy SD']].
-        sort_values(['accuracy MEAN', 'accuracy SD'],
-            ascending=[False, True])).head(10))
+           sort_values(['accuracy MEAN', 'accuracy SD'],
+                       ascending=[False, True])).head(10))
     print()
     print('Lowest accuracy:')
     print((all_evaluations[['accuracy MEAN', 'accuracy SD']].
-        sort_values(['accuracy MEAN', 'accuracy SD'],
-            ascending=[True, False])).head(10))
+           sort_values(['accuracy MEAN', 'accuracy SD'],
+                       ascending=[True, False])).head(10))
 
     # Save sorted DataFrame (descending mean value, ascending SD)
     # as csv and h5 files
     filename = '_'.join(['all_evaluation', '_'.join(filenames)])
     ((all_evaluations.sort_values(['accuracy MEAN', 'accuracy SD'],
-            ascending=[False, True])).to_csv(os.path.join(path, filename + '.csv'), sep=';', decimal=','))
+                                  ascending=[False, True])).to_csv(os.path.join(path, filename + '.csv'), sep=';',
+                                                                   decimal=','))
     ((evaluation.sort_values(['accuracy MEAN', 'accuracy SD'],
-            ascending=[False, True])).to_hdf(os.path.join(path, filename + '.h5'), key='evaluation', mode='w'))
+                             ascending=[False, True])).to_hdf(os.path.join(path, filename + '.h5'), key='evaluation',
+                                                              mode='w'))
 
 print()
 print('Done')
-
