@@ -6,6 +6,9 @@ import configuration as cfg
 import functions
 from sklearn import preprocessing
 
+
+from joblib import dump, load
+
 print('Start evaulation of Amazon dataset')
 
 training_data = pd.read_csv(os.path.join(cfg.default.amazon_data, 'amazon_review_ID.shuf.lrn.csv'),
@@ -136,6 +139,7 @@ if True:
 # %% Ridge Classification
 if True:
     list_alpha = [0, 1e-4, 1e-2, 1, 5, 10, 50, 100]
+    #list_alpha = [10] #best
     functions.ridge(training_data_x, training_data_y_encoded, percentage_test, random_seed,
                     list_alpha=list_alpha,
                     scaling=True,
@@ -144,14 +148,14 @@ if True:
                     path=path,
                     filename='ridge')
 
-if True:
+if False:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_ridge(path, 'ridge')
-if True:
+if False:
     # For cross-validation scatter-plot fit time mean and score time
     functions.plot_efficiency_ridge(path, 'ridge')
 
-if True:
+if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_ridge(path, 'ridge')
 if True:
@@ -229,3 +233,22 @@ if True:
 
 print()
 print('Done')
+
+#%% create kaggle file
+if False:
+#load model
+    filename='ridge'
+    f=os.path.join(path, 'ridge_10_noScaling_cross-validation_bestEstimator.joblib')
+    model=load(f)
+    
+    #encode test data
+    #training_data_y_encoded = le.transform(test_data_y)
+    
+    #predict
+    y_test_data_enc=model.predict(test_data)
+    
+    y_test_data=le.inverse_transform(y_test_data_enc)
+    #write output file
+    kaggleOutput=pd.DataFrame( data={'ID':test_data.index.values,'Class':y_test_data})
+    kaggleFile=f=os.path.join(path, 'kaggle.csv')
+    kaggleOutput.to_csv(kaggleFile, index=False)

@@ -6,7 +6,7 @@ recall_macro MEAN	0.5
 recall_macro SD	0.0
 f1_macro MEAN	0.38589760786943883
 f1_macro SD	0.003146466914941842
-fit time MEAN	0.0
-fit time SD	0.0
-score time MEAN	0.0
-score time SD	0.0
+fit time MEAN	0.0036013126373291016
+fit time SD	0.0008150317279367373
+score time MEAN	0.005393123626708985
+score time SD	0.0004888386915778121

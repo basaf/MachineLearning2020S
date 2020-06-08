@@ -1,0 +1,5 @@
+Python Sklearn Version 0.22.1
+Windows 10,
+Ridge Linear Classifier (alpha=0)
+Encoding of input data – ordinal encoding using sklearn “OrdinalEncoder”
+

@@ -93,14 +93,14 @@ if True:
 if True:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_knn(cfg.default.mushroom_figures, 'knn')
-if False:
+if True:
     # For cross-validation scatter-plot fit time mean and score time
     functions.plot_efficiency_knn(cfg.default.mushroom_figures, 'knn')
 
-if False:
+if True:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_knn(cfg.default.mushroom_figures, 'knn')
-if False:
+if True:
     # List variants with highest and lowest accuracy values
     path = cfg.default.occupancy_figures
     filename = 'knn'

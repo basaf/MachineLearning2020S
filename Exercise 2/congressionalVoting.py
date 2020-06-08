@@ -7,6 +7,7 @@ from sklearn.preprocessing import OrdinalEncoder, LabelEncoder
 
 import configuration as cfg
 import functions
+from joblib import dump, load
 
 print('Start evaulation of Congressional Voting dataset')
 
@@ -154,14 +155,14 @@ if True:
                     path=path,
                     filename='ridge')
 
-if True:
+if False:
     # Plot performance (efficiency and effectiveness)
     functions.plot_evaluation_ridge(path, 'ridge')
-if True:
+if False:
     # For cross-validation scatter-plot fit time mean and score time
     functions.plot_efficiency_ridge(path, 'ridge')
 
-if True:
+if False:
     # For cross-validation scatter-plot accuracy mean and standard deviation
     functions.plot_accuracy_ridge(path, 'ridge')
 if True:
@@ -236,3 +237,23 @@ if True:
 
 print()
 print('Done')
+
+
+#%% create kaggle file
+if False:
+    #load model
+    filename='ridge'
+    f=os.path.join(path, 'ridge_0_scaling_cross-validation_bestEstimator.joblib')
+    model=load(f)
+    
+    #encode test data
+    test_data_encoded = enc.transform(test_data)
+    
+    #predict
+    y_test_data_enc=model.predict(test_data_encoded)
+    
+    y_test_data=le.inverse_transform(y_test_data_enc)
+    #write output file
+    kaggleOutput=pd.DataFrame( data={'ID':test_data.index.values,'Class':y_test_data})
+    kaggleFile=f=os.path.join(path, 'kaggle.csv')
+    kaggleOutput.to_csv(kaggleFile, index=False)

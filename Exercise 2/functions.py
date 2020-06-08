@@ -34,6 +34,8 @@ import seaborn as sns
 from time import process_time
 
 
+from joblib import dump, load
+
 def check_performance_holdout(classifier, X_test: np.array, y_test: np.array, y_pred: np.array, filename=None):
     # Plot confusion matrix
     plot_confusion_matrix(classifier, X_test, y_test, normalize=None)
@@ -120,6 +122,10 @@ def check_performance_CV(classifier, X: np.array, y: np.array, n_splits=5, n_job
     idx_max = np.argmax(dict_CV_results['test_accuracy'])
 
     best_estimator = dict_CV_results['estimator'][idx_max]
+    
+    # store best estimater
+    dump(best_estimator, filename + "_bestEstimator.joblib") 
+    
     # Get corresponding test_set
     test_sets = [set for set in skf.split(X, y)]
     best_set = test_sets[idx_max][1]
@@ -1176,6 +1182,8 @@ def ridge(X: np.array, y: np.array, test_size=0.2, random_state=1,
             for method in validation_methods:
                 ridge = RidgeClassifier(alpha=alpha, normalize=normalize,
                     random_state=random_state)
+                
+                
                 if method == 'holdout':
                     tic = process_time()
                     ridge.fit(xtrain, y_train)
