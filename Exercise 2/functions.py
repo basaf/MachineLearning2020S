@@ -21,8 +21,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import RidgeClassifier
 
 from sklearn.metrics import confusion_matrix
-# from sklearn.metrics import plot_confusion_matrix   # not available in 0.21.3
-from helper import plot_confusion_matrix  # source copied from newest sklearn
+from sklearn.metrics import plot_confusion_matrix   # not available in 0.21.3
+#from helper import plot_confusion_matrix  # source copied from newest sklearn
 from sklearn.metrics import classification_report
 
 from sklearn.dummy import DummyClassifier
