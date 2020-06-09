@@ -21,8 +21,6 @@ test_data = pd.read_csv(os.path.join(cfg.default.amazon_data, 'amazon_review_ID.
 number_of_empty_cells = training_data.isnull().sum().sum()
 
 if number_of_empty_cells > 0:
-    # handle empty cells
-    # TODO: implement strategy
     print(f'Number of empty cells {number_of_empty_cells}')
 
 print(f'Number of total samples: {len(training_data) + len(test_data)}')
