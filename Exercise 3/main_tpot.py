@@ -7,7 +7,7 @@ Created on Mon Jul 20 08:41:35 2020
 
 import pandas as pd
 import matplotlib.pyplot as plt
-#import configuration as cfg
+import configuration as cfg
 import os
 
 from sklearn.model_selection import train_test_split
@@ -25,16 +25,15 @@ dataSetList=['traffic_volume']
 #%%
 #create path
 for fileName in dataSetList:
-    path=dataSetPath+fileName
-    y=loadtxt(path + '_y', delimiter=',')
-    X=loadtxt(path + '_X', delimiter=',')
-   
+    y = np.loadtxt(os.path.join(cfg.default.traffic_data, 'traffic_volume_y'), delimiter=',')
+    X = np.loadtxt(os.path.join(cfg.default.traffic_data, 'traffic_volume_X'), delimiter=',')
+
     #%% split data
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=5)
     
 
-    #%%    
+    #%%  TPOT
     
     pipeline_optimizer = TPOTRegressor(generations=5, population_size=20, cv=5,
                                         random_state=42, verbosity=2,config_dict=tpot.config.classifier_config_dict_light)

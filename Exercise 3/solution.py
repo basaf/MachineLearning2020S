@@ -5,9 +5,8 @@ class Solution:
     __parameters = dict()
     __performance = 0.0
 
-    def __init__(self, parameters: dict, performance: float = 0.0):
-        self.parameters = parameters
-        self.performance = performance
+    def __init__(self, parameters: dict):
+        self.__parameters = parameters
 
     @property
     def performance(self):
@@ -15,7 +14,7 @@ class Solution:
 
     @performance.setter
     def performance(self, value):
-        __performance = value
+        self.__performance = value
 
     @property
     def parameters(self):
@@ -24,7 +23,7 @@ class Solution:
     @parameters.setter
     def parameters(self, dictionary):
         if isinstance(dictionary, dict):
-            __parameters = dictionary
+            self.__parameters = dictionary
         else:
             raise AttributeError(f'{dictionary.__class__.__name__} is a invalid attribute.')
 
@@ -33,32 +32,32 @@ class Solution:
         if not isinstance(other, Solution):
             return False
         else:
-            return self.parameters == other
+            return self.__parameters == other.parameters
 
     def __lt__(self, other):
         # x<y
         if not isinstance(other, Solution):
             return False
         else:
-            return self.performance < other.performance
+            return self.__performance < other.performance
 
     def __le__(self, other):
         # x<=y
         if not isinstance(other, Solution):
             return False
         else:
-            return self.performance <= other.performance
+            return self.__performance <= other.performance
 
     def __gt__(self, other):
         # x>y
         if not isinstance(other, Solution):
             return False
         else:
-            return self.performance > other.performance
+            return self.__performance > other.performance
 
     def __ge__(self, other):
         # x>=y
         if not isinstance(other, Solution):
             return False
         else:
-            return self.performance >= other.performance
+            return self.__performance >= other.performance
