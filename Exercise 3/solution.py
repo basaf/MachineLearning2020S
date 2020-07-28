@@ -42,35 +42,35 @@ class Solution:
     def __eq__(self, other):
         # x==y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
             return self.__parameters == other.parameters and self.__estimator_key == other.estimator_key
 
     def __lt__(self, other):
         # x<y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
             return self.__performance < other.performance
 
     def __le__(self, other):
         # x<=y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
             return self.__performance <= other.performance
 
     def __gt__(self, other):
         # x>y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
             return self.__performance > other.performance
 
     def __ge__(self, other):
         # x>=y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
             return self.__performance >= other.performance
 
