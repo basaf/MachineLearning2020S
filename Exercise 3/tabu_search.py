@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import itertools as itr
+import os
 import random as rnd
 from collections.abc import Iterable, Callable
 from typing import Union
 
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import RandomForestRegressor
@@ -15,12 +17,9 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR
 
+import configuration as cfg
 import preprocessing
 from solution import Solution
-
-import matplotlib.pyplot as plt
-import configuration as cfg
-import os
 
 
 class TabuSearch:
@@ -259,16 +258,15 @@ if __name__ == '__main__':
     estate_x, estate_y = preprocessing.preprocess_real_estate()
     student_x, student_y = preprocessing.preprocess_student()
 
-    datasets = {'traffic': {'x': traffic_x, 'y': traffic_y},
-                'estate': {'x': estate_x, 'y': estate_y}}#,
-                #'communities': {'x': communities_x, 'y': communities_y},
-
-                #'student': {'x': student_x, 'y': student_y}}
+    datasets = {'communities': {'x': communities_x, 'y': communities_y},
+                'traffic': {'x': traffic_x, 'y': traffic_y},
+                'estate': {'x': estate_x, 'y': estate_y},
+                'student': {'x': student_x, 'y': student_y}}
 
     ridge_estimator = Ridge()
     knn = KNeighborsRegressor(n_jobs=-1)
     r_forest = RandomForestRegressor(random_state=random_number, n_jobs=-1)
-    nn = MLPRegressor(random_state=random_number, max_iter=500)
+    nn = MLPRegressor(random_state=random_number) # , max_iter=500
     svm = SVR()
 
     params_ridge = {'alpha': np.arange(0, 1, 0.1),
@@ -286,24 +284,23 @@ if __name__ == '__main__':
                        'bootstrap': [True, False]}
 
     params_nn = {'hidden_layer_sizes': range(1, 10),
-                 'activation': ['identity', 'logistic', 'tanh', 'relu'],
-                 'solver': ['lbfgs', 'sgd', 'adam']}
+                 'activation': ['identity', 'logistic', 'tanh', 'relu']}
 
-    params_svm = {'kernel': ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed'],
+    params_svm = {'kernel': ['linear', 'poly', 'rbf'],
                   'degree': range(2, 10),
                   'C': np.arange(1e-2, 100.)}
 
     estimators = {'ridge': ridge_estimator,
-                  'knn': knn}#,
-                  #'random forest': r_forest,
-                  #'neural network': nn,
-                  #'svm': svm}
+                  'knn': knn,
+                  'random forest': r_forest,
+                  'neural network': nn,
+                  'svm': svm}
 
     parameters = {'ridge': params_ridge,
-                  'knn': params_knn}#,
-                  #'random forest': params_r_forest,
-                  #'neural network': params_nn,
-                  #'svm': params_svm}
+                  'knn': params_knn,
+                  'random forest': params_r_forest,
+                  'neural network': params_nn,
+                  'svm': params_svm}
 
     marker_cycle = ['o', '+', 'x', '1', '2']
 
@@ -312,14 +309,14 @@ if __name__ == '__main__':
         dataset = datasets[dataset_key]
 
         search = TabuSearch(estimators=estimators, params=parameters, error_metric=explained_variance_score,
-                            data_X=dataset['x'], data_y=dataset['y'], max_iteration=10, max_no_improvement_iteration=20,
+                            data_X=dataset['x'], data_y=dataset['y'], max_iteration=100, max_no_improvement_iteration=20,
                             number_of_tabu_iterations=5, random_state=random_number)
 
         search.perform_search()
 
         history_solution = search.history_solution
         history_best_solution = search.history_best_solution
-        #best_solution = search.best_solution
+        # best_solution = search.best_solution
 
         fig_sol = plt.figure(figsize=(6, 10))
         for estimator_idx, estimator_key in enumerate(estimators.keys()):

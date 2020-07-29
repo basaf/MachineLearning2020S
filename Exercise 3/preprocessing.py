@@ -49,10 +49,15 @@ def preprocess_communities():
 
     print('Missing in "OtherPerCap": ' +
           str(communities_data['OtherPerCap'].isnull().sum()))
-    # -> impute mean value of attribute, but do the split before
 
     # Split data
     X = communities_data[predictive_attributes].to_numpy()
+
+    # -> impute mean value of attribute, but do the split before
+    col_mean = np.nanmean(X, axis=0)
+    idx_nan = np.where(np.isnan(X))
+    X[idx_nan] = np.take(col_mean, idx_nan[1])
+
     y = communities_data[goal_attribute].to_numpy()
 
     return X, y
