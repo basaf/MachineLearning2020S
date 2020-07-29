@@ -20,34 +20,34 @@ from tpot import TPOTRegressor
 import tpot
 
 dataSetPath='./data/'
-#dataSetList=['traffic_volume', 'communities', 'realEstate', 'student_alcohol']
-dataSetList=['traffic_volume']#, 'student_alcohol']
+dataSetList=['traffic_volume', 'communities', 'realEstate', 'student_alcohol']
+#dataSetList=['realEstate']#, 'student_alcohol']
 
 
 tpot_config = {
     'sklearn.neighbors.KNeighborsRegressor': { 
-        'n_neighbors':range(1, 101),
-        'weights':['uniform', 'distance'],
+        'n_neighbors': range(1, 101),
+        'weights': ['uniform', 'distance'],
         'p': [1, 2]
      },
-    'sklearn.ensemble.RandomForestClassifier': { 
-    'n_estimators': [100], 
-    'criterion': ['gini', 'entropy'], 
-    'max_features': np.arange(0.05, 1.01, 0.05), 
-    #'min_samples_split': range(2, 21),
-    #'min_samples_leaf': range(1, 21),
-    'bootstrap': [True, False] 
+    'sklearn.ensemble.RandomForestRegressor': { 
+        'n_estimators': [20, 50, 100, 200],
+        'criterion': ['mse', 'mae'],
+        'min_samples_split': range(2, 10),
+        'min_samples_leaf': range(1, 10),
+        'bootstrap': [True, False]
     },
     
     'sklearn.neural_network.MLPRegressor': {
-         'hidden_layer_sizes': range(1,10),
-         'activation':['logistic', 'tanh', 'relu'],
-         'solver':[ 'sgd', 'adam']
+         'hidden_layer_sizes': range(1, 10),
+         'activation': ['identity', 'logistic', 'tanh', 'relu']
         
     },
 
      'sklearn.linear_model.Ridge': {
-     'alpha': np.arange(1e-3, 100.)
+         'alpha': np.arange(0, 1, 0.1),
+         'fit_intercept': [True, False],
+         'normalize': [True, False]
     },
      
      'sklearn.svm.SVR':{
