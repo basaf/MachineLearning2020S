@@ -11,7 +11,8 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
-from sklearn.metrics import explained_variance_score
+#from sklearn.metrics import explained_variance_score
+from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
@@ -308,7 +309,7 @@ if __name__ == '__main__':
         print(f'start {dataset_key}')
         dataset = datasets[dataset_key]
 
-        search = TabuSearch(estimators=estimators, params=parameters, error_metric=explained_variance_score,
+        search = TabuSearch(estimators=estimators, params=parameters, error_metric=r2_score,
                             data_X=dataset['x'], data_y=dataset['y'], max_iteration=100, max_no_improvement_iteration=20,
                             number_of_tabu_iterations=5, random_state=random_number)
 
