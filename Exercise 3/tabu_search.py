@@ -1,64 +1,129 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import itertools as itr
-from collections.abc import Iterable
-from solution import Solution
-from sklearn.base import BaseEstimator
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import Ridge
-from sklearn.metrics import accuracy_score
 import random as rnd
+from collections.abc import Iterable, Callable
+from typing import Union
 
+import numpy as np
+from sklearn.base import BaseEstimator
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import Ridge
+from sklearn.metrics import explained_variance_score
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.svm import SVR
+
+import preprocessing
+from solution import Solution
+
+import matplotlib.pyplot as plt
 import configuration as cfg
 import os
 
 
 class TabuSearch:
     __max_iteration = 100
-    __number_of_top_candidates = 5
-    __estimator = BaseEstimator()
+    __max_no_improvement_iteration = 20
+    __number_of_tabu_interations = 5
+    __estimators = dict()
     __best_solution = None
     __train_X = None
     __train_y = None
     __test_X = None
     __test_y = None
     __random_state = 0
-    __params = None
+    __params = dict()
     __start_solution = None
-    __tabu_list = dict() # {'parameter_name': iterations_tabu}
+    __tabu_list = dict()
+    __error_metric = None
+    __search_space = None
+    __history_best_solution = list()
+    __history_solution = list()
 
     @property
     def best_solution(self):
         return self.__best_solution
 
-    def __init__(self, estimator: BaseEstimator, params: dict, data_X: np.array, data_y: np.array, max_iteration: int = 100,
-                 number_of_top_candidates: int = 5, random_state: int = 0):
+    @property
+    def history_solution(self):
+        return self.__history_solution
+
+    @property
+    def history_best_solution(self):
+        return self.__history_best_solution
+
+    def __init__(self, estimators: dict, params: dict, error_metric: Callable,
+                 data_X: np.array, data_y: np.array, max_iteration: int = 100, max_no_improvement_iteration: int = 20,
+                 number_of_tabu_iterations: int = 5, random_state: int = 0):
         self.__max_iteration = max_iteration
-        self.__number_of_top_candidates = number_of_top_candidates
-        self.__estimator = estimator
+        self.__max_no_improvement_iteration = max_no_improvement_iteration
+        self.__number_of_tabu_interations = number_of_tabu_iterations
+
+        if not isinstance(estimators, dict) and not any(isinstance(est, BaseEstimator) for est in estimators.values()):
+            raise TypeError(
+                f'The parameter \'estimators\' must be a dictionary, key=name of estimator, value must be type of \'BaseEstimator\'')
+
+        self.__estimators = estimators
+
         self.__random_state = random_state
+        self.__error_metric = error_metric
 
         self.__train_X, self.__test_X, self.__train_y, self.__test_y = train_test_split(data_X, data_y, test_size=0.2,
                                                                                         random_state=self.__random_state)
+        if not isinstance(params, dict) and not any(isinstance(parm, dict) for parm in params.values()):
+            raise TypeError(
+                f'The parameter \'params\' must be a dictionary, key=name of estimator, value must be a dictionary of the parameters')
 
-        start_params = dict()
-
-        for key in params.keys():
-            if not hasattr(self.__estimator, key):
-                raise TypeError(f'Estimator don\'t has attribute \'{key}\'.')
-            if not isinstance(params[key], Iterable):
-                raise TypeError(f'Parameter \'{key}\' must be iterable')
-
-            start_params[key] = params[key][0]
+        for estimator in params.keys():
+            for key in params[estimator].keys():
+                if not hasattr(self.__estimators[estimator], key):
+                    raise TypeError(f'Estimator don\'t has attribute \'{key}\'.')
+                if not isinstance(params[estimator][key], Iterable):
+                    raise TypeError(f'Parameter \'{key}\' must be iterable')
 
         self.__params = params
 
-        start_solution = Solution(start_params)
-        self.__calculate_performance(start_solution)
-        self.__start_solution = start_solution
+        self.__tabu_list = dict()
+
+        # generate all possible solutions
+        search_space = dict()
+        for estimator in self.__estimators.keys():
+            search_space[estimator] = list(self.__product_dict(self.__params[estimator]))
+            self.__tabu_list[estimator] = dict()
+
+        self.__search_space = search_space
+
+        self.__start_solution = self.__get_rnd_solution(list(self.__estimators.keys()))
+
+        self.__history_best_solution = list()
+        self.__history_solution = list()
+
+    def __get_rnd_solution(self, estimator_key: Union[str, list]) -> Solution:
+        search_space = self.__search_space
+
+        if not isinstance(estimator_key, str) and not (
+                isinstance(estimator_key, list) and any(isinstance(est, str) for est in estimator_key)):
+            raise AttributeError(f'Attribute \'estimator_key\' must be either a string or a list of strings')
+
+        if isinstance(estimator_key, list):
+            rnd_estimator = rnd.choice(range(len(estimator_key)))
+            estimator_key = estimator_key[rnd_estimator]
+
+        params_estimator = search_space[estimator_key]
+        tabu_list = list(self.__tabu_list[estimator_key].keys())
+
+        # ensures that the loop is run at least once
+        is_in_tabu_list = True
+        while is_in_tabu_list:
+            rnd_param = rnd.choice(range(len(params_estimator)))
+            is_in_tabu_list = rnd_param in tabu_list
+
+        solution = Solution(parameters=params_estimator[rnd_param], estimator_key=estimator_key, id=rnd_param)
+        self.__calculate_performance(solution)
+
+        return solution
 
     @staticmethod
     def __product_dict(p: dict):
@@ -67,9 +132,8 @@ class TabuSearch:
         for instance in itr.product(*vals):
             yield dict(zip(keys, instance))
 
-    def __set_params_of_estimator(self, params: dict) -> BaseEstimator:
-        estimator = self.__estimator
-
+    @staticmethod
+    def __set_params_of_estimator(estimator: BaseEstimator, params: dict) -> BaseEstimator:
         for key in params.keys():
             if not isinstance(params[key], Iterable) or isinstance(params[key], str):
                 value = params[key]
@@ -81,91 +145,208 @@ class TabuSearch:
         return estimator
 
     def __calculate_performance(self, s: Solution):
-        estimator = self.__set_params_of_estimator(s.parameters)
+        estimator = self.__estimators[s.estimator_key]
+        estimator = self.__set_params_of_estimator(estimator, s.parameters)
         estimator.fit(self.__train_X, self.__train_y)
         pred_y = estimator.predict(self.__test_X)
 
-        s.performance = accuracy_score(self.__test_y, pred_y)
+        s.performance = self.__error_metric(self.__test_y, pred_y)
 
         return s.performance
 
-    def __generate_neighborhood_solutions(self, s: Solution):
-        params = self.__params.copy()
+    def __generate_neighborhood_solutions(self, s: Solution) -> (list, list):
+        estimator_key = s.estimator_key
+        id_solution = s.id
+        estimator_params = self.__search_space[estimator_key]
+        tabu_list = self.__tabu_list[estimator_key]
+        size_of_solution_space = len(estimator_params)
+
+        if id_solution < 2:
+            start = 0
+        else:
+            start = id_solution - 2
+
+        if id_solution > size_of_solution_space - 3:
+            stop = size_of_solution_space
+        else:
+            stop = id_solution + 3
+
         neighborhood = list()
+        tabu_neighborhood = list()
 
-        neighbor_params = self.__product_dict(p=params)
+        # to remove the initial solution add ' - set([id_solution])'
+        for id_n in set(range(start, stop)):
+            sol_n = Solution(parameters=estimator_params[id_n], estimator_key=estimator_key, id=id_n)
+            self.__calculate_performance(sol_n)
 
-        for tabu_item in self.__tabu_list:
-            del params[tabu_item]
+            if id_n in tabu_list:
+                tabu_neighborhood.append(sol_n)
+            else:
+                neighborhood.append(sol_n)
 
-        rnd_param = rnd.choice(list(params.keys()))
-        for val in params[rnd_param]:
-            new_params = s.parameters.copy()
-            new_params[rnd_param] = val
-            new_solution = Solution(new_params)
+        return neighborhood, tabu_neighborhood
 
-            self.__calculate_performance(new_solution)
+    @staticmethod
+    def __find_best_solution(solutions: list):
 
-            neighborhood.append(new_solution)
+        perf = np.asarray([sol.performance for sol in solutions])
 
-        return neighborhood
-
-    def __find_best_solution(self, solutions):
-        perf = []
-        for solution in solutions:
-            perf.append(solution.performance)
-
-        i_max = np.argmax(perf)
-
-        return solutions[i_max]
+        if len(perf) == 0:
+            return None
+        else:
+            return solutions[np.argmax(a=perf)]
 
     def perform_search(self):
-
         iteration = 1
+        no_improvement_iteration = 1
 
         solution = self.__start_solution
+        self.__best_solution = solution
 
-        while iteration <= self.__max_iteration:
-            nh_solutions = self.__generate_neighborhood_solutions(solution)
+        while iteration <= self.__max_iteration and no_improvement_iteration <= self.__max_no_improvement_iteration:
+            nh_solutions, nh_tabu_solutions = self.__generate_neighborhood_solutions(solution)
+
+            if len(nh_solutions) == 0:
+                print('no neighborhood found')
+                break
+
             best_nh_solution = self.__find_best_solution(nh_solutions)
+            best_nh_tabu_solution = self.__find_best_solution(nh_tabu_solutions)
 
-            if best_nh_solution != solution:
-                solution = best_nh_solution
-            elif 'aspiration criteria' == True:
-                #TODO: set apiration criteria
+            if best_nh_solution != solution and solution < best_nh_solution:
                 solution = best_nh_solution
             else:
-                # find best not tabu solution in the neighborhood
-                # s_c = s_nt
-                solution = best_nh_solution
+                if best_nh_tabu_solution is not None and self.__best_solution < best_nh_tabu_solution:
+                    solution = best_nh_tabu_solution
+                else:
+                    # switch algorithm
+                    estimator_keys = list(set(self.__estimators) - {solution.estimator_key})
+                    solution = self.__get_rnd_solution(estimator_key=estimator_keys)
 
-            self.__tabu_list.append(solution)
+            tabu_list = self.__tabu_list[solution.estimator_key]
+
+            for tabu_item_key in list(tabu_list):
+                if tabu_list[tabu_item_key] == 1:
+                    del tabu_list[tabu_item_key]
+                else:
+                    tabu_list[tabu_item_key] -= 1
+
+            tabu_list[solution.id] = self.__number_of_tabu_interations
+
+            self.__tabu_list[solution.estimator_key] = tabu_list
+
+            if self.__best_solution < solution:
+                self.__best_solution = solution
+                no_improvement_iteration = 1
+            else:
+                no_improvement_iteration += 1
+
+            print(
+                f'iteration: {iteration}; no improve: {no_improvement_iteration}; solution: {solution}; best solution: {self.__best_solution}')
+
+            self.__history_best_solution.append(self.__best_solution)
+            self.__history_solution.append(solution)
 
             iteration += 1
-
-            for tabu_item in self.__tabu_list:
-                if self.__tabu_list[tabu_item] == 1:
-                    del self.__tabu_list[tabu_item]
-                else:
-                    self.__tabu_list[tabu_item] -= 1
-
-        __best_solution = solution
 
 
 if __name__ == '__main__':
     # start the tabu search
-    random_number = 5
+    random_number = 10
 
-    # traffic volume
-    traffic_y = np.loadtxt(os.path.join(cfg.default.traffic_data, 'traffic_volume_y'), delimiter=',')
-    traffic_X = np.loadtxt(os.path.join(cfg.default.traffic_data, 'traffic_volume_X'), delimiter=',')
+    communities_x, communities_y = preprocessing.preprocess_communities()
+    traffic_x, traffic_y = preprocessing.preprocess_traffic()
+    estate_x, estate_y = preprocessing.preprocess_real_estate()
+    student_x, student_y = preprocessing.preprocess_student()
+
+    datasets = {'traffic': {'x': traffic_x, 'y': traffic_y},
+                'estate': {'x': estate_x, 'y': estate_y}}#,
+                #'communities': {'x': communities_x, 'y': communities_y},
+
+                #'student': {'x': student_x, 'y': student_y}}
 
     ridge_estimator = Ridge()
+    knn = KNeighborsRegressor(n_jobs=-1)
+    r_forest = RandomForestRegressor(random_state=random_number, n_jobs=-1)
+    nn = MLPRegressor(random_state=random_number, max_iter=500)
+    svm = SVR()
 
     params_ridge = {'alpha': np.arange(0, 1, 0.1),
-                    'solver': ['auto', 'svd', 'cholesky']}
+                    'fit_intercept': [True, False],
+                    'normalize': [True, False]}
 
-    search = TabuSearch(estimator=ridge_estimator, params=params_ridge, data_X=traffic_X, data_y=traffic_y,
-                        max_iteration=10, number_of_top_candidates=5)
+    params_knn = {'n_neighbors': range(1, 101),
+                  'weights': ['uniform', 'distance'],
+                  'p': [1, 2]}
 
-    search.perform_search()
+    params_r_forest = {'n_estimators': [20, 50, 100, 200],
+                       'criterion': ['mse', 'mae'],
+                       'min_samples_split': range(2, 10),
+                       'min_samples_leaf': range(1, 10),
+                       'bootstrap': [True, False]}
+
+    params_nn = {'hidden_layer_sizes': range(1, 10),
+                 'activation': ['identity', 'logistic', 'tanh', 'relu'],
+                 'solver': ['lbfgs', 'sgd', 'adam']}
+
+    params_svm = {'kernel': ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed'],
+                  'degree': range(2, 10),
+                  'C': np.arange(1e-2, 100.)}
+
+    estimators = {'ridge': ridge_estimator,
+                  'knn': knn}#,
+                  #'random forest': r_forest,
+                  #'neural network': nn,
+                  #'svm': svm}
+
+    parameters = {'ridge': params_ridge,
+                  'knn': params_knn}#,
+                  #'random forest': params_r_forest,
+                  #'neural network': params_nn,
+                  #'svm': params_svm}
+
+    marker_cycle = ['o', '+', 'x', '1', '2']
+
+    for dataset_key in datasets:
+        print(f'start {dataset_key}')
+        dataset = datasets[dataset_key]
+
+        search = TabuSearch(estimators=estimators, params=parameters, error_metric=explained_variance_score,
+                            data_X=dataset['x'], data_y=dataset['y'], max_iteration=10, max_no_improvement_iteration=20,
+                            number_of_tabu_iterations=5, random_state=random_number)
+
+        search.perform_search()
+
+        history_solution = search.history_solution
+        history_best_solution = search.history_best_solution
+        #best_solution = search.best_solution
+
+        fig_sol = plt.figure(figsize=(6, 10))
+        for estimator_idx, estimator_key in enumerate(estimators.keys()):
+            iteration = [x_i for x_i, x in enumerate(history_solution) if x.estimator_key == estimator_key]
+            performance = [x.performance for x in history_solution if x.estimator_key == estimator_key]
+
+            plt.scatter(x=iteration, y=performance, marker=marker_cycle[estimator_idx])
+
+        plt.legend(estimators.keys())
+        plt.xticks(range(len(history_solution)), [str(x.parameters) for x in history_solution], rotation=90)
+        plt.tight_layout()
+        plt.savefig(os.path.join(cfg.default.traffic_figures, f'{dataset_key}_history_solution.png'),
+                    format='png', dpi=300)
+        plt.close(fig_sol)
+
+        fig_best = plt.figure(figsize=(6, 10))
+        for estimator_idx, estimator_key in enumerate(estimators.keys()):
+            iteration = [x_i for x_i, x in enumerate(history_best_solution) if x.estimator_key == estimator_key]
+            performance = [x.performance for x in history_best_solution if x.estimator_key == estimator_key]
+
+            plt.scatter(x=iteration, y=performance, marker=marker_cycle[estimator_idx])
+
+        plt.legend(estimators.keys())
+        plt.xticks(range(len(history_best_solution)), [str(x.parameters) for x in history_best_solution], rotation=90)
+        plt.tight_layout()
+        plt.savefig(os.path.join(cfg.default.traffic_figures, f'{dataset_key}_history_best_solution.png'),
+                    format='png', dpi=300)
+        plt.close(fig_best)
+
+        print(f'end {dataset_key}')

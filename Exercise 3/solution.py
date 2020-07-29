@@ -4,9 +4,21 @@
 class Solution:
     __parameters = dict()
     __performance = 0.0
+    __estimator_key = ''
+    __id = -1
 
-    def __init__(self, parameters: dict):
+    def __init__(self, parameters: dict, estimator_key: str, id: int):
         self.__parameters = parameters
+        self.__estimator_key = estimator_key
+        self.__id = id
+
+    @property
+    def id(self):
+        return self.__id
+
+    @property
+    def estimator_key(self):
+        return self.__estimator_key
 
     @property
     def performance(self):
@@ -30,34 +42,37 @@ class Solution:
     def __eq__(self, other):
         # x==y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
-            return self.__parameters == other.parameters
+            return self.__parameters == other.parameters and self.__estimator_key == other.estimator_key
 
     def __lt__(self, other):
         # x<y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
             return self.__performance < other.performance
 
     def __le__(self, other):
         # x<=y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
             return self.__performance <= other.performance
 
     def __gt__(self, other):
         # x>y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
             return self.__performance > other.performance
 
     def __ge__(self, other):
         # x>=y
         if not isinstance(other, Solution):
-            return False
+            raise AttributeError('can only compared to a solution')
         else:
             return self.__performance >= other.performance
+
+    def __repr__(self):
+        return repr((self.parameters, self.performance, self.estimator_key, self.id))
