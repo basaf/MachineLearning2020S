@@ -21,7 +21,7 @@ import tpot
 
 dataSetPath='./data/'
 #dataSetList=['traffic_volume', 'communities', 'realEstate', 'student_alcohol']
-dataSetList=['realEstate']#, 'student_alcohol']
+dataSetList=['traffic_volume']#, 'student_alcohol']
 
 
 tpot_config = {
@@ -34,15 +34,15 @@ tpot_config = {
     'n_estimators': [100], 
     'criterion': ['gini', 'entropy'], 
     'max_features': np.arange(0.05, 1.01, 0.05), 
-    'min_samples_split': range(2, 21),
-    'min_samples_leaf': range(1, 21),
+    #'min_samples_split': range(2, 21),
+    #'min_samples_leaf': range(1, 21),
     'bootstrap': [True, False] 
     },
     
     'sklearn.neural_network.MLPRegressor': {
          'hidden_layer_sizes': range(1,10),
-         'activation':['identity', 'logistic', 'tanh', 'relu'],
-         'solver':['lbfgs', 'sgd', 'adam']
+         'activation':['logistic', 'tanh', 'relu'],
+         'solver':[ 'sgd', 'adam']
         
     },
 
@@ -51,7 +51,7 @@ tpot_config = {
     },
      
      'sklearn.svm.SVR':{
-        'kernel':['linear', 'poly', 'rbf', 'sigmoid', 'precomputed'],
+        'kernel':['linear', 'poly', 'rbf'],
         'degree':range(2,10),
         'C' :np.arange(1e-2, 100.)
          }
