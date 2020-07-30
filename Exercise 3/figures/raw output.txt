@@ -1,0 +1,252 @@
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\Scripts\python.exe "C:/Users/jp_miata/Desktop/Exercise 3/tabu_search.py"
+Missing values: 36851
+Cells total: 245262
+Missing: 15.0%
+Missing in "OtherPerCap": 1
+start communities
+iteration: 1; no improve: 1; solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 2; no improve: 2; solution: ({'hidden_layer_sizes': 4, 'activation': 'logistic'}, 0.5644388908610183, 'neural network', 13); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 3; no improve: 3; solution: ({'hidden_layer_sizes': 4, 'activation': 'identity'}, 0.5921085887508395, 'neural network', 12); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 4; no improve: 4; solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 2, 'min_samples_leaf': 8, 'bootstrap': True}, 0.6061998868854519, 'random forest', 734); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 5; no improve: 5; solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 2, 'min_samples_leaf': 7, 'bootstrap': True}, 0.6126559867368572, 'random forest', 732); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 6; no improve: 6; solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 2, 'min_samples_leaf': 6, 'bootstrap': True}, 0.6180327308910053, 'random forest', 730); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 7; no improve: 7; solution: ({'hidden_layer_sizes': 5, 'activation': 'relu'}, 0.5481714025107871, 'neural network', 19); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 8; no improve: 8; solution: ({'hidden_layer_sizes': 6, 'activation': 'logistic'}, 0.5867093585804619, 'neural network', 21); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 9; no improve: 9; solution: ({'hidden_layer_sizes': 6, 'activation': 'relu'}, 0.6123696221721542, 'neural network', 23); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 10; no improve: 10; solution: ({'alpha': 0.6000000000000001, 'fit_intercept': True, 'normalize': True}, 0.614678515487111, 'ridge', 24); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 11; no improve: 11; solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': True}, 0.6415786627001561, 'ridge', 22); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 12; no improve: 12; solution: ({'n_neighbors': 41, 'weights': 'uniform', 'p': 2}, 0.5545931980669394, 'knn', 161); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 13; no improve: 13; solution: ({'n_neighbors': 41, 'weights': 'distance', 'p': 1}, 0.5684770381488593, 'knn', 162); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 14; no improve: 14; solution: ({'kernel': 'linear', 'degree': 5, 'C': 35.01}, 0.6340734976212774, 'svm', 335); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 15; no improve: 15; solution: ({'kernel': 'linear', 'degree': 5, 'C': 34.01}, 0.6347533835427475, 'svm', 334); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 16; no improve: 16; solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 2, 'min_samples_leaf': 6, 'bootstrap': True}, 0.6171304021311959, 'random forest', 442); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 17; no improve: 17; solution: ({'hidden_layer_sizes': 4, 'activation': 'tanh'}, 0.5848379328957233, 'neural network', 14); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 18; no improve: 18; solution: ({'n_estimators': 200, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 8, 'bootstrap': False}, 0.4246799007620623, 'random forest', 1095); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 19; no improve: 19; solution: ({'n_estimators': 200, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 8, 'bootstrap': True}, 0.6081604760264021, 'random forest', 1094); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 20; no improve: 20; solution: ({'n_estimators': 200, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 7, 'bootstrap': True}, 0.6105169289991816, 'random forest', 1092); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+iteration: 21; no improve: 21; solution: ({'n_estimators': 200, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 6, 'bootstrap': True}, 0.6135212318763483, 'random forest', 1090); best solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.6420569921776809, 'ridge', 10)
+end communities
+start traffic
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 1; no improve: 2; solution: ({'hidden_layer_sizes': 3, 'activation': 'logistic'}, -2.49404818124095, 'neural network', 9); best solution: ({'kernel': 'rbf', 'degree': 6, 'C': 99.01}, 0.11943893018827367, 'svm', 2099)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 2; no improve: 1; solution: ({'hidden_layer_sizes': 3, 'activation': 'identity'}, 0.1545993879964095, 'neural network', 8); best solution: ({'hidden_layer_sizes': 3, 'activation': 'identity'}, 0.1545993879964095, 'neural network', 8)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 3; no improve: 2; solution: ({'kernel': 'linear', 'degree': 2, 'C': 40.01}, 0.11371668905170151, 'svm', 40); best solution: ({'hidden_layer_sizes': 3, 'activation': 'identity'}, 0.1545993879964095, 'neural network', 8)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 4; no improve: 3; solution: ({'hidden_layer_sizes': 3, 'activation': 'relu'}, 0.15411213534094736, 'neural network', 11); best solution: ({'hidden_layer_sizes': 3, 'activation': 'identity'}, 0.1545993879964095, 'neural network', 8)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 5; no improve: 1; solution: ({'hidden_layer_sizes': 4, 'activation': 'identity'}, 0.15484698312987855, 'neural network', 12); best solution: ({'hidden_layer_sizes': 4, 'activation': 'identity'}, 0.15484698312987855, 'neural network', 12)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 6; no improve: 1; solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 7; no improve: 2; solution: ({'kernel': 'poly', 'degree': 9, 'C': 63.01}, 0.14021857109645308, 'svm', 1563); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 8; no improve: 3; solution: ({'kernel': 'poly', 'degree': 9, 'C': 65.01}, 0.14062189073706044, 'svm', 1565); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 9; no improve: 4; solution: ({'kernel': 'poly', 'degree': 9, 'C': 67.01}, 0.1411878156421913, 'svm', 1567); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 10; no improve: 5; solution: ({'kernel': 'poly', 'degree': 9, 'C': 69.01}, 0.1419707593652163, 'svm', 1569); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 11; no improve: 6; solution: ({'kernel': 'poly', 'degree': 9, 'C': 71.01}, 0.14259347946428358, 'svm', 1571); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 12; no improve: 7; solution: ({'kernel': 'poly', 'degree': 9, 'C': 73.01}, 0.14328658072810307, 'svm', 1573); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 13; no improve: 8; solution: ({'kernel': 'poly', 'degree': 9, 'C': 75.01}, 0.14405358326203987, 'svm', 1575); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 14; no improve: 9; solution: ({'kernel': 'poly', 'degree': 9, 'C': 77.01}, 0.14454775887879956, 'svm', 1577); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 15; no improve: 10; solution: ({'kernel': 'poly', 'degree': 9, 'C': 79.01}, 0.14507976876547535, 'svm', 1579); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 16; no improve: 11; solution: ({'kernel': 'poly', 'degree': 9, 'C': 81.01}, 0.1458123539585966, 'svm', 1581); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 17; no improve: 12; solution: ({'kernel': 'poly', 'degree': 9, 'C': 83.01}, 0.1463967638084197, 'svm', 1583); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 18; no improve: 13; solution: ({'kernel': 'poly', 'degree': 9, 'C': 85.01}, 0.14696780387403396, 'svm', 1585); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 19; no improve: 14; solution: ({'kernel': 'poly', 'degree': 9, 'C': 87.01}, 0.1476151540112236, 'svm', 1587); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 20; no improve: 15; solution: ({'kernel': 'poly', 'degree': 9, 'C': 89.01}, 0.14827009138494984, 'svm', 1589); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 21; no improve: 16; solution: ({'kernel': 'poly', 'degree': 9, 'C': 91.01}, 0.14895403553000575, 'svm', 1591); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 22; no improve: 17; solution: ({'kernel': 'poly', 'degree': 9, 'C': 93.01}, 0.14963725969667274, 'svm', 1593); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 23; no improve: 18; solution: ({'kernel': 'poly', 'degree': 9, 'C': 95.01}, 0.15033544832393952, 'svm', 1595); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 24; no improve: 19; solution: ({'kernel': 'poly', 'degree': 9, 'C': 97.01}, 0.15074410550859263, 'svm', 1597); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 25; no improve: 20; solution: ({'kernel': 'poly', 'degree': 9, 'C': 99.01}, 0.1514712782430252, 'svm', 1599); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+iteration: 26; no improve: 21; solution: ({'alpha': 0.30000000000000004, 'fit_intercept': False, 'normalize': False}, 0.15877751766134884, 'ridge', 15); best solution: ({'alpha': 0.5, 'fit_intercept': False, 'normalize': False}, 0.15878715866418935, 'ridge', 23)
+end traffic
+start estate
+iteration: 1; no improve: 1; solution: ({'kernel': 'poly', 'degree': 3, 'C': 97.01}, 0.5844783757844112, 'svm', 997); best solution: ({'kernel': 'poly', 'degree': 3, 'C': 97.01}, 0.5844783757844112, 'svm', 997)
+iteration: 2; no improve: 1; solution: ({'kernel': 'poly', 'degree': 3, 'C': 99.01}, 0.5846913502747915, 'svm', 999); best solution: ({'kernel': 'poly', 'degree': 3, 'C': 99.01}, 0.5846913502747915, 'svm', 999)
+iteration: 3; no improve: 1; solution: ({'alpha': 0.0, 'fit_intercept': True, 'normalize': True}, 0.5977757622150943, 'ridge', 0); best solution: ({'alpha': 0.0, 'fit_intercept': True, 'normalize': True}, 0.5977757622150943, 'ridge', 0)
+iteration: 4; no improve: 1; solution: ({'alpha': 0.0, 'fit_intercept': False, 'normalize': True}, 0.6066799599090106, 'ridge', 2); best solution: ({'alpha': 0.0, 'fit_intercept': False, 'normalize': True}, 0.6066799599090106, 'ridge', 2)
+iteration: 5; no improve: 1; solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 3, 'min_samples_leaf': 6, 'bootstrap': False}, 0.6811929886236048, 'random forest', 749); best solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 3, 'min_samples_leaf': 6, 'bootstrap': False}, 0.6811929886236048, 'random forest', 749)
+iteration: 6; no improve: 1; solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 3, 'min_samples_leaf': 7, 'bootstrap': True}, 0.7476104082168007, 'random forest', 750); best solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 3, 'min_samples_leaf': 7, 'bootstrap': True}, 0.7476104082168007, 'random forest', 750)
+iteration: 7; no improve: 2; solution: ({'n_neighbors': 55, 'weights': 'distance', 'p': 2}, 0.6445713027296028, 'knn', 219); best solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 3, 'min_samples_leaf': 7, 'bootstrap': True}, 0.7476104082168007, 'random forest', 750)
+iteration: 8; no improve: 3; solution: ({'n_neighbors': 55, 'weights': 'distance', 'p': 1}, 0.6587014768803323, 'knn', 218); best solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 3, 'min_samples_leaf': 7, 'bootstrap': True}, 0.7476104082168007, 'random forest', 750)
+iteration: 9; no improve: 4; solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 3, 'bootstrap': False}, 0.6053758686298198, 'random forest', 509); best solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 3, 'min_samples_leaf': 7, 'bootstrap': True}, 0.7476104082168007, 'random forest', 750)
+iteration: 10; no improve: 1; solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 11; no improve: 2; solution: ({'hidden_layer_sizes': 1, 'activation': 'relu'}, -8.76729860984908, 'neural network', 3); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 12; no improve: 3; solution: ({'hidden_layer_sizes': 1, 'activation': 'tanh'}, -7.956847796185938, 'neural network', 2); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 13; no improve: 4; solution: ({'n_neighbors': 20, 'weights': 'distance', 'p': 2}, 0.6631638753937221, 'knn', 79); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 14; no improve: 5; solution: ({'n_neighbors': 20, 'weights': 'distance', 'p': 1}, 0.6735011301713069, 'knn', 78); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 15; no improve: 6; solution: ({'kernel': 'poly', 'degree': 3, 'C': 91.01}, 0.5835084871801173, 'svm', 991); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 16; no improve: 7; solution: ({'kernel': 'poly', 'degree': 3, 'C': 93.01}, 0.5836754128207491, 'svm', 993); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 17; no improve: 8; solution: ({'kernel': 'poly', 'degree': 3, 'C': 95.01}, 0.5840675076534501, 'svm', 995); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 18; no improve: 9; solution: ({'kernel': 'poly', 'degree': 3, 'C': 96.01}, 0.5843396416604801, 'svm', 996); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 19; no improve: 10; solution: ({'kernel': 'poly', 'degree': 3, 'C': 98.01}, 0.5845878535467646, 'svm', 998); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 20; no improve: 11; solution: ({'kernel': 'poly', 'degree': 3, 'C': 99.01}, 0.5846913502747915, 'svm', 999); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 21; no improve: 12; solution: ({'n_neighbors': 94, 'weights': 'distance', 'p': 1}, 0.6444229288215775, 'knn', 374); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 22; no improve: 13; solution: ({'alpha': 0.2, 'fit_intercept': False, 'normalize': True}, 0.5899867684488642, 'ridge', 10); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 23; no improve: 14; solution: ({'n_estimators': 20, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 1, 'bootstrap': False}, 0.6716933251823296, 'random forest', 217); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 24; no improve: 15; solution: ({'n_estimators': 20, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 1, 'bootstrap': True}, 0.7346472778072081, 'random forest', 216); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 25; no improve: 16; solution: ({'hidden_layer_sizes': 8, 'activation': 'identity'}, -35.40370479402966, 'neural network', 28); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 26; no improve: 17; solution: ({'hidden_layer_sizes': 8, 'activation': 'tanh'}, -7.490397060873084, 'neural network', 30); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 27; no improve: 18; solution: ({'hidden_layer_sizes': 9, 'activation': 'identity'}, 0.04608553766889789, 'neural network', 32); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 28; no improve: 19; solution: ({'n_neighbors': 36, 'weights': 'distance', 'p': 1}, 0.6604109456059986, 'knn', 142); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 29; no improve: 20; solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 8, 'min_samples_leaf': 8, 'bootstrap': True}, 0.7414565938519471, 'random forest', 842); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+iteration: 30; no improve: 21; solution: ({'n_estimators': 100, 'criterion': 'mae', 'min_samples_split': 8, 'min_samples_leaf': 7, 'bootstrap': True}, 0.7476104082168005, 'random forest', 840); best solution: ({'n_estimators': 50, 'criterion': 'mae', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.7550887703025442, 'random forest', 510)
+end estate
+start student
+iteration: 1; no improve: 2; solution: ({'hidden_layer_sizes': 3, 'activation': 'tanh'}, -5.036770073627648, 'neural network', 10); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 2; no improve: 3; solution: ({'hidden_layer_sizes': 3, 'activation': 'relu'}, 0.4181189092107186, 'neural network', 11); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 3; no improve: 4; solution: ({'n_neighbors': 46, 'weights': 'uniform', 'p': 1}, 0.7281652398543133, 'knn', 180); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 4; no improve: 5; solution: ({'n_neighbors': 45, 'weights': 'distance', 'p': 2}, 0.774408869330232, 'knn', 179); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 5; no improve: 6; solution: ({'hidden_layer_sizes': 2, 'activation': 'tanh'}, -4.083288539869631, 'neural network', 6); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 6; no improve: 7; solution: ({'hidden_layer_sizes': 2, 'activation': 'identity'}, 0.22322679078838414, 'neural network', 4); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+C:\Users\jp_miata\.virtualenvs\Exercise_3-ddfR2fae\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:582: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
+  warnings.warn(
+iteration: 7; no improve: 8; solution: ({'n_estimators': 50, 'criterion': 'mse', 'min_samples_split': 6, 'min_samples_leaf': 2, 'bootstrap': True}, 0.6684435761932688, 'random forest', 362); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 8; no improve: 9; solution: ({'n_estimators': 50, 'criterion': 'mse', 'min_samples_split': 6, 'min_samples_leaf': 3, 'bootstrap': True}, 0.6788284608203304, 'random forest', 364); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 9; no improve: 10; solution: ({'n_estimators': 50, 'criterion': 'mse', 'min_samples_split': 6, 'min_samples_leaf': 4, 'bootstrap': True}, 0.6824920245096455, 'random forest', 366); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 10; no improve: 11; solution: ({'n_estimators': 50, 'criterion': 'mse', 'min_samples_split': 6, 'min_samples_leaf': 5, 'bootstrap': True}, 0.6956671570895273, 'random forest', 368); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 11; no improve: 12; solution: ({'kernel': 'poly', 'degree': 8, 'C': 89.01}, -85580.14398384592, 'svm', 1489); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 12; no improve: 13; solution: ({'kernel': 'poly', 'degree': 8, 'C': 87.01}, -84964.87072042417, 'svm', 1487); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 13; no improve: 14; solution: ({'kernel': 'poly', 'degree': 8, 'C': 85.01}, -84387.21779463704, 'svm', 1485); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 14; no improve: 15; solution: ({'kernel': 'poly', 'degree': 8, 'C': 83.01}, -82919.37188846762, 'svm', 1483); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 15; no improve: 16; solution: ({'kernel': 'poly', 'degree': 8, 'C': 81.01}, -81367.03159737238, 'svm', 1481); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 16; no improve: 17; solution: ({'kernel': 'poly', 'degree': 8, 'C': 79.01}, -78919.39062092955, 'svm', 1479); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 17; no improve: 18; solution: ({'kernel': 'poly', 'degree': 8, 'C': 77.01}, -76127.28948847679, 'svm', 1477); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 18; no improve: 19; solution: ({'kernel': 'poly', 'degree': 8, 'C': 75.01}, -73472.92342128165, 'svm', 1475); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 19; no improve: 20; solution: ({'kernel': 'poly', 'degree': 8, 'C': 73.01}, -70887.71793880095, 'svm', 1473); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+iteration: 20; no improve: 21; solution: ({'kernel': 'poly', 'degree': 8, 'C': 71.01}, -68348.94085312654, 'svm', 1471); best solution: ({'n_neighbors': 14, 'weights': 'uniform', 'p': 2}, 0.800016270122313, 'knn', 53)
+end student
