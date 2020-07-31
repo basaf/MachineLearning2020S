@@ -76,7 +76,7 @@ def preprocess_traffic():
 
     # Data encoding
     # first attempt:
-    # make holiday binary - because ther only a few days in the data set (reduce curse of dimensionality)
+    # make holiday binary - because their are only a few days in the data set (reduce curse of dimensionality)
     data = rawData.copy()
     data.loc[data.holiday == 'None', 'holiday'] = 0
     data.loc[data.holiday != 0, 'holiday'] = 1

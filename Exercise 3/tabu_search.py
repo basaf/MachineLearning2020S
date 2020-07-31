@@ -11,7 +11,6 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
-#from sklearn.metrics import explained_variance_score
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
@@ -174,7 +173,6 @@ class TabuSearch:
         neighborhood = list()
         tabu_neighborhood = list()
 
-        # to remove the initial solution add ' - set([id_solution])'
         for id_n in set(range(start, stop)):
             sol_n = Solution(parameters=estimator_params[id_n], estimator_key=estimator_key, id=id_n)
             self.__calculate_performance(sol_n)
@@ -317,7 +315,6 @@ if __name__ == '__main__':
 
         history_solution = search.history_solution
         history_best_solution = search.history_best_solution
-        # best_solution = search.best_solution
 
         fig_sol = plt.figure(figsize=(6, 10))
         for estimator_idx, estimator_key in enumerate(estimators.keys()):
