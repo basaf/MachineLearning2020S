@@ -21,7 +21,7 @@ import tpot
 
 dataSetPath='./data/'
 dataSetList=['traffic_volume', 'communities', 'realEstate', 'student_alcohol']
-#dataSetList=['realEstate']#, 'student_alcohol']
+#dataSetList=['traffic_volume']#, 'student_alcohol']
 
 
 tpot_config = {
@@ -73,7 +73,7 @@ for fileName in dataSetList:
     #use template to avoid StackingEstimator!
     
     pipeline_optimizer = TPOTRegressor( template="Regressor" ,population_size=20, cv=5,
-                                        random_state=42, verbosity=2,config_dict=tpot_config, max_time_mins=60)#, early_stop=True)
+                                        random_state=42, verbosity=2,config_dict=tpot_config, scoring='r2',max_time_mins=60)#, early_stop=True)
     pipeline_optimizer.fit(X_train, y_train)
     print(pipeline_optimizer.score(X_test, y_test))
     pipeline_optimizer.export(fileName + '_tpot_exported_pipeline.py')
